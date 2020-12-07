@@ -62,8 +62,6 @@ git_update() {
         	# W0CHP has more than one branch. So depending on what W0CHP branch the user has installed, pull that branch.
         	if [[ ${gitFolder} == "/var/www/dashboard" ]]; then
                 	git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull origin ${dash_branch}
-			# restore supporing files in repo for copying
-			git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard origin/${dash_branch}
         	else
 			git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull origin master
 		fi
@@ -148,9 +146,6 @@ main_function() {
 
 	echo "Updating Dashboard..."
 	git_update /var/www/dashboard
-	# need to keep W0CHP sbin updated...
-	cp -av /var/www/dashboard/supporting-files/{pistar-bm_static*,HostFilesUpdate.sh,pistar-services,pistar-update} /usr/local/sbin
-	rm -rf /var/www/dashboard/supporting-files
 	echo "Done"
 
 	echo "Updating Hostfiles and Brandmeister Talkgroup Names..."
