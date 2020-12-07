@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+# re-add all previously mass-dropped static BM TGs script - W0CHP
+# expects args passed from bm_manager.php
+
+cat /var/www/dashboard/.bm_tgs.json.saved |  jq -r '.staticSubscriptions[]|[.talkgroup, .slot] | @tsv' | 
+while IFS=$'\t' read -r talkgroup slot; do
+    curl -s \
+        --user "$1:" \
+        --data "talkgroup=$talkgroup&timeslot=$slot" \
+        "https://api.brandmeister.network/v1.0/repeater/talkgroup/?action=ADD&id=$2" ; \
+done
+echo -e "All Previous Static Talk Groups Re-Added!\n"
+
+# delete unused file
+mount -o remount,rw /
+rm -f /var/www/dashboard/.bm_tgs.json.saved
+sync
+mount -o remount,ro /
+
+exit 0

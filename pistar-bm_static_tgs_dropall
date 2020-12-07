@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+# drop all static BM TGs script - W0CHP
+# expects args passed from bm_manager.php
+
+# save current static tgs first...
+mount -o remount,rw /
+curl "https://api.brandmeister.network/v1.0/repeater/?action=profile&q=$2" -o /var/www/dashboard/.bm_tgs.json.saved
+#cp -a /var/www/dashboard/.bm_tgs.json /var/www/dashboard/.bm_tgs.json.saved
+sync
+mount -o remount,ro /
+
+# do the deed
+cat /var/www/dashboard/.bm_tgs.json.saved |  jq -r '.staticSubscriptions[]|[.talkgroup, .slot] | @tsv' | 
+while IFS=$'\t' read -r talkgroup slot; do
+    curl -s \
+        --user "$1:" \
+        --data "talkgroup=$talkgroup&timeslot=$slot" \
+        "https://api.brandmeister.network/v1.0/repeater/talkgroup/?action=DEL&id=$2" ; \
+done
+echo "All Static Talk Groups Dropped!\n"
+
+exit 0

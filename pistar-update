@@ -4,7 +4,8 @@
 #                                                                             #
 #                        Pi-Star Auto Update Tool                             #
 #                                                                             #
-#    Version 3.2, Code, Design and Development by Andy Taylor (MW0MWZ).       #
+#    Version 3.3, Code, Design and Development by Andy Taylor (MW0MWZ).       #
+#                            Enhanced by W0CHP                                #
 #                                                                             #
 #                     Make it simple to update the OS.                        #
 #                                                                             #
@@ -25,9 +26,11 @@ git_checkUpdateRequired() {
 	# Set the function variables
 	gitFolder=${1}
 	gitRemoteURL=$(git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git config --get remote.origin.url)
+        # W0CHP has more than one branch. So depending on what W0CHP branch the user has installed, check that branch.
+        gitBranch="$( git --git-dir=${gitFolder}/.git branch | grep '*' | awk {'print $2'} )"
 
 	# Git check / update function
-	gitStatusRemote=$(git ls-remote --heads ${gitRemoteURL} | grep master | cut -c 1-7)
+	gitStatusRemote=$(git ls-remote --heads ${gitRemoteURL} | grep ${gitBranch} | cut -c 1-7)
 	gitStatusLocal=$(git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git log --pretty=format:"%h" -1)
 
 	# Return the output
@@ -41,6 +44,8 @@ git_checkUpdateRequired() {
 git_update() {
 	# Set the function variables
 	gitFolder=${1}
+	# get proper W0CHP dash branch user is running...
+	dash_branch="$( git --git-dir=${gitFolder}/.git branch | grep '*' | awk {'print $2'} )"
 
 	# Handle the special case for /usr/loca/sbin
 	if [[ ${gitFolder} == "/usr/local/sbin" ]]; then
@@ -51,18 +56,29 @@ git_update() {
 	#	# Assume unchanged for pistar-upnp.service
 	#	git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git update-index --assume-unchanged config/ircddblocal.php
 	#fi
-	
+
 	if [[ $(git_checkUpdateRequired ${gitFolder}) -gt 0 ]]; then
 		echo "Updating ${gitFolder}..."
-		git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull origin master
-		
+        	# W0CHP has more than one branch. So depending on what W0CHP branch the user has installed, pull that branch.
+        	if [[ ${gitFolder} == "/var/www/dashboard" ]]; then
+                	git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull origin ${dash_branch}
+			# restore supporing files in repo for copying
+			git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard origin/${dash_branch}
+        	else
+			git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull origin master
+		fi
 		# Re-check that the updates are now good
 		if [[ $(git_checkUpdateRequired ${gitFolder}) -gt 0 ]]; then
 			if [[ ${gitFolder} == "/usr/local/sbin" ]]; then
 				rm -rf ${gitFolder}/pistar-upnp.service
 			fi
-			echo "Updates were not successfull, reverting to Pi-Star original files..."
-			git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard origin/master
+			echo "Updates were not successful, reverting to Pi-Star original files..."
+                	# W0CHP has more than one branch. So depending on what W0CHP branch the user has installed, pull that branch.
+                	if [[ ${gitFolder} == "/var/www/dashboard" ]]; then
+                        	git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard origin/${dash_branch}
+                	else
+				git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard origin/master
+			fi
 		fi
 	else
 		echo "No updates for ${gitFolder} available"
@@ -130,12 +146,15 @@ main_function() {
 	git_update /usr/local/sbin
 	echo "Done"
 
-	echo "Updating Hostfiles..."
-	/usr/local/sbin/HostFilesUpdate.sh > /dev/null 2>&1
-	echo "Done"
-
 	echo "Updating Dashboard..."
 	git_update /var/www/dashboard
+	# need to keep W0CHP sbin updated...
+	cp -av /var/www/dashboard/supporting-files/{pistar-bm_static*,HostFilesUpdate.sh,pistar-services,pistar-update} /usr/local/sbin
+	rm -rf /var/www/dashboard/supporting-files
+	echo "Done"
+
+	echo "Updating Hostfiles and Brandmeister Talkgroup Names..."
+	/usr/local/sbin/HostFilesUpdate.sh > /dev/null 2>&1
 	echo "Done"
 
 	echo "Updating PiStar-Firewall..."

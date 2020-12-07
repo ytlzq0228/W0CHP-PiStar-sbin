@@ -5,8 +5,8 @@
 #                                                       #
 #      Written for Pi-Star (http://www.pistar.uk/)      #
 #               By Andy Taylor (MW0MWZ)                 #
-#                                                       #
-#                     Version 2.5                       #
+#              Enhanced by W0CHP & F1RMB                #
+#                     Version 2.7                       #
 #                                                       #
 #   Based on the update script by Tony Corbett G0WFV    #
 #                                                       #
@@ -33,6 +33,7 @@ TGLISTBM=/usr/local/etc/TGList_BM.txt
 TGLISTP25=/usr/local/etc/TGList_P25.txt
 TGLISTNXDN=/usr/local/etc/TGList_NXDN.txt
 TGLISTYSF=/usr/local/etc/TGList_YSF.txt
+BMTGNAMES=/usr/local/etc/BM_TGs.json
 
 # How many backups
 FILEBACKUP=1
@@ -106,7 +107,13 @@ else
   curl --fail -o ${DPlusHOSTS} -s http://www.pistar.uk/downloads/DPlus_Hosts.txt
   curl --fail -o ${DExtraHOSTS} -s http://www.pistar.uk/downloads/DExtra_Hosts.txt
 fi
-curl --fail -o ${DMRIDFILE} -s http://www.pistar.uk/downloads/DMRIds.dat
+
+## Get DMRIds from two different sources, then merge them
+curl --fail -o /tmp/DMRIds_1.dat -s http://www.pistar.uk/downloads/DMRIds.dat
+curl --fail -o /tmp/DMRIds_2.dat -s http://registry.dstar.su/dmr/DMRIds2.php
+cat /tmp/DMRIds_1.dat /tmp/DMRIds_2.dat | grep -v ^# | awk '$1 > 9999 { print $0 }' | sort -un -k1n -o ${DMRIDFILE}
+rm -f /tmp/DMRIds_1.dat /tmp/DMRIds_2.dat
+
 curl --fail -o ${P25HOSTS} -s http://www.pistar.uk/downloads/P25_Hosts.txt
 curl --fail -o ${YSFHOSTS} -s http://www.pistar.uk/downloads/YSF_Hosts.txt
 curl --fail -o ${FCSHOSTS} -s http://www.pistar.uk/downloads/FCS_Hosts.txt
@@ -118,6 +125,7 @@ curl --fail -o ${TGLISTBM} -s http://www.pistar.uk/downloads/TGList_BM.txt
 curl --fail -o ${TGLISTP25} -s http://www.pistar.uk/downloads/TGList_P25.txt
 curl --fail -o ${TGLISTNXDN} -s http://www.pistar.uk/downloads/TGList_NXDN.txt
 curl --fail -o ${TGLISTYSF} -s http://www.pistar.uk/downloads/TGList_YSF.txt
+curl --fail -o ${BMTGNAMES} -s https://api.brandmeister.network/v1.0/groups/
 
 # If there is a DMR Over-ride file, add it's contents to DMR_Hosts.txt
 if [ -f "/root/DMR_Hosts.txt" ]; then
