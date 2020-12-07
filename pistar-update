@@ -30,8 +30,8 @@ git_checkUpdateRequired() {
         gitBranch="$( git --git-dir=${gitFolder}/.git branch | grep '*' | awk {'print $2'} )"
 
 	# Git check / update function
-	gitStatusRemote=$(git ls-remote --heads ${gitRemoteURL} | grep ${gitBranch} | cut -c 1-7)
-	gitStatusLocal=$(git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git log --pretty=format:"%h" -1)
+	gitStatusRemote=$(git ls-remote --heads ${gitRemoteURL} | grep ${gitBranch} | cut -c 1-8)
+	gitStatusLocal=$(git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git log ${gitBranch} --pretty=format:"%h" -1)
 
 	# Return the output
 	if [[ ${gitStatusRemote} != ${gitStatusLocal} ]]; then
