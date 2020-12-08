@@ -110,7 +110,8 @@ service_handle() {
 }
 
 main_function() {
-	# Make the disk writable
+	# Make the disk writable and stop cron to prevent it from making it R/O
+    	systemctl stop cron.service > /dev/null 2<&1
 	mount -o remount,rw /
 	mount -o remount,rw /boot
 
@@ -319,7 +320,7 @@ main_function() {
 	sleep 3
 	mount -o remount,ro /
 	mount -o remount,ro /boot
-
+	systemctl start cron.service > /dev/null 2<&1
 	# Tell the user we are done
 	echo "Finished"
 	}
