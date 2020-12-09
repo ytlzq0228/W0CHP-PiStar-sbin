@@ -14,7 +14,7 @@ mount -o remount,rw /
 
 # Update the Dashboard from GIT
 # W0CHP has more than one branch. So depending on what W0CHP branch the user has installed, check that branch.
-gitBranch="$( git --git-dir=${gitFolder}/.git branch | grep '*' | awk {'print $2'} )"
+gitBranch="$( git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git branch | grep '*' | awk {'print $2'} )"
 git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git pull origin ${gitBranch}
 
 # Stop all the services...
