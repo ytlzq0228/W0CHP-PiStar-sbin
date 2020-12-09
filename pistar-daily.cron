@@ -13,7 +13,9 @@ mount -o remount,rw /
 /usr/local/sbin/HostFilesUpdate.sh
 
 # Update the Dashboard from GIT
-git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git pull origin master
+# W0CHP has more than one branch. So depending on what W0CHP branch the user has installed, check that branch.
+gitBranch="$( git --git-dir=${gitFolder}/.git branch | grep '*' | awk {'print $2'} )"
+git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git pull origin ${gitBranch}
 
 # Stop all the services...
 systemctl stop pistar-watchdog.service > /dev/null 2>&1
