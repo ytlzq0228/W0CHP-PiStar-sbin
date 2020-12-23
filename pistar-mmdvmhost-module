@@ -35,7 +35,7 @@ if [ -z "$1" ]; then
   echo "Ex: ${THIS_SCRIPT} D-Star Enable     - enable D-Star mode and restart MMDVMHost"
   echo "Ex: ${THIS_SCRIPT} D-Star Disable    - disable D-Star mode and restart MMDVMHost"
   echo ""
-  echo "Valid module names are D-Star, DMR, YSF, P25 and NXDN"
+  echo "Valid module names are D-Star, DMR, YSF, P25, NXDN and POCSAG"
   echo ""
   exit 0
 fi
