@@ -4,7 +4,8 @@
 #                                                                             #
 #                      Pi-Star MMDVMHost Module Tool                          #
 #                                                                             #
-#     Version 1.0, Code, Design and Development by Andy Taylor (MW0MWZ).      #
+#     Version 1.1, Code, Design and Development by Andy Taylor (MW0MWZ).      #
+#                            Enhanced by W0CHP                                #
 #                                                                             #
 #    Make it simple to turn on/off MMDVMHost modules from the CLI or Cron.    #
 #                                                                             #
@@ -62,6 +63,10 @@ if [ "$1" ]; then
   ([Pp]25)
     CUR_STATUS=$(sed -n "/\[P25\]/{n;p;}" ${MMDVMCONFIG} | awk -F '=' '{print $2}')
     MODULE="P25"
+  ;;
+  ([Pp][Oo][Cc][Ss][Aa][Gg])
+    CUR_STATUS=$(sed -n "/\[D-Star\]/{n;p;}" ${MMDVMCONFIG} | awk -F '=' '{print $2}')
+    MODULE="POCSAG"
   ;;
   *)
     # Catch All
