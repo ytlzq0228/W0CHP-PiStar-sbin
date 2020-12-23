@@ -65,7 +65,7 @@ if [ "$1" ]; then
     MODULE="P25"
   ;;
   ([Pp][Oo][Cc][Ss][Aa][Gg])
-    CUR_STATUS=$(sed -n "/\[D-Star\]/{n;p;}" ${MMDVMCONFIG} | awk -F '=' '{print $2}')
+    CUR_STATUS=$(sed -n "/\[POCSAG\]/{n;p;}" ${MMDVMCONFIG} | awk -F '=' '{print $2}')
     MODULE="POCSAG"
   ;;
   *)
