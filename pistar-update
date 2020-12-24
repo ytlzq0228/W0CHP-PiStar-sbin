@@ -149,7 +149,7 @@ main_function() {
 	git_update /var/www/dashboard
 	echo "Done"
 
-	echo "Updating Hostfiles and Brandmeister Talkgroup Names..."
+	echo "Updating Hostfiles, BrandMeister Network and TGIF Network Talkgroup Names..."
 	/usr/local/sbin/HostFilesUpdate.sh > /dev/null 2>&1
 	echo "Done"
 
