@@ -80,10 +80,10 @@ fi
 #
 if [ "$2" ]; then
   case ${2} in
-  ([Ee][Nn][Aa][Bb][Ll][Ee])
+  (Enable)
     NEW_STATUS="1"
   ;;
-  ([Dd][Ii][Ss][Aa][Bb][Ll][Ee])
+  (Disable)
     NEW_STATUS="0"
   ;;
   *)
@@ -113,6 +113,12 @@ else
   echo "Setting ${MODULE} to ${NEW_STATUS} and restarting MMDVMHost..."
   mount -o remount,rw /
   sed -i "/\[${MODULE}\]/{n;s/${CUR_STATUS}/${NEW_STATUS}/}" ${MMDVMCONFIG}
+  if [ "${2}" == "Enable" ] && [ -f "/etc/${MODULE}_paused" ]; then
+    rm -rf /etc/${MODULE}_paused
+  fi
+  if [ "${2}" == "Disable" ] && [ ! -f "/etc/${MODULE}_paused" ]; then
+    touch /etc/${MODULE}_paused
+  fi
   systemctl restart ${SYSCTL_MMDVMHOST}
   sleep 2
   mount -o remount,ro /
