@@ -111,6 +111,7 @@ if [ "${CUR_STATUS}" == "${NEW_STATUS}" ]; then
 else
   # Change required, so lets change it...
   echo "Setting ${MODULE} to ${NEW_STATUS} and restarting MMDVMHost..."
+  systemctl stop cron.service > /dev/null 2>/dev/null &
   mount -o remount,rw /
   sed -i "/\[${MODULE}\]/{n;s/${CUR_STATUS}/${NEW_STATUS}/}" ${MMDVMCONFIG}
   if [ "${2}" == "Enable" ] && [ -f "/etc/${MODULE}_paused" ]; then
@@ -122,4 +123,5 @@ else
   systemctl restart ${SYSCTL_MMDVMHOST}
   sleep 2
   mount -o remount,ro /
+  systemctl start cron.service > /dev/null 2>/dev/null &
 fi
