@@ -18,54 +18,54 @@ if [[ ${modelName} == "ARM"* ]]; then
 
 	# Make the board revision human readable
 	case $boardRev in
-	# old-style rev. nos.:
-	*0002) raspberryVer="Model B Rev 1.0 (256MB)";;
-	*0003) raspberryVer="Model B Rev 1.0 + ECN0001 (no fuses, D14 removed) (256MB)";;
-	*0004) raspberryVer="Model B Rev 2.0 (256MB)";;
-	*0005) raspberryVer="Model B Rev 2.0 (256MB)";;
-	*0006) raspberryVer="Model B Rev 2.0 (256MB)";;
-	*0007) raspberryVer="Model A Mounting holes (256MB)";;
-	*0008) raspberryVer="Model A Mounting holes (256MB)";;
-	*0009) raspberryVer="Model A Mounting holes (256MB)";;
-	*000d) raspberryVer="Model B Rev 2.0 (512MB)";;
-	*000e) raspberryVer="Model B Rev 2.0 (512MB)";;
-	*000f) raspberryVer="Model B Rev 2.0 (512MB)";;
-	*0010) raspberryVer="Model B+ Rev 1.0 (512MB)";;
-	*0011) raspberryVer="Compute Module 1 Rev 1.0 (512MB)";;
-	*0012) raspberryVer="Model A+ Rev 1.1 (256MB)";;
-	*0013) raspberryVer="Model B+ Rev 1.2 (512MB)";;
-	*0014) raspberryVer="Compute Module 1 Rev 1.0 (512MB)";;
-	*0015) raspberryVer="Model A+ Rev 1.1";;
-	# new-style rev. nos.:
-	*900021) raspberryVer="(512MB) - Sony UK";;
-	*900032) raspberryVer="(512MB) - Sony UK";;
-	*900092) raspberryVer="(512MB) - Sony UK";;
-	*900093) raspberryVer="(512MB) - Sony UK";;
-	*9000c1) raspberryVer="(512MB) - Sony UK";;
-	*9020e0) raspberryVer="(512MB) - Sony UK";;
-	*920092) raspberryVer="(512MB) - Embest CN";;
-	*920093) raspberryVer="(512MB) - Embest CN";;
-	*900061) raspberryVer="(512MB) - Sony UK";;
-	*a01040) raspberryVer="(1GB) - Sony UK";;
-	*a01041) raspberryVer="(1GB) - Sony UK";;
-	*a02082) raspberryVer="(1GB) - Sony UK";;
-	*a020a0) raspberryVer="(1GB) - Sony UK";;
-	*a020d3) raspberryVer="(1GB) - Sony, UK";;
-	*a21041) raspberryVer="(1GB) - Embest CN";;
-	*a22042) raspberryVer="(1GB) - Embest CN";;
-	*a22082) raspberryVer="(1GB) - Embest CN";;
-	*a220a0) raspberryVer="(1GB) - Embest CN";;
-	*a32082) raspberryVer="(1GB) - Sony JP";;
-	*a52082) raspberryVer="(1GB) - Stadium CN";;
-	*a22083) raspberryVer="(1GB) - Embest CN";;
-	*a02100) raspberryVer="(1GB) - Sony UK";;
-	*a03111) raspberryVer="(1GB) - Sony UK";;
-	*b03111) raspberryVer="(2GB) - Sony UK";;
-	*c03111) raspberryVer="(4GB) - Sony UK";;
-	*b03112) raspberryVer="(2GB) - Sony UK";;
-	*c03112) raspberryVer="(4GB) - Sony UK";;
-	*d03114) raspberryVer="(8GB) - Sony UK";;
-	*) raspberryVer="Unknown ARM based System";;
+		# old-style rev. nos.:
+		*0002) raspberryVer="Model B Rev 1.0 (256MB)";;
+		*0003) raspberryVer="Model B Rev 1.0 + ECN0001 (no fuses, D14 removed) (256MB)";;
+		*0004) raspberryVer="Model B Rev 2.0 (256MB)";;
+		*0005) raspberryVer="Model B Rev 2.0 (256MB)";;
+		*0006) raspberryVer="Model B Rev 2.0 (256MB)";;
+		*0007) raspberryVer="Model A Mounting holes (256MB)";;
+		*0008) raspberryVer="Model A Mounting holes (256MB)";;
+		*0009) raspberryVer="Model A Mounting holes (256MB)";;
+		*000d) raspberryVer="Model B Rev 2.0 (512MB)";;
+		*000e) raspberryVer="Model B Rev 2.0 (512MB)";;
+		*000f) raspberryVer="Model B Rev 2.0 (512MB)";;
+		*0010) raspberryVer="Model B+ Rev 1.0 (512MB)";;
+		*0011) raspberryVer="Compute Module 1 Rev 1.0 (512MB)";;
+		*0012) raspberryVer="Model A+ Rev 1.1 (256MB)";;
+		*0013) raspberryVer="Model B+ Rev 1.2 (512MB)";;
+		*0014) raspberryVer="Compute Module 1 Rev 1.0 (512MB)";;
+		*0015) raspberryVer="Model A+ Rev 1.1";;
+		# new-style rev. nos.:
+		*900021) raspberryVer="(512MB) - Sony UK";;
+		*900032) raspberryVer="(512MB) - Sony UK";;
+		*900092) raspberryVer="(512MB) - Sony UK";;
+		*900093) raspberryVer="(512MB) - Sony UK";;
+		*9000c1) raspberryVer="(512MB) - Sony UK";;
+		*9020e0) raspberryVer="(512MB) - Sony UK";;
+		*920092) raspberryVer="(512MB) - Embest CN";;
+		*920093) raspberryVer="(512MB) - Embest CN";;
+		*900061) raspberryVer="(512MB) - Sony UK";;
+		*a01040) raspberryVer="(1GB) - Sony UK";;
+		*a01041) raspberryVer="(1GB) - Sony UK";;
+		*a02082) raspberryVer="(1GB) - Sony UK";;
+		*a020a0) raspberryVer="(1GB) - Sony UK";;
+		*a020d3) raspberryVer="(1GB) - Sony, UK";;
+		*a21041) raspberryVer="(1GB) - Embest CN";;
+		*a22042) raspberryVer="(1GB) - Embest CN";;
+		*a22082) raspberryVer="(1GB) - Embest CN";;
+		*a220a0) raspberryVer="(1GB) - Embest CN";;
+		*a32082) raspberryVer="(1GB) - Sony JP";;
+		*a52082) raspberryVer="(1GB) - Stadium CN";;
+		*a22083) raspberryVer="(1GB) - Embest CN";;
+		*a02100) raspberryVer="(1GB) - Sony UK";;
+		*a03111) raspberryVer="(1GB) - Sony UK";;
+		*b03111) raspberryVer="(2GB) - Sony UK";;
+		*c03111) raspberryVer="(4GB) - Sony UK";;
+		*b03112) raspberryVer="(2GB) - Sony UK";;
+		*c03112) raspberryVer="(4GB) - Sony UK";;
+		*d03114) raspberryVer="(8GB) - Sony UK";;
+		*) raspberryVer="Unknown ARM based System";;
 	esac
 
 	if [[ ${hardwareField} == "ODROID"* ]]; then
