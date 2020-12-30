@@ -18,6 +18,7 @@ if [[ ${modelName} == "ARM"* ]]; then
 
 	# Make the board revision human readable
 	case $boardRev in
+	# old-style rev. nos.:
 	*0002) raspberryVer="Model B Rev 1.0 (256MB)";;
 	*0003) raspberryVer="Model B Rev 1.0 + ECN0001 (no fuses, D14 removed) (256MB)";;
 	*0004) raspberryVer="Model B Rev 2.0 (256MB)";;
@@ -35,6 +36,7 @@ if [[ ${modelName} == "ARM"* ]]; then
 	*0013) raspberryVer="Model B+ Rev 1.2 (512MB)";;
 	*0014) raspberryVer="Compute Module 1 Rev 1.0 (512MB)";;
 	*0015) raspberryVer="Model A+ Rev 1.1";;
+	# new-style rev. nos.:
 	*900021) raspberryVer="(512MB) - Sony UK";;
 	*900032) raspberryVer="(512MB) - Sony UK";;
 	*900092) raspberryVer="(512MB) - Sony UK";;
