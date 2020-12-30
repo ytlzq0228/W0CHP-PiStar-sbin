@@ -39,7 +39,7 @@ if [[ ${modelName} == "ARM"* ]]; then
 	*900032) raspberryVer="(512MB) - Sony UK";;
 	*900092) raspberryVer="(512MB) - Sony UK";;
 	*900093) raspberryVer="(512MB) - Sony UK";;
-	*9000c1) raspberryVer="(512MB) - Sony, UK";;
+	*9000c1) raspberryVer="(512MB) - Sony UK";;
 	*9020e0) raspberryVer="(512MB) - Sony UK";;
 	*920092) raspberryVer="(512MB) - Embest CN";;
 	*920093) raspberryVer="(512MB) - Embest CN";;
