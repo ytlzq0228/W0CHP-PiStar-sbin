@@ -19,23 +19,23 @@ if [[ ${modelName} == "ARM"* ]]; then
 	# Make the board revision human readable
 	case $boardRev in
 		# old-style rev. nos.:
-		*0002) raspberryVer="Model B Rev 1.0 (256MB)";;
-		*0003) raspberryVer="Model B Rev 1.0 + ECN0001 (no fuses, D14 removed) (256MB)";;
-		*0004) raspberryVer="Model B Rev 2.0 (256MB)";;
-		*0005) raspberryVer="Model B Rev 2.0 (256MB)";;
-		*0006) raspberryVer="Model B Rev 2.0 (256MB)";;
-		*0007) raspberryVer="Model A Mounting holes (256MB)";;
-		*0008) raspberryVer="Model A Mounting holes (256MB)";;
-		*0009) raspberryVer="Model A Mounting holes (256MB)";;
-		*000d) raspberryVer="Model B Rev 2.0 (512MB)";;
-		*000e) raspberryVer="Model B Rev 2.0 (512MB)";;
-		*000f) raspberryVer="Model B Rev 2.0 (512MB)";;
-		*0010) raspberryVer="Model B+ Rev 1.0 (512MB)";;
-		*0011) raspberryVer="Compute Module 1 Rev 1.0 (512MB)";;
-		*0012) raspberryVer="Model A+ Rev 1.1 (256MB)";;
-		*0013) raspberryVer="Model B+ Rev 1.2 (512MB)";;
-		*0014) raspberryVer="Compute Module 1 Rev 1.0 (512MB)";;
-		*0015) raspberryVer="Model A+ Rev 1.1";;
+		*0002) raspberryVer="(256MB)";;
+		*0003) raspberryVer="+ ECN0001 (no fuses, D14 removed) (256MB)";;
+		*0004) raspberryVer="(256MB)";;
+		*0005) raspberryVer="(256MB)";;
+		*0006) raspberryVer="(256MB)";;
+		*0007) raspberryVer="Mounting holes (256MB)";;
+		*0008) raspberryVer="Mounting holes (256MB)";;
+		*0009) raspberryVer="Mounting holes (256MB)";;
+		*000d) raspberryVer="(512MB)";;
+		*000e) raspberryVer="(512MB)";;
+		*000f) raspberryVer="(512MB)";;
+		*0010) raspberryVer="(512MB)";;
+		*0011) raspberryVer="(512MB)";;
+		*0012) raspberryVer="(256MB)";;
+		*0013) raspberryVer="(512MB)";;
+		*0014) raspberryVer="(512MB)";;
+		*0015) raspberryVer="";;
 		# new-style rev. nos.:
 		*900021) raspberryVer="(512MB) - Sony UK";;
 		*900032) raspberryVer="(512MB) - Sony UK";;
