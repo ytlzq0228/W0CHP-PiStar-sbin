@@ -29,5 +29,8 @@ journalctl --rotate
 journalctl --vacuum-time=24h
 journalctl --vacuum-size=5M
 
+# Remove extraneous PHP session files
+(cd /var/lib/php*/sessions/ && rm -f \!\("sess_pistardashsess"\))
+
 # Mount the disk RO
 mount -o remount,ro /
