@@ -61,10 +61,13 @@ if [[ ${modelName} == "ARM"* ]]; then
 		*a02100) raspberryVer="(1GB) - Sony UK";;
 		*a03111) raspberryVer="(1GB) - Sony UK";;
 		*b03111) raspberryVer="(2GB) - Sony UK";;
+                *b03114) raspberryVer="(2GB) - Sony UK";;
 		*c03111) raspberryVer="(4GB) - Sony UK";;
+                *c03114) raspberryVer="(4GB) - Sony UK";;
 		*b03112) raspberryVer="(2GB) - Sony UK";;
 		*c03112) raspberryVer="(4GB) - Sony UK";;
 		*d03114) raspberryVer="(8GB) - Sony UK";;
+                *c03130) raspberryVer="(4GB) - Sony UK";;
 		*) raspberryVer="Unknown ARM based System";;
 	esac
 
