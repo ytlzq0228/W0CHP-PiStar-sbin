@@ -26,8 +26,8 @@ git_checkUpdateRequired() {
 	# Set the function variables
 	gitFolder=${1}
 	gitRemoteURL=$(git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git config --get remote.origin.url)
-        # W0CHP has more than one branch. So depending on what W0CHP branch the user has installed, check that branch.
-        gitBranch="$( git --git-dir=${gitFolder}/.git branch | grep '*' | awk {'print $2'} )"
+    # W0CHP has more than one branch. So depending on what W0CHP branch the user has installed, check that branch.
+    gitBranch="$( git --git-dir=${gitFolder}/.git branch | grep '*' | awk {'print $2'} )"
 
 	# Git check / update function
 	gitStatusRemote=$(git ls-remote --heads ${gitRemoteURL} | grep ${gitBranch} | awk {'print $1'})
@@ -61,7 +61,7 @@ git_update() {
 		echo "Updating ${gitFolder}..."
         	# W0CHP has more than one branch. So depending on what W0CHP branch the user has installed, pull that branch.
         	if [[ ${gitFolder} == "/var/www/dashboard" ]]; then
-                	git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull origin ${dash_branch}
+               	git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull origin ${dash_branch}
         	else
 			git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull origin master
 		fi
@@ -71,11 +71,11 @@ git_update() {
 				rm -rf ${gitFolder}/pistar-upnp.service
 			fi
 			echo "Updates were not successful, reverting to Pi-Star original files..."
-                	# W0CHP has more than one branch. So depending on what W0CHP branch the user has installed, pull that branch.
-                	if [[ ${gitFolder} == "/var/www/dashboard" ]]; then
-                        	git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard origin/${dash_branch}
-                	else
-				git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard origin/master
+           	# W0CHP has more than one branch. So depending on what W0CHP branch the user has installed, pull that branch.
+           	if [[ ${gitFolder} == "/var/www/dashboard" ]]; then
+               	git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard origin/${dash_branch}
+           	else
+    	    	git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard origin/master
 			fi
 		fi
 	else
@@ -111,7 +111,7 @@ service_handle() {
 
 main_function() {
 	# Make the disk writable and stop cron to prevent it from making it R/O
-    	systemctl stop cron.service > /dev/null 2<&1
+    systemctl stop cron.service > /dev/null 2<&1
 	mount -o remount,rw /
 	mount -o remount,rw /boot
 
@@ -132,6 +132,11 @@ main_function() {
 			exit 1
 		fi
 	fi
+
+    # ensure fucking MS crap remains removed from apt sources (restored via W0CHP-install script):
+    if [ -e /etc/apt/sources.list.d/vscode.list ]; then
+	    mv /etc/apt/sources.list.d/vscode.list /etc/apt/sources.list.d/.vscode.disabled
+    fi
 
 	echo "Stopping Services..."
 	service_handle stop
