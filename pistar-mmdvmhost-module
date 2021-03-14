@@ -4,17 +4,19 @@
 #                                                                             #
 #                      Pi-Star MMDVMHost Module Tool                          #
 #                                                                             #
-#     Version 1.1, Code, Design and Development by Andy Taylor (MW0MWZ).      #
+#     Version 1.2, Code, Design and Development by Andy Taylor (MW0MWZ).      #
 #                            Enhanced by W0CHP                                #
 #                                                                             #
-#    Make it simple to turn on/off MMDVMHost modules from the CLI or Cron.    #
+#    Make it simple to turn on/off modes from the CLI or Cron.                #
 #                                                                             #
 ###############################################################################
 #
 # Specify some Variables
 #
 MMDVMCONFIG="/etc/mmdvmhost"
+APRSGWCONFIG="/etc/aprsgateway"
 SYSCTL_MMDVMHOST="mmdvmhost"
+SYSCTL_APRSGW="aprsgateway"
 #
 # Check to make sure we are root, and bail out if we are not
 #
@@ -28,14 +30,14 @@ fi
 if [ -z "$1" ]; then
   THIS_SCRIPT=$(basename "$0")
   echo "This script needs arguments, the first should be the"
-  echo "MMDVMHost module you want to turn on/off, and the second"
+  echo "mode you want to turn on/off, and the second"
   echo "should be what you want to do with it, either enable or"
   echo "dissable."
   echo ""
-  echo "Ex: ${THIS_SCRIPT} D-Star Enable     - enable D-Star mode and restart MMDVMHost"
-  echo "Ex: ${THIS_SCRIPT} D-Star Disable    - disable D-Star mode and restart MMDVMHost"
+  echo "Ex: ${THIS_SCRIPT} D-Star Enable     - enable D-Star mode and restart appropriate daemon"
+  echo "Ex: ${THIS_SCRIPT} D-Star Disable    - disable D-Star mode and restart appropriate daemon"
   echo ""
-  echo "Valid module names are D-Star, DMR, YSF, P25, NXDN and POCSAG"
+  echo "Valid module names are D-Star, DMR, YSF, P25, NXDN, POCSAG and APRS"
   echo ""
   exit 0
 fi
@@ -68,9 +70,13 @@ if [ "$1" ]; then
     CUR_STATUS=$(sed -n "/\[POCSAG\]/{n;p;}" ${MMDVMCONFIG} | awk -F '=' '{print $2}')
     MODULE="POCSAG"
   ;;
+  ([Aa][Pp][Rr][Ss])
+    CUR_STATUS=$(sed -n "/\[Enabled\]/{n;p;}" ${APRSGWCONFIG} | awk -F '=' '{print $2}')
+    MODULE="APRS"
+  ;;
   *)
     # Catch All
-    echo "Unknown MMDVMHost Module ${1}"
+    echo "Unknown Mode ${1}"
     exit 1
   ;;
   esac
@@ -110,11 +116,16 @@ if [ "${CUR_STATUS}" == "${NEW_STATUS}" ]; then
   exit 0
 else
   # Change required, so lets change it...
-  echo "Setting ${MODULE} to ${NEW_STATUS} and restarting MMDVMHost..."
+  echo "Setting ${MODULE} to ${NEW_STATUS} and reloading..."
   systemctl stop cron.service > /dev/null 2>/dev/null &
   mount -o remount,rw /
-  sed -i "/\[${MODULE}\]/{n;s/${CUR_STATUS}/${NEW_STATUS}/}" ${MMDVMCONFIG}
-  systemctl restart ${SYSCTL_MMDVMHOST}
+  if [ "${MODULE}" == "APRS" ]; then
+      sed -i "/\[Enabled\]/{n;s/${CUR_STATUS}/${NEW_STATUS}/}" ${APRSGWCONFIG}
+      systemctl restart ${SYSCTL_APRSGW}
+  else
+      sed -i "/\[${MODULE}\]/{n;s/${CUR_STATUS}/${NEW_STATUS}/}" ${MMDVMCONFIG}
+      systemctl restart ${SYSCTL_MMDVMHOST}
+  fi
   if [ "${2}" == "Enable" ] && [ -f "/etc/${1}_paused" ]; then
     rm -rf /etc/${1}_paused
   fi
