@@ -3,7 +3,7 @@
 # re-add all previously mass-dropped static BM TGs script - W0CHP
 # expects args passed from bm_manager.php
 
-cat /var/www/dashboard/.bm_tgs.json.saved |  jq -r '.staticSubscriptions[]|[.talkgroup, .slot] | @tsv' | 
+cat /etc/.bm_tgs.json.saved |  jq -r '.staticSubscriptions[]|[.talkgroup, .slot] | @tsv' | 
 while IFS=$'\t' read -r talkgroup slot; do
     curl -s \
         --user "$1:" \
@@ -14,7 +14,7 @@ echo -e "All Previous Static Talk Groups Re-Added!\n"
 
 # delete unused file
 mount -o remount,rw /
-rm -f /var/www/dashboard/.bm_tgs.json.saved
+rm -f /etc/.bm_tgs.json.saved
 sync
 mount -o remount,ro /
 
