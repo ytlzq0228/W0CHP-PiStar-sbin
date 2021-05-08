@@ -172,6 +172,16 @@ main_function() {
 	        sed -i "/GwyPort=/c\\GatewayPort=4200" /etc/mmdvmhost
 	fi
 
+	needsTypeLine=$(sed -n -e '/\[DMR Network\]/,/\[System Fusion Network\]/p' /etc/mmdvmhost | grep "Type=" | wc -l)
+	if [ ${needsTypeLine} \< 1 ]; then
+		dmrAddress=$(sed -n -e '/\[DMR Network\]/,/\[System Fusion Network\]/p' /etc/mmdvmhost | grep "Address=" | awk -F "=" '/Address=/ {print $2}')
+		if [[ "${dmrAddress}" == "127.0.0.1" ]]; then
+			sed -i 's/\[DMR Network\]/\[DMR Network\]\nType=Gateway/g' /etc/mmdvmhost
+		else
+			sed -i 's/\[DMR Network\]/\[DMR Network\]\nType=Direct/g' /etc/mmdvmhost
+		fi
+	fi
+
 	# Fix up new P25Gateway Config Hostfile setup
 	if [[ $(/usr/local/bin/P25Gateway --version | awk '{print $3}' | cut -c -8) -gt "20180108" ]]; then
 		sed -i 's/Hosts=\/usr\/local\/etc\/P25Hosts.txt/HostsFile1=\/usr\/local\/etc\/P25Hosts.txt\nHostsFile2=\/usr\/local\/etc\/P25HostsLocal.txt/g' /etc/p25gateway
