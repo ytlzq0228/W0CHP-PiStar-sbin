@@ -139,6 +139,16 @@ main_function() {
 	    mv /etc/apt/sources.list.d/vscode.list /etc/apt/sources.list.d/.vscode.disabled
     fi
 
+    # remove legacy packaged used for legacy TGIF "API"
+    if php -m | grep -q dom; then
+        if php -v | grep -q '7.3' ; then
+            apt-get purge -y php7.3-xml
+        else
+            apt-get purge -y php7.0-xml
+        fi
+        apt-get autoremove -y
+    fi
+
 	echo "Stopping Services..."
 	service_handle stop
 	echo "Done"
@@ -155,7 +165,7 @@ main_function() {
 	git_update /var/www/dashboard
 	echo "Done"
 
-	echo "Updating Hostfiles, BrandMeister Network and TGIF Network Talkgroup Lists..."
+	echo "Updating Hostfiles and DMR Talkgroup Lists..."
 	/usr/local/sbin/HostFilesUpdate.sh > /dev/null 2>&1
 	echo "Done"
 

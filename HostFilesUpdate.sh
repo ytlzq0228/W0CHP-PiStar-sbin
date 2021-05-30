@@ -129,7 +129,6 @@ curl --fail -o ${TGLISTNXDN} -s http://www.pistar.uk/downloads/TGList_NXDN.txt -
 curl --fail -o ${TGLISTYSF} -s http://www.pistar.uk/downloads/TGList_YSF.txt --user-agent "Pi-Star_${pistarCurVersion}"
 
 curl --fail -o ${BMTGNAMES} -s https://api.brandmeister.network/v1.0/groups/ # grab BM TG names for admin page
-php -q /usr/local/sbin/pistar-get-tgif_talkgroups > /dev/null 2>&1 # grab tgif TG names for admin page
 
 # If there is a DMR Over-ride file, add it's contents to DMR_Hosts.txt
 if [ -f "/root/DMR_Hosts.txt" ]; then
