@@ -52,10 +52,6 @@ git_update() {
 		# Assume unchanged for pistar-upnp.service
 		git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git update-index --assume-unchanged pistar-upnp.service
 	fi
-	#if [[ ${gitFolder} == "/var/www/dashboard" ]]; then
-	#	# Assume unchanged for pistar-upnp.service
-	#	git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git update-index --assume-unchanged config/ircddblocal.php
-	#fi
 
 	if [[ $(git_checkUpdateRequired ${gitFolder}) -gt 0 ]]; then
 		echo "Updating ${gitFolder}..."
@@ -63,7 +59,24 @@ git_update() {
         	if [[ ${gitFolder} == "/var/www/dashboard" ]]; then
                	git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull origin ${dash_branch}
         	else
-			git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull origin master
+				# If this script is updated, re-run the update with the new version.
+				if [[ ${gitFolder} == "/usr/local/sbin" ]]; then
+                        git fetch
+                        [ -n $(git diff --name-only origin/master | grep pistar-update) ] && {
+                                echo "Found a new version of pistar-update..."
+                                git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull origin master
+                                if [[ $(git_checkUpdateRequired ${gitFolder}) -gt 0 ]]; then
+                                        echo "Update to new version of pistar-update was not successfull, forcing update..."
+                                        git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard origin/master
+                                fi
+                                echo "Restarting update process with the new version..."
+                                exec "$0" "$@"
+                                exit 1
+                        }
+                        git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull origin master
+                else
+                        git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull origin master
+                fi
 		fi
 		# Re-check that the updates are now good
 		if [[ $(git_checkUpdateRequired ${gitFolder}) -gt 0 ]]; then
@@ -129,7 +142,8 @@ main_function() {
 			sed -i '\/PIDFile=\/run\/nginx.pid/a ExecStartPre=\/bin\/mkdir -p \/var\/log\/nginx' /lib/systemd/system/nginx.service
 			systemctl daemon-reload
 			systemctl restart nginx.service
-			echo "nginx config has been repaired - please re-run pistar-update"
+			echo "nginx config has been repaired - re-running pistar-update"
+			exec "$0" "$@"
 			exit 1
 		fi
 	fi
