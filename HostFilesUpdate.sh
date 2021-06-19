@@ -135,6 +135,12 @@ if [ -f "/root/DMR_Hosts.txt" ]; then
 	cat /root/DMR_Hosts.txt >> ${DMRHOSTS}
 fi
 
+# Add Custom APRS Hosts...
+# format: host:port;comment
+if [ -f "/root/APRSHosts.txt" ]; then
+    cat /root/APRSHosts.txt >> ${APRSHOSTS}
+fi
+
 # Add custom YSF Hosts
 if [ -f "/root/YSFHosts.txt" ]; then
 	cat /root/YSFHosts.txt >> ${YSFHOSTS}
