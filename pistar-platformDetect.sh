@@ -17,8 +17,8 @@ if [[ ${modelName} == "ARM"* ]]; then
 	actualModel=`grep 'Model' /proc/cpuinfo| cut -d' ' -f2- | sed 's/Raspberry //'`
 
 	# Make the board revision human readable
-	case $boardRev in
-		# old-style rev. nos.:
+    case $boardRev in
+        # old-style rev. nos.:
 		*0002) raspberryVer="(256MB)";;
 		*0003) raspberryVer="+ ECN0001 (no fuses, D14 removed) (256MB)";;
 		*0004) raspberryVer="(256MB)";;
@@ -62,7 +62,7 @@ if [[ ${modelName} == "ARM"* ]]; then
 		*a03111) raspberryVer="(1GB) - Sony UK";;
 		*b03111) raspberryVer="(2GB) - Sony UK";;
         *b03114) raspberryVer="(2GB) - Sony UK";;
-		*c03111) raspberryVer="(4GB) - Sony UK";;
+        *c03111) raspberryVer="(4GB) - Sony UK";;
         *c03114) raspberryVer="(4GB) - Sony UK";;
 		*b03112) raspberryVer="(2GB) - Sony UK";;
 		*c03112) raspberryVer="(4GB) - Sony UK";;
