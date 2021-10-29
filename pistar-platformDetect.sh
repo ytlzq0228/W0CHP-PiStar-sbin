@@ -7,14 +7,18 @@
 # Pi Rev codes available at <https://www.raspberrypi.org/documentation/hardware/raspberrypi/revision-codes/README.md>
 
 # Pull the CPU Model from /proc/cpuinfo
-modelName=`grep 'model name' /proc/cpuinfo | sed 's/.*: //'`
-hardwareField=`grep 'Hardware' /proc/cpuinfo | sed 's/.*: //'`
+modelName=$(grep 'model name' /proc/cpuinfo | sed 's/.*: //')
+hardwareField=$(grep 'Hardware' /proc/cpuinfo | sed 's/.*: //')
+
+if [ -f /proc/device-tree/model ]; then
+    raspberryModel=$(tr -d '\0' </proc/device-tree/model)
+fi
 
 if [[ ${modelName} == "ARM"* ]]; then
 	# Pull the Board revision from /proc/cpuinfo
-	boardRev=`grep 'Revision' /proc/cpuinfo | awk '{print $3}' | sed 's/^100//'`
-	# Gabe actual model name as well...
-	actualModel=`grep 'Model' /proc/cpuinfo| cut -d' ' -f2- | sed 's/Raspberry //'`
+    boardRev=$(grep 'Revision' /proc/cpuinfo | awk '{print $3}' | sed 's/^100//')
+	# Grab actual model name as well...
+	actualModel=$(grep 'Model' /proc/cpuinfo| cut -d' ' -f2- | sed 's/Raspberry //')
 
 	# Make the board revision human readable
     case $boardRev in
@@ -81,6 +85,8 @@ if [[ ${modelName} == "ARM"* ]]; then
 		echo "sun8i based Pi Clone"
 	elif [[ ${hardwareField} == *"s5p4418"* ]]; then
 		echo "Samsung Artik"
+    elif [[ ${raspberryModel} == "Raspberry"* ]]; then
+        echo ${raspberryModel}
 	else
 		echo $actualModel $raspberryVer
 	fi
