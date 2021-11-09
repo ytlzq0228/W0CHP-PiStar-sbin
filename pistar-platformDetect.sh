@@ -4,7 +4,7 @@
 # Written by Andy Taylor (MW0MWZ)
 # Enhanced by W0CHP
 #
-# Pi Rev codes available at <https://www.raspberrypi.org/documentation/hardware/raspberrypi/revision-codes/README.md>
+# Pi Rev codes available at <https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#raspberry-pi-revision-codes>
 
 # Pull the CPU Model from /proc/cpuinfo
 modelName=$(grep 'model name' /proc/cpuinfo | sed 's/.*: //')
@@ -45,6 +45,7 @@ if [[ ${modelName} == "ARM"* ]]; then
         *900032) raspberryVer="(512MB) - Sony UK";;
         *900092) raspberryVer="(512MB) - Sony UK";;
         *900093) raspberryVer="(512MB) - Sony UK";;
+        *902120) raspberryVer="(512MB) - Sony UK";;
         *9000c1) raspberryVer="(512MB) - Sony UK";;
         *9020e0) raspberryVer="(512MB) - Sony UK";;
         *920092) raspberryVer="(512MB) - Embest CN";;
