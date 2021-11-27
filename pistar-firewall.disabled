@@ -1,0 +1,46 @@
+#!/bin/bash
+
+#
+# Firewall rules to allow all traffic, by W0CHP
+#
+
+printf "Removing IPv4 Rules...\n"
+#
+# IPv4 Firewall Rules
+#
+iptables -t nat -F
+iptables -t mangle -F
+iptables -F
+iptables -X
+
+iptables -P INPUT ACCEPT
+iptables -P FORWARD ACCEPT
+iptables -P OUTPUT ACCEPT
+
+iptables-save > /etc/iptables.rules
+
+# Give the user some output
+iptables --list
+
+printf "\nRemoving IPv6 Rules...\n"
+#
+# IPv6 Rules
+#
+# Flush existing chains
+ip6tables -t nat -F
+ip6tables -t mangle -F
+ip6tables --flush
+ip6tables -X
+
+ip6tables -P INPUT ACCEPT
+ip6tables -P FORWARD ACCEPT
+ip6tables -P OUTPUT ACCEPT
+
+# Save settings
+ip6tables-save > /etc/ip6tables.rules
+
+# List rules
+ip6tables --list
+
+# echo a blank line
+printf "\n"
