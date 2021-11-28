@@ -11,7 +11,7 @@ modelName=$(grep 'model name' /proc/cpuinfo | sed 's/.*: //')
 hardwareField=$(grep 'Hardware' /proc/cpuinfo | sed 's/.*: //')
 
 if [ -f /proc/device-tree/model ]; then
-    raspberryModel=$(tr -d '\0' </proc/device-tree/model | sed 's/Raspberry /R/') # Shorten to "RPi"
+    raspberryModel=$(tr -d '\0' </proc/device-tree/model)
 fi
 
 if [[ ${modelName} == "ARM"* ]]; then
@@ -86,10 +86,11 @@ if [[ ${modelName} == "ARM"* ]]; then
 		echo "sun8i based Pi Clone"
 	elif [[ ${hardwareField} == *"s5p4418"* ]]; then
 		echo "Samsung Artik"
-    elif [[ ${raspberryModel} == "RPi"* ]]; then
+    elif [[ ${raspberryModel} == "Raspberry"* ]]; then
+        raspberryModel=$(echo $raspberryModel  | sed 's/Raspberry /R/') # Shorten to "RPi"
         echo ${raspberryModel}
 	else
-		echo $actualModel $raspberryVer
+		echo "R$actualModel $raspberryVer"
 	fi
 	
 elif [[ ${hardwareField} == *"sun8i"* ]]; then
