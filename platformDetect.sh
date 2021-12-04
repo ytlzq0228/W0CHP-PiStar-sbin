@@ -15,12 +15,12 @@ if [ -f /proc/device-tree/model ]; then
 fi
 
 if [[ ${modelName} == "ARM"* ]]; then
-	# Pull the Board revision from /proc/cpuinfo
+    # Pull the Board revision from /proc/cpuinfo
     boardRev=$(grep 'Revision' /proc/cpuinfo | awk '{print $3}' | sed 's/^100//')
-	# Grab actual model name as well...as a fallback to $raspberryModel: /proc/device-tree/model
-	actualModel=$(grep 'Model' /proc/cpuinfo| cut -d' ' -f2- | sed 's/Raspberry //')
+    # Grab actual model name as well...as a fallback to $raspberryModel: /proc/device-tree/model
+    actualModel=$(grep 'Model' /proc/cpuinfo| cut -d' ' -f2- | sed 's/Raspberry //')
 
-	# Make the board revision human readable
+    # Make the board revision human readable
     case $boardRev in
         # old-style rev. nos.:
         *0002) raspberryVer="(256MB)";;
@@ -78,25 +78,25 @@ if [[ ${modelName} == "ARM"* ]]; then
         *c03140) raspberryVer="CM4 Rev 1.0 (4GB)";;
         *d03140) raspberryVer="CM4 Rev 1.0 (8GB)";;
         *) raspberryVer="Unknown ARM based System";;
-	esac
+    esac
 
-	if [[ ${hardwareField} == "ODROID"* ]]; then
-		echo "Odroid XU3/XU4 System"
-	elif [[ ${hardwareField} == *"sun8i"* ]]; then
-		echo "sun8i based Pi Clone"
-	elif [[ ${hardwareField} == *"s5p4418"* ]]; then
-		echo "Samsung Artik"
+    if [[ ${hardwareField} == "ODROID"* ]]; then
+        echo "Odroid XU3/XU4 System"
+    elif [[ ${hardwareField} == *"sun8i"* ]]; then
+        echo "sun8i based Pi Clone"
+    elif [[ ${hardwareField} == *"s5p4418"* ]]; then
+        echo "Samsung Artik"
     elif [[ ${raspberryModel} == "Raspberry"* ]]; then
         raspberryModel=$(echo $raspberryModel  | sed 's/Raspberry /R/') # Shorten to "RPi"
         echo ${raspberryModel}
-	else
-		echo "R$actualModel $raspberryVer"
-	fi
-	
+    else
+        echo "R$actualModel $raspberryVer"
+    fi
+    
 elif [[ ${hardwareField} == *"sun8i"* ]]; then
-	echo "sun8i based Pi Clone"
+    echo "sun8i based Pi Clone"
 else
-	echo "Generic "`uname -p`" class computer"
+    echo "Generic "`uname -p`" class computer"
 fi
 
 # workaround to check if user stuck on pistar-update v3.3 or v3.4, if yes then force update now
