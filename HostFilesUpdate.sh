@@ -227,4 +227,6 @@ if [ -d "/usr/local/etc/ircddbgateway" ]; then
 	fi
 fi
 
+echo -e "\nPi-Star Hostfiles, ID Databases and TG Lists Updated!\n"
+
 exit 0
