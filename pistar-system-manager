@@ -1,0 +1,106 @@
+#!/usr/bin/env bash
+
+if grep -q W0CHP /var/www/dashboard/config/version.php ; then
+    RUNNING_W0CHP=1
+fi
+
+function _rw() {
+    mount -o remount,rw /
+}
+
+function _ro() {
+    sync
+    sync
+    sync
+    mount -o remount,ro /
+}
+
+function DisableFirewall() {
+    if [[ $RUNNING_W0CHP ]]; then
+        _rw
+        rm /usr/local/sbin/pistar-firewall
+        ln -s /usr/local/sbin/pistar-firewall.disabled /usr/local/sbin/pistar-firewall
+        bash /usr/local/sbin/pistar-firewall > /dev/null 2<&1
+        _ro
+    else
+        echo "ERROR: You must perform the full W0CHP-PiStar-Dash installation before disabling the firewall!"
+        exit 1
+    fi
+}
+
+function EnableFirewall() {
+    if [[ $RUNNING_W0CHP ]]; then
+        _rw
+        rm /usr/local/sbin/pistar-firewall
+        ln -s /usr/local/sbin/pistar-firewall.enabled /usr/local/sbin/pistar-firewall
+        bash /usr/local/sbin/pistar-firewall > /dev/null 2<&1
+        _ro
+    else
+        echo "ERROR: You must perform the full W0CHP-PiStar-Dash installation before (re-)enabling the firewall!"
+        exit 1
+    fi
+}
+
+function DisableCron() {
+    systemctl stop cron.service > /dev/null 2<&1
+}
+
+function EnableCron() {
+    systemctl start cron.service > /dev/null 2<&1
+}
+
+function DisplayHelp() {
+    echo "`basename $0` usage:"
+    echo ""
+    echo "  -h,   --help                     Display this help text."
+    echo "  -dfw  --disable-firewall         Disable Pi-Star firewall rules and allow all traffic"
+    echo "  -efw  --enable-firewall          Enable Pi-Star firewall rules to defaults and only allow required traffic"
+    echo "  -dc,  --disable-cron             Stop the Cron daemon"
+    echo "  -ec,  --enable-cron              Start the Cron daemon"
+    echo ""
+}
+
+
+if [ $# -eq 0 ]; then
+    DisplayHelp
+    exit 1
+fi
+
+## Parse command line
+while [[ $# -gt 0 ]]; do
+    key="$1"
+
+    case $key in
+    "-dfw" | "--disable-firewall")
+        DisableFirewall
+        shift
+        ;;
+
+    "-efw" | "--enable-firewall")
+        EnableFirewall
+        shift
+        ;;
+
+    "-dc" | "--disable-cron")
+        DisableCron
+        shift
+        ;;
+
+    "-ec" | "--enable-cron")
+        EnableCron
+        shift
+        ;;
+
+    "-h" | "--help")
+        DisplayHelp
+        shift
+        ;;
+
+    *)
+        DisplayHelp;
+        exit 1
+        ;;
+    esac
+done
+
+exit 0
