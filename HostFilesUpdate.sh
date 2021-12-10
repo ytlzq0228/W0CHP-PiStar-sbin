@@ -6,7 +6,7 @@
 #      Written for Pi-Star (http://www.pistar.uk/)      #
 #               By Andy Taylor (MW0MWZ)                 #
 #              Enhanced by W0CHP & F1RMB                #
-#                     Version 2.7.1                     #
+#                     Version 2.8.0                     #
 #                                                       #
 #   Based on the update script by Tony Corbett G0WFV    #
 #                                                       #
@@ -226,6 +226,16 @@ if [ -d "/usr/local/etc/ircddbgateway" ]; then
 		ln -s /usr/local/etc/CCS_Hosts.txt /usr/local/etc/ircddbgateway/CCS_Hosts.txt
 	fi
 fi
+
+# Nextion and LiveCaller DB's
+curl --fail -o /tmp/groups.txt -s https://api.brandmeister.network/v1.0/groups/ --user-agent "Pi-Star_${pistarCurVersion}"
+curl --fail -o /tmp/user.csv -s https://www.radioid.net/static/user.csv --user-agent "Pi-Star_${pistarCurVersion}"
+cd /tmp/
+# strip first line of DMRdb and cleanup
+sed -e '1d' < user.csv > stripped.csv
+rm user.csv
+mv groups.txt /usr/local/etc/
+mv stripped.csv /usr/local/etc/
 
 echo -e "\nPi-Star Hostfiles, ID Databases and TG Lists Updated!\n"
 
