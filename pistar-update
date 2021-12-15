@@ -188,7 +188,7 @@ main_function() {
 	echo "Updating PiStar-Firewall..."
     # check if user already has firewall disabled, and if so, ensure it's kept that way.
     if ! grep -q LOGNDROP /etc/iptables.rules ; then
-	    /usr/local/sbin/pistar-system-manager -dfw > /dev/null 2>&1
+        /usr/local/sbin/pistar-system-manager -dfw > /dev/null 2>&1
     else
         /usr/local/sbin/pistar-system-manager -efw > /dev/null 2>&1
     fi
