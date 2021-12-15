@@ -27,7 +27,6 @@ function DisableFirewall() {
         rm /usr/local/sbin/pistar-firewall
         ln -s /usr/local/sbin/pistar-firewall.disabled /usr/local/sbin/pistar-firewall
         bash /usr/local/sbin/pistar-firewall > /dev/null 2<&1
-        _ro
     else
         echo "ERROR: You must perform the full W0CHP-PiStar-Dash installation before disabling the firewall!"
         exit 1
@@ -40,7 +39,6 @@ function EnableFirewall() {
         rm /usr/local/sbin/pistar-firewall
         ln -s /usr/local/sbin/pistar-firewall.enabled /usr/local/sbin/pistar-firewall
         bash /usr/local/sbin/pistar-firewall > /dev/null 2<&1
-        _ro
     else
         echo "ERROR: You must perform the full W0CHP-PiStar-Dash installation before (re-)enabling the firewall!"
         exit 1
