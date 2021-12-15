@@ -182,7 +182,7 @@ main_function() {
 	echo "Done"
 
 	echo "Updating Hostfiles, User ID DB's and DMR Talkgroup Lists..."
-	/usr/local/sbin/HostFilesUpdate.sh
+	/usr/local/sbin/HostFilesUpdate.sh > /dev/null 2>&1
 	echo "Done"
 
 	echo "Updating PiStar-Firewall..."
