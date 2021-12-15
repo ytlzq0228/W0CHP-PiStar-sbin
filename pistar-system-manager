@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+# privilege check
+if [ "$(id -u)" != "0" ]; then
+  echo -e "You need to be root to run this command...\n"
+  exit 1
+fi
+
 if grep -q W0CHP /var/www/dashboard/config/version.php ; then
     RUNNING_W0CHP=1
 fi
