@@ -181,12 +181,17 @@ main_function() {
 	git_update /var/www/dashboard
 	echo "Done"
 
-	echo "Updating Hostfiles and DMR Talkgroup Lists..."
-	/usr/local/sbin/HostFilesUpdate.sh > /dev/null 2>&1
+	echo "Updating Hostfiles, User ID DB's and DMR Talkgroup Lists..."
+	/usr/local/sbin/HostFilesUpdate.sh
 	echo "Done"
 
 	echo "Updating PiStar-Firewall..."
-	pistar-firewall > /dev/null 2>&1
+    # check if user already has firewall disabled, and if so, ensure it's kept that way.
+    if ! grep -q LOGNDROP /etc/iptables.rules ; then
+	    /usr/local/sbin/pistar-system-manager -dfw > /dev/null 2>&1
+    else
+        /usr/local/sbin/pistar-system-manager -efw > /dev/null 2>&1
+    fi
 	echo "Done"
 
 	# Pre-Fix some config in MMDVMHost for update purposes.
