@@ -61,6 +61,7 @@ git_update() {
                 git stash # save config.php
                	git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull origin ${dash_branch}
                 git checkout stash@{0} -- config/config.php #restore config.php from stash
+                git stash clear # housekeeping
         	else
 				# If this script is updated, re-run the update with the new version.
 				if [[ ${gitFolder} == "/usr/local/sbin" ]]; then
