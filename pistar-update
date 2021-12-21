@@ -59,7 +59,7 @@ git_update() {
         	if [[ ${gitFolder} == "/var/www/dashboard" ]]; then
                 cd ${gitFolder}
                 git stash > /dev/null 2<&1 # save user config files: config/config.php config/ircddblocal.php config/language.php
-               	git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull origin ${dash_branch}
+                git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull origin ${dash_branch}
                 git checkout stash@{0} -- config/config.php config/ircddblocal.php config/language.php > /dev/null 2<&1 # restore user config files from stash
                 git stash clear > /dev/null 2<&1 # housekeeping
         	else
