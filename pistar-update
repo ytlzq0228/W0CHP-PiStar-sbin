@@ -58,10 +58,10 @@ git_update() {
         	# W0CHP has more than one branch. So depending on what W0CHP branch the user has installed, pull that branch.
         	if [[ ${gitFolder} == "/var/www/dashboard" ]]; then
                 cd ${gitFolder}
-                git stash # save config.php
+                git stash > /dev/null 2<&1 # save config.php since it's user-changable
                	git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull origin ${dash_branch}
-                git checkout stash@{0} -- config/config.php #restore config.php from stash
-                git stash clear # housekeeping
+                git checkout stash@{0} -- config/config.php > /dev/null 2<&1 #restore config.php from stash
+                git stash clear > /dev/null 2<&1 # housekeeping
         	else
 				# If this script is updated, re-run the update with the new version.
 				if [[ ${gitFolder} == "/usr/local/sbin" ]]; then
