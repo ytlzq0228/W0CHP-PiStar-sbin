@@ -14,6 +14,13 @@ journalctl --vacuum-size=5M
 # Remove extraneous PHP session files
 (cd /var/lib/php*/sessions/ && rm -f \!\("sess_pistardashsess"\))
 
+# Keep the Callsign/Name Lookup Temp files in check...helps with page/name lookup perf. (W0CHP - 12/2021)
+if compgen -G "/tmp/Callsign_Name.txt*" > /dev/null; then
+        if [[ $( wc -l /tmp/Callsign_Name.txt.TMP ) > "50" ]]; then
+        echo "" > /tmp/Callsign_Name.txt.TMP
+    fi
+fi
+
 # Mount the disk RO
 /bin/sync
 /bin/sync
