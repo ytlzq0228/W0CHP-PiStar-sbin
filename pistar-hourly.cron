@@ -18,6 +18,7 @@ journalctl --vacuum-size=5M
 if compgen -G "/tmp/Callsign_Name.txt*" > /dev/null; then
         if [[ $( wc -l /tmp/Callsign_Name.txt.TMP ) > "50" ]]; then
         echo "" > /tmp/Callsign_Name.txt.TMP
+        echo "" > /tmp/Callsign_Name.txt
     fi
 fi
 
