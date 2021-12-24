@@ -6,7 +6,7 @@
 #      Written for Pi-Star (http://www.pistar.uk/)      #
 #               By Andy Taylor (MW0MWZ)                 #
 #              Enhanced by W0CHP & F1RMB                #
-#                     Version 2.8.2                     #
+#                     Version 2.9.0                     #
 #                                                       #
 #   Based on the update script by Tony Corbett G0WFV    #
 #                                                       #
@@ -17,8 +17,9 @@ if [ "$(expr length `hostname -I | cut -d' ' -f1`x)" == "1" ]; then
 	exit 0
 fi
 
-# Get the Pi-Star Version
-pistarCurVersion=$(awk -F "= " '/Version/ {print $2}' /etc/pistar-release)
+# Get the W0CHP-PiStar-Dash Version
+dashVer=$(cat /var/www/dashboard/config/version.php | grep ver_no | head -1 | cut -d' ' -f3 | sed "s/'//g; s/;//g")
+dashBranch=$(git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git branch | grep '*' | cut -f2 -d ' ')
 
 APRSHOSTS=/usr/local/etc/APRSHosts.txt
 DCSHOSTS=/usr/local/etc/DCS_Hosts.txt
@@ -101,36 +102,36 @@ do
 done
 
 # Generate Host Files
-curl --fail -o ${APRSHOSTS} -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/APRS_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${pistarCurVersion}"
-curl --fail -o ${DCSHOSTS} -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/DCS_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${pistarCurVersion}"
-curl --fail -o ${DMRHOSTS} -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/DMR_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${pistarCurVersion}"
+curl --fail -o ${APRSHOSTS} -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/APRS_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
+curl --fail -o ${DCSHOSTS} -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/DCS_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
+curl --fail -o ${DMRHOSTS} -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/DMR_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
 if [ -f /etc/hostfiles.nodextra ]; then
   # Move XRFs to DPlus Protocol
-  curl --fail -o ${DPlusHOSTS} -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/DPlus_WithXRF_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${pistarCurVersion}"
-  curl --fail -o ${DExtraHOSTS} -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/DExtra_NoXRF_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${pistarCurVersion}"
+  curl --fail -o ${DPlusHOSTS} -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/DPlus_WithXRF_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
+  curl --fail -o ${DExtraHOSTS} -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/DExtra_NoXRF_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
 else
   # Normal Operation
-  curl --fail -o ${DPlusHOSTS} -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/DPlus_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${pistarCurVersion}"
-  curl --fail -o ${DExtraHOSTS} -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/DExtra_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${pistarCurVersion}"
+  curl --fail -o ${DPlusHOSTS} -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/DPlus_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
+  curl --fail -o ${DExtraHOSTS} -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/DExtra_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
 fi
 
 # Grab DMR IDs but filter out IDs less than 7 digits (causing collisions with TGs of < 7 digits in "Target" column"
-curl --fail -o /tmp/DMRIds.tmp -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/DMRIds.dat --user-agent "W0CHP-PiStar-Dash_${pistarCurVersion}"
+curl --fail -o /tmp/DMRIds.tmp -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/DMRIds.dat --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
 cat /tmp/DMRIds.tmp  2>/dev/null | grep -v ^# | awk '($1 > 999999) && ($1 < 10000000) { print $0 }' | sort -un -k1n -o ${DMRIDFILE}
 rm -f /tmp/DMRIds.tmp
 
-curl --fail -o ${P25HOSTS} -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/P25_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${pistarCurVersion}"
-curl --fail -o ${M17HOSTS} -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/M17_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${pistarCurVersion}"
-curl --fail -o ${YSFHOSTS} -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/YSF_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${pistarCurVersion}"
-curl --fail -o ${FCSHOSTS} -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/FCS_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${pistarCurVersion}"
-#curl --fail -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/USTrust_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${pistarCurVersion}" >> ${DExtraHOSTS}
-curl --fail -o ${XLXHOSTS} -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/XLXHosts.txt --user-agent "W0CHP-PiStar-Dash_${pistarCurVersion}"
-curl --fail -o ${NXDNIDFILE} -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/NXDN.csv --user-agent "W0CHP-PiStar-Dash_${pistarCurVersion}"
-curl --fail -o ${NXDNHOSTS} -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/NXDN_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${pistarCurVersion}"
-curl --fail -o ${TGLISTBM} -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/TGList_BM.txt --user-agent "W0CHP-PiStar-Dash_${pistarCurVersion}"
-curl --fail -o ${TGLISTP25} -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/TGList_P25.txt --user-agent "W0CHP-PiStar-Dash_${pistarCurVersion}"
-curl --fail -o ${TGLISTNXDN} -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/TGList_NXDN.txt --user-agent "W0CHP-PiStar-Dash_${pistarCurVersion}"
-curl --fail -o ${TGLISTYSF} -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/TGList_YSF.txt --user-agent "W0CHP-PiStar-Dash_${pistarCurVersion}"
+curl --fail -o ${P25HOSTS} -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/P25_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
+curl --fail -o ${M17HOSTS} -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/M17_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
+curl --fail -o ${YSFHOSTS} -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/YSF_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
+curl --fail -o ${FCSHOSTS} -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/FCS_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
+#curl --fail -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/USTrust_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}" >> ${DExtraHOSTS}
+curl --fail -o ${XLXHOSTS} -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/XLXHosts.txt --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
+curl --fail -o ${NXDNIDFILE} -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/NXDN.csv --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
+curl --fail -o ${NXDNHOSTS} -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/NXDN_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
+curl --fail -o ${TGLISTBM} -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/TGList_BM.txt --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
+curl --fail -o ${TGLISTP25} -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/TGList_P25.txt --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
+curl --fail -o ${TGLISTNXDN} -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/TGList_NXDN.txt --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
+curl --fail -o ${TGLISTYSF} -s https://w0chp.net/files/W0CHP-PiStar-Dash_HostFiles/TGList_YSF.txt --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
 
 curl --fail -o ${BMTGNAMES} -s https://api.brandmeister.network/v1.0/groups/ # grab BM TG names for admin page
 
@@ -228,8 +229,8 @@ if [ -d "/usr/local/etc/ircddbgateway" ]; then
 fi
 
 # Nextion and LiveCaller DB's
-curl --fail -o /tmp/groups.txt -s https://api.brandmeister.network/v1.0/groups/ --user-agent "W0CHP-PiStar-Dash_${pistarCurVersion}"
-curl --fail -o /tmp/user.csv -s https://www.radioid.net/static/user.csv --user-agent "W0CHP-PiStar-Dash_${pistarCurVersion}"
+curl --fail -o /tmp/groups.txt -s https://api.brandmeister.network/v1.0/groups/ --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
+curl --fail -o /tmp/user.csv -s https://www.radioid.net/static/user.csv --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
 cd /tmp/
 # strip first line of DMRdb and cleanup
 sed -e '1d' < user.csv > stripped.csv
