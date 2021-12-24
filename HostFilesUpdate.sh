@@ -18,7 +18,7 @@ if [ "$(expr length `hostname -I | cut -d' ' -f1`x)" == "1" ]; then
 fi
 
 # Get the W0CHP-PiStar-Dash Version
-dashVer=$(cat /var/www/dashboard/config/version.php | grep ver_no | head -1 | cut -d' ' -f3 | sed "s/'//g; s/;//g")
+dashVer=$(cat /var/www/dashboard/config/version.php | grep ver_no | head -1 | cut -d' ' -f3 | sed "s/'//g; s/;//g; s/-W0CHP//g")
 dashBranch=$(git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git branch | grep '*' | cut -f2 -d ' ')
 
 APRSHOSTS=/usr/local/etc/APRSHosts.txt
