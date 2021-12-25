@@ -1,0 +1,21 @@
+#!/bin/bash
+
+checkDashUpdate() {
+    gitFolder="/var/www/dashboard"
+    gitRemoteURL=$(git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git config --get remote.origin.url)
+    # W0CHP has more than one branch. So depending on what W0CHP branch the user has installed, check that branch.
+    gitBranch="$( git --git-dir=${gitFolder}/.git branch | grep '*' | awk {'print $2'} )"
+
+    gitStatusRemote=$(git ls-remote --heads ${gitRemoteURL} | grep ${gitBranch} | awk {'print $1'})
+    gitStatusLocal=$(git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git log ${gitBranch} --pretty=tformat:"%H" -1)
+
+    if [[ ${gitStatusRemote} != ${gitStatusLocal} ]]; then
+        echo "1"
+    else
+        echo "0"
+    fi
+}
+
+if [[ $(checkDashUpdate ${gitFolder}) -gt 0 ]]; then
+  echo '<br /><a href="/admin/update.php"><span style="font-weight:bold;text-decoration:underline;color:#ffffff;">(Update Available)</span></a>'
+fi
