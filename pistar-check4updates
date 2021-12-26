@@ -2,11 +2,10 @@
 
 checkDashUpdate() {
     gitFolder="/var/www/dashboard"
-    gitRemoteURL=$(git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git config --get remote.origin.url)
+    gitRemoteVer=/etc/.W0CHP-PiStar-Dash.remote_version
     # W0CHP has more than one branch. So depending on what W0CHP branch the user has installed, check that branch.
     gitBranch="$( git --git-dir=${gitFolder}/.git branch | grep '*' | awk {'print $2'} )"
-
-    gitStatusRemote=$(env GIT_HTTP_CONNECT_TIMEOUT="2" env GIT_HTTP_USER_AGENT="W0CHP-PiStar-Dash Update Checker" git ls-remote --heads ${gitRemoteURL} | grep ${gitBranch} | awk {'print $1'})
+    gitStatusRemote=$( cat ${gitRemoteVer} )
     gitStatusLocal=$(git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git log ${gitBranch} --pretty=tformat:"%H" -1)
 
     if [[ ${gitStatusRemote} != ${gitStatusLocal} ]]; then

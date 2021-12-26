@@ -22,6 +22,13 @@ if compgen -G "/tmp/Callsign_Name.txt*" > /dev/null; then
     fi
 fi
 
+# cache W0CHP-PiStar-Dash git version:
+gitFolder="/var/www/dashboard"
+gitRemoteURL=$(git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git config --get remote.origin.url)
+gitBranch="$( git --git-dir=${gitFolder}/.git branch | grep '*' | awk {'print $2'} )"
+gitStatusRemote=$(env GIT_HTTP_CONNECT_TIMEOUT="2" env GIT_HTTP_USER_AGENT="W0CHP-PiStar-Dash Update Checker" git ls-remote --heads ${gitRemoteURL} | grep ${gitBranch} | awk {'print $1'})
+echo ${gitStatusRemote} > /etc/.W0CHP-PiStar-Dash.remote_version
+
 # Mount the disk RO
 /bin/sync
 /bin/sync
