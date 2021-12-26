@@ -396,7 +396,7 @@ main_function() {
     gitFolder="/var/www/dashboard"
     gitRemoteURL=$(git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git config --get remote.origin.url)    
     gitBranch="$( git --git-dir=${gitFolder}/.git branch | grep '*' | awk {'print $2'} )"
-    gitStatusRemote=$(env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="W0CHP-PiStar-Dash Update Checker (PS-U)" git ls-remote --heads ${gitRemoteURL} | grep ${gitBranch} | awk {'print $1'})
+    gitStatusRemote=$(env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="W0CHP-PS-D_Updste_Check (PS-U)" git ls-remote --heads ${gitRemoteURL} | grep ${gitBranch} | awk {'print $1'})
     echo ${gitStatusRemote} > /etc/.W0CHP-PiStar-Dash.remote_version
 
     echo "Updates complete, syncing disk cache before making the disk Read-Only"

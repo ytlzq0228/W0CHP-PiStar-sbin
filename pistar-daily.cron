@@ -10,7 +10,7 @@ fi
 mount -o remount,rw /
 
 # Update the Binaries (sbin)
-env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="W0CHP-PiStar-Dash Update Checker (PS-CD)" git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git pull origin master
+env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="W0CHP-PS-D_Updste_Check (PS-CD)" git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git pull origin master
 
 # Update the Dashboard
 # W0CHP has more than one branch. So depending on what W0CHP branch the user has installed, check that branch.
@@ -20,7 +20,7 @@ gitBranch="$( git --git-dir=${gitFolder}/.git branch | grep '*' | awk {'print $2
 cd ${gitFolder}
 git stash # save user config files: config/config.php config/ircddblocal.php config/language.php
 git reset --hard
-env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="W0CHP-PiStar-Dash Update Checker (PS-CD)" git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git pull origin ${gitBranch}
+env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="W0CHP-PS-D_Updste_Check (PS-CD)" git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git pull origin ${gitBranch}
 git checkout stash@{0} -- config/config.php config/ircddblocal.php config/language.php # restore user config files from stash
 git stash clear # housekeeping
 
