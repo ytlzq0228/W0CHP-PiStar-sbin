@@ -14,8 +14,15 @@ env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="W0CHP-PiStar-Dash Upd
 
 # Update the Dashboard
 # W0CHP has more than one branch. So depending on what W0CHP branch the user has installed, check that branch.
-gitBranch="$( git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git branch | grep '*' | awk {'print $2'} )"
+gitFolder="/var/www/dashboard"
+gitRemoteURL=$(git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git config --get remote.origin.url)
+gitBranch="$( git --git-dir=${gitFolder}/.git branch | grep '*' | awk {'print $2'} )"
+cd ${gitFolder}
+git stash # save user config files: config/config.php config/ircddblocal.php config/language.php
+git reset --hard
 env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="W0CHP-PiStar-Dash Update Checker (PS-CD)" git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git pull origin ${gitBranch}
+git checkout stash@{0} -- config/config.php config/ircddblocal.php config/language.php > /dev/null 2<&1 # restore user config files from stash
+git stash clear > /dev/null 2<&1 # housekeeping
 
 # Host Files Update
 /usr/local/sbin/HostFilesUpdate.sh
