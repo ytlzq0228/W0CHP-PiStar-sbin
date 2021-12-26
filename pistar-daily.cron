@@ -9,13 +9,16 @@ fi
 # Make the disk RW
 mount -o remount,rw /
 
-# Host Files Update
-/usr/local/sbin/HostFilesUpdate.sh
+# Update the Binaries (sbin)
+env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="W0CHP-PiStar-Dash Update Checker (PS-CD)" git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git pull origin master
 
-# Update the Dashboard from GIT
+# Update the Dashboard
 # W0CHP has more than one branch. So depending on what W0CHP branch the user has installed, check that branch.
 gitBranch="$( git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git branch | grep '*' | awk {'print $2'} )"
-git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git pull origin ${gitBranch}
+env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="W0CHP-PiStar-Dash Update Checker (PS-CD)" git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git pull origin ${gitBranch}
+
+# Host Files Update
+/usr/local/sbin/HostFilesUpdate.sh
 
 # Stop all the services...
 systemctl stop pistar-watchdog.service > /dev/null 2>&1
@@ -41,9 +44,6 @@ systemctl stop timeserver.service > /dev/null 2>&1
 
 # Update the Binaries
 git --work-tree=/usr/local/bin --git-dir=/usr/local/bin/.git pull origin master
-
-# Update the Binaries (sbin)
-git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git pull origin master
 
 # Purge the logs older than 2 days
 rm -f $(find /var/log/pi-star/*.log -type f -mtime +2 -print)
