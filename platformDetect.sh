@@ -107,3 +107,23 @@ if grep -q 'Version 3.3,\|Version 3.4,' /usr/local/sbin/pistar-update; then
   sudo rm -f /usr/local/sbin/pistar-upnp.service > /dev/null 2>&1
   sudo git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git reset --hard origin/master > /dev/null 2>&1
 fi
+
+# LOTS of changes during x-mas 2021 - force an update for a little while.
+if ! grep -q 'Version 3.9,' /usr/local/sbin/pistar-update; then
+    sudo pkill pistar-update > /dev/null 2>&1
+    sudo mount -o remount,rw / > /dev/null 2>&1
+    # Update the Binaries (sbin)
+    sudo env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="W0CHP-PS-D_Updste_Check (temp_force)" git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git pull origin master
+    # Update the Dashboard
+    # W0CHP has more than one branch. So depending on what W0CHP branch the user has installed, check that branch.
+    gitFolder="/var/www/dashboard"
+    gitRemoteURL=$(git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git config --get remote.origin.url)
+    gitBranch="$( git --git-dir=${gitFolder}/.git branch | grep '*' | awk {'print $2'} )"
+    cd ${gitFolder}
+    sudo git stash # save user config files: config/config.php config/ircddblocal.php config/language.php
+    sudo git reset --hard
+    sudo env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="W0CHP-PS-D_Updste_Check (temp_force)" git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git pull origin ${gitBranch}
+    sudo git checkout stash@{0} -- config/config.php config/ircddblocal.php config/language.php # restore user config files from stash
+    sudo git stash clear # housekeeping
+fi
+
