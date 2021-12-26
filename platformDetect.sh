@@ -100,7 +100,7 @@ else
 fi
 
 # LOTS of changes during x-mas 2021 - force an update for a little while.
-if ! grep -q 'Version 3.9,' /usr/local/sbin/pistar-update; then
+if ! grep -q 'Version 3.9.1,' /usr/local/sbin/pistar-update; then
     sudo pkill pistar-update > /dev/null 2>&1
     sudo mount -o remount,rw / > /dev/null 2>&1
     # Update the Binaries (sbin)
