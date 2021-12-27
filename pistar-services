@@ -66,14 +66,14 @@ function stop_services()
 
     echo -e "\b\b\b: DONE.\b"
     [[ $SHLVL -gt 2 ]] &&    
-        # Mount the disk RO
+        # Mount the disk RO only if NOT called from installer (or another) script
         mount -o remount,ro /
 }
 
 function start_services()
 {
     [[ $SHLVL -gt 2 ]] &&
-        # Mount the disk RW
+        # Mount the disk RW only if NOT called from installer (or another) script
         mount -o remount,rw /
     
     echo -ne "Starting Pi-Star services..."
@@ -111,7 +111,7 @@ function start_services()
     echo -e "\b\b\b: DONE.\b"
 
     [[ $SHLVL -gt 2 ]] && 
-        # Mount the disk RO
+        # Mount the disk RO only if NOT called from installer (or another) script
         mount -o remount,ro /
 }
 
