@@ -6,7 +6,7 @@ if [ "$(id -u)" != "0" ]; then
   exit 1
 fi
 
-ver_cmd=$( git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git rev-parse HEAD | tail -1 | awk '{ print substr($1,1,8) }' ) # last pipe to awk: converts long hash to 8 chars.
+ver_cmd=$( git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git rev-parse HEAD | tail -1 | awk '{ print substr($1,1,10) }' ) # last pipe to awk: converts long hash to 10 chars.
 
 # Make the disk RW
 mount -o remount,rw /
@@ -27,7 +27,7 @@ git stash clear # housekeeping
 # cache W0CHP-PiStar-Dash git version:
 gitRemoteURL=$(git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git config --get remote.origin.url)
 gitBranch="$( git --git-dir=${gitFolder}/.git branch | grep '*' | awk {'print $2'} )"
-gitStatusRemote=$(env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="W0CHP-Update_Check Version Cacher (PS-CD) Ver.#${ver_cmd}" git ls-remote --heads ${gitRemoteURL} ${dashBranch} | grep ${gitBranch} | awk {'print $1'} | awk '{ print substr($1,1,9) }') # last pipe to awk: converts long hash to 8 chars.
+gitStatusRemote=$(env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="W0CHP-Update_Check Version Cacher (PS-CD) Ver.#${ver_cmd}" git ls-remote --heads ${gitRemoteURL} ${dashBranch} | grep ${gitBranch} | awk {'print $1'} | awk '{ print substr($1,1,10) }') # last pipe to awk: converts long hash to 10 chars.
 echo ${gitStatusRemote} > /etc/.W0CHP-PiStar-Dash.remote_version
 
 # Host Files Update
