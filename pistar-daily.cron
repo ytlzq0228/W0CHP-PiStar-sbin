@@ -20,8 +20,8 @@ gitFolder="/var/www/dashboard"
 gitBranch="$( git --git-dir=${gitFolder}/.git branch | grep '*' | awk {'print $2'} )"
 cd ${gitFolder}
 git stash # save user config files: config/config.php config/ircddblocal.php config/language.php
-git reset --hard
 env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="W0CHP-Update_Check (PS-CD) #${ver_cmd}" git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git pull origin ${gitBranch}
+git reset --hard
 git checkout stash@{0} -- config/config.php config/ircddblocal.php config/language.php # restore user config files from stash
 git stash clear # housekeeping
 # cache W0CHP-PiStar-Dash git version:
