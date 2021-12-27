@@ -3,7 +3,7 @@
 # Pi-Star Hourly Cleanup Script
 #
 
-ver_cmd=$( git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git rev-parse --short HEAD )
+ver_cmd=$( git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git rev-parse HEAD | tail -1 | awk '{ print substr($1,1,8) }' ) # last pipe to awk: converts long hash to 8 chars.
 
 # Shrink NginX error log to stop it getting out of hand
 echo "$(tail -500 /var/log/nginx/error.log)" > /var/log/nginx/error.log

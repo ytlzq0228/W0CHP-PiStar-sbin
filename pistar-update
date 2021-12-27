@@ -22,7 +22,7 @@ if ! flock -n 200 ; then
   exit 1
 fi
 
-ver_cmd=$( git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git rev-parse --short HEAD | tail -1 )
+ver_cmd=$( git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git rev-parse HEAD | tail -1 | awk '{ print substr($1,1,8) }' ) # last pipe to awk: converts long hash to 8 chars.
 
 git_checkUpdateRequired() {
 	# Set the function variables

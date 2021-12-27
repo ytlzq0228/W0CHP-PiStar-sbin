@@ -19,7 +19,7 @@ fi
 
 # Get the W0CHP-PiStar-Dash Version
 dashBranch=$(git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git branch | grep '*' | cut -f2 -d ' ')
-dashVer=$( git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git rev-parse ${dashBranch} --short HEAD | tail -1 )
+dashVer=$( git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git rev-parse ${dashBranch} HEAD | tail -1 | awk '{ print substr($1,1,8) }' ) # last pipe to awk: converts long hash to 8 chars.
 
 hostFileURL=https://repo.w0chp.net/Chipster/W0CHP-PiStar-Install/raw/master/host-files
 
