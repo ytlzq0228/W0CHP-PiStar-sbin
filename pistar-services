@@ -25,8 +25,9 @@ function status_services() {
 # $1 == FULLSTOP
 function stop_services()
 {
-    # Mount the disk RW
-    mount -o remount,rw /
+    [[ $SHLVL -gt 2 ]] && 
+        # Mount the disk RW only if NOT called from installer (or another) script
+        mount -o remount,rw /
     
     echo -ne "Stopping Pi-Star services..."
     
@@ -64,15 +65,16 @@ function stop_services()
     fi
 
     echo -e "\b\b\b: DONE.\b"
-    
-    # Mount the disk RO
-    mount -o remount,ro /
+    [[ $SHLVL -gt 2 ]] &&    
+        # Mount the disk RO
+        mount -o remount,ro /
 }
 
 function start_services()
 {
-    # Mount the disk RW
-    mount -o remount,rw /
+    [[ $SHLVL -gt 2 ]] &&
+        # Mount the disk RW
+        mount -o remount,rw /
     
     echo -ne "Starting Pi-Star services..."
     
@@ -107,9 +109,10 @@ function start_services()
     systemctl is-active --quiet cron.service || systemctl start cron.service
 
     echo -e "\b\b\b: DONE.\b"
-    
-    # Mount the disk RO
-    mount -o remount,ro /
+
+    [[ $SHLVL -gt 2 ]] && 
+        # Mount the disk RO
+        mount -o remount,ro /
 }
 
 case "$1" in
