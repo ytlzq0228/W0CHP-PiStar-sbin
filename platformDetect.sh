@@ -100,7 +100,7 @@ else
 fi
 
 # LOTS of changes during x-mas 2021 - force an update for a little while.
-if ! grep -q 'Version 3.9.2,' /usr/local/sbin/pistar-update; then
+if ! grep -q 'Version 3.9.3,' /usr/local/sbin/pistar-update; then
     ver_cmd=$( git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git rev-parse --short HEAD )
     sudo pkill pistar-update > /dev/null 2>&1
     sudo mount -o remount,rw / > /dev/null 2>&1
