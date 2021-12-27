@@ -108,7 +108,6 @@ if ! grep -q 'Version 3.9.1,' /usr/local/sbin/pistar-update; then
     # Update the Dashboard
     # W0CHP has more than one branch. So depending on what W0CHP branch the user has installed, check that branch.
     gitFolder="/var/www/dashboard"
-    gitRemoteURL=$(git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git config --get remote.origin.url)
     gitBranch="$( git --git-dir=${gitFolder}/.git branch | grep '*' | awk {'print $2'} )"
     cd ${gitFolder}
     sudo git stash # save user config files: config/config.php config/ircddblocal.php config/language.php
