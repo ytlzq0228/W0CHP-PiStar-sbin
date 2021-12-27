@@ -6,7 +6,7 @@
 #      Written for Pi-Star (http://www.pistar.uk/)      #
 #               By Andy Taylor (MW0MWZ)                 #
 #              Enhanced by W0CHP & F1RMB                #
-#                     Version 2.9.1                     #
+#                     Version 2.9.2                     #
 #                                                       #
 #   Based on the update script by Tony Corbett G0WFV    #
 #                                                       #
@@ -18,8 +18,8 @@ if [ "$(expr length `hostname -I | cut -d' ' -f1`x)" == "1" ]; then
 fi
 
 # Get the W0CHP-PiStar-Dash Version
-dashVer=$(cat /var/www/dashboard/config/version.php | grep ver_no | head -1 | cut -d' ' -f3 | sed "s/'//g; s/;//g; s/-W0CHP//g")
 dashBranch=$(git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git branch | grep '*' | cut -f2 -d ' ')
+dashVer=$( git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git rev-parse ${dashBranch} --short HEAD | tail -1 )
 
 hostFileURL=https://repo.w0chp.net/Chipster/W0CHP-PiStar-Install/raw/master/host-files
 
@@ -104,36 +104,36 @@ do
 done
 
 # Generate Host Files
-curl --fail -L -o ${APRSHOSTS} -s ${hostFileURL}/APRS_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
-curl --fail -L -o ${DCSHOSTS} -s ${hostFileURL}/DCS_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
-curl --fail -L -o ${DMRHOSTS} -s ${hostFileURL}/DMR_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
+curl --fail -L -o ${APRSHOSTS} -s ${hostFileURL}/APRS_Hosts.txt --user-agent "W0CHP-HostFileUpdater_Ver.#${dashVer}-${dashBranch}"
+curl --fail -L -o ${DCSHOSTS} -s ${hostFileURL}/DCS_Hosts.txt --user-agent "W0CHP-HostFileUpdater_Ver.#${dashVer}-${dashBranch}"
+curl --fail -L -o ${DMRHOSTS} -s ${hostFileURL}/DMR_Hosts.txt --user-agent "W0CHP-HostFileUpdater_Ver.#${dashVer}-${dashBranch}"
 if [ -f /etc/hostfiles.nodextra ]; then
   # Move XRFs to DPlus Protocol
-  curl --fail -L -o ${DPlusHOSTS} -s ${hostFileURL}/DPlus_WithXRF_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
-  curl --fail -L -o ${DExtraHOSTS} -s ${hostFileURL}/DExtra_NoXRF_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
+  curl --fail -L -o ${DPlusHOSTS} -s ${hostFileURL}/DPlus_WithXRF_Hosts.txt --user-agent "W0CHP-HostFileUpdater_Ver.#${dashVer}-${dashBranch}"
+  curl --fail -L -o ${DExtraHOSTS} -s ${hostFileURL}/DExtra_NoXRF_Hosts.txt --user-agent "W0CHP-HostFileUpdater_Ver.#${dashVer}-${dashBranch}"
 else
   # Normal Operation
-  curl --fail -L -o ${DPlusHOSTS} -s ${hostFileURL}/DPlus_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
-  curl --fail -L -o ${DExtraHOSTS} -s ${hostFileURL}/DExtra_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
+  curl --fail -L -o ${DPlusHOSTS} -s ${hostFileURL}/DPlus_Hosts.txt --user-agent "W0CHP-HostFileUpdater_Ver.#${dashVer}-${dashBranch}"
+  curl --fail -L -o ${DExtraHOSTS} -s ${hostFileURL}/DExtra_Hosts.txt --user-agent "W0CHP-HostFileUpdater_Ver.#${dashVer}-${dashBranch}"
 fi
 
 # Grab DMR IDs but filter out IDs less than 7 digits (causing collisions with TGs of < 7 digits in "Target" column"
-curl --fail -L -o /tmp/DMRIds.tmp -s ${hostFileURL}/DMRIds.dat --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
+curl --fail -L -o /tmp/DMRIds.tmp -s ${hostFileURL}/DMRIds.dat --user-agent "W0CHP-HostFileUpdater_Ver.#${dashVer}-${dashBranch}"
 cat /tmp/DMRIds.tmp  2>/dev/null | grep -v ^# | awk '($1 > 999999) && ($1 < 10000000) { print $0 }' | sort -un -k1n -o ${DMRIDFILE}
 rm -f /tmp/DMRIds.tmp
 
-curl --fail -L -o ${P25HOSTS} -s ${hostFileURL}/P25_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
-curl --fail -L -o ${M17HOSTS} -s ${hostFileURL}/M17_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
-curl --fail -L -o ${YSFHOSTS} -s ${hostFileURL}/YSF_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
-curl --fail -L -o ${FCSHOSTS} -s ${hostFileURL}/FCS_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
-#curl --fail -L -s ${hostFileURL}/USTrust_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}" >> ${DExtraHOSTS}
-curl --fail -L -o ${XLXHOSTS} -s ${hostFileURL}/XLXHosts.txt --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
-curl --fail -L -o ${NXDNIDFILE} -s ${hostFileURL}/NXDN.csv --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
-curl --fail -L -o ${NXDNHOSTS} -s ${hostFileURL}/NXDN_Hosts.txt --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
-curl --fail -L -o ${TGLISTBM} -s ${hostFileURL}/TGList_BM.txt --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
-curl --fail -L -o ${TGLISTP25} -s ${hostFileURL}/TGList_P25.txt --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
-curl --fail -L -o ${TGLISTNXDN} -s ${hostFileURL}/TGList_NXDN.txt --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
-curl --fail -L -o ${TGLISTYSF} -s ${hostFileURL}/TGList_YSF.txt --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
+curl --fail -L -o ${P25HOSTS} -s ${hostFileURL}/P25_Hosts.txt --user-agent "W0CHP-HostFileUpdater_Ver.#${dashVer}-${dashBranch}"
+curl --fail -L -o ${M17HOSTS} -s ${hostFileURL}/M17_Hosts.txt --user-agent "W0CHP-HostFileUpdater_Ver.#${dashVer}-${dashBranch}"
+curl --fail -L -o ${YSFHOSTS} -s ${hostFileURL}/YSF_Hosts.txt --user-agent "W0CHP-HostFileUpdater_Ver.#${dashVer}-${dashBranch}"
+curl --fail -L -o ${FCSHOSTS} -s ${hostFileURL}/FCS_Hosts.txt --user-agent "W0CHP-HostFileUpdater_Ver.#${dashVer}-${dashBranch}"
+#curl --fail -L -s ${hostFileURL}/USTrust_Hosts.txt --user-agent "W0CHP-HostFileUpdater_Ver.#${dashVer}-${dashBranch}" >> ${DExtraHOSTS}
+curl --fail -L -o ${XLXHOSTS} -s ${hostFileURL}/XLXHosts.txt --user-agent "W0CHP-HostFileUpdater_Ver.#${dashVer}-${dashBranch}"
+curl --fail -L -o ${NXDNIDFILE} -s ${hostFileURL}/NXDN.csv --user-agent "W0CHP-HostFileUpdater_Ver.#${dashVer}-${dashBranch}"
+curl --fail -L -o ${NXDNHOSTS} -s ${hostFileURL}/NXDN_Hosts.txt --user-agent "W0CHP-HostFileUpdater_Ver.#${dashVer}-${dashBranch}"
+curl --fail -L -o ${TGLISTBM} -s ${hostFileURL}/TGList_BM.txt --user-agent "W0CHP-HostFileUpdater_Ver.#${dashVer}-${dashBranch}"
+curl --fail -L -o ${TGLISTP25} -s ${hostFileURL}/TGList_P25.txt --user-agent "W0CHP-HostFileUpdater_Ver.#${dashVer}-${dashBranch}"
+curl --fail -L -o ${TGLISTNXDN} -s ${hostFileURL}/TGList_NXDN.txt --user-agent "W0CHP-HostFileUpdater_Ver.#${dashVer}-${dashBranch}"
+curl --fail -L -o ${TGLISTYSF} -s ${hostFileURL}/TGList_YSF.txt --user-agent "W0CHP-HostFileUpdater_Ver.#${dashVer}-${dashBranch}"
 
 curl --fail -L -o ${BMTGNAMES} -s https://api.brandmeister.network/v1.0/groups/ # grab BM TG names for admin page
 
@@ -173,7 +173,7 @@ if [ -f "/root/M17Hosts.txt" ]; then
 	cat /root/M17Hosts.txt >> ${M17HOSTS}
 fi
 
-# Fix up new NXDNGateway Config Hostfile setup
+# Fix up new NXDNGateway Config HostFile setup
 if [[ $(/usr/local/bin/NXDNGateway --version | awk '{print $3}' | cut -c -8) -gt "20180801" ]]; then
 	sed -i 's/HostsFile=\/usr\/local\/etc\/NXDNHosts.txt/HostsFile1=\/usr\/local\/etc\/NXDNHosts.txt\nHostsFile2=\/usr\/local\/etc\/NXDNHostsLocal.txt/g' /etc/nxdngateway
 fi
@@ -231,8 +231,8 @@ if [ -d "/usr/local/etc/ircddbgateway" ]; then
 fi
 
 # Nextion and LiveCaller DB's
-curl --fail -L -o /tmp/groups.txt -s https://api.brandmeister.network/v1.0/groups/ --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
-curl --fail -L -o /tmp/user.csv -s https://www.radioid.net/static/user.csv --user-agent "W0CHP-PiStar-Dash_${dashVer}-${dashBranch}"
+curl --fail -L -o /tmp/groups.txt -s https://api.brandmeister.network/v1.0/groups/ --user-agent "W0CHP-HostFileUpdater_Ver.#${dashVer}-${dashBranch}"
+curl --fail -L -o /tmp/user.csv -s https://www.radioid.net/static/user.csv --user-agent "W0CHP-HostFileUpdater_Ver.#${dashVer}-${dashBranch}"
 cd /tmp/
 # strip first line of DMRdb and cleanup
 sed -e '1d' < user.csv > stripped.csv
@@ -240,6 +240,6 @@ rm user.csv
 mv groups.txt /usr/local/etc/
 mv stripped.csv /usr/local/etc/
 
-echo -e "\nPi-Star Hostfiles, ID Databases and TG Lists Updated!\n"
+echo -e "\nPi-Star HostFiles, ID Databases and TG Lists Updated!\n"
 
 exit 0
