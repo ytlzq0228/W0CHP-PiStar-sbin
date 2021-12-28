@@ -11,7 +11,7 @@ ver_cmd=$( git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git rev-pa
 # Make the disk RW
 mount -o remount,rw /
 
-sudo pkill pistar-hourly.cron > /dev/null 2>&1
+pkill pistar-hourly.cron > /dev/null 2>&1
 
 # Update the Binaries (sbin)
 env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="W0CHP-Update_Check (PS-CD) #${ver_cmd}" git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git pull origin master
