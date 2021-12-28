@@ -41,6 +41,7 @@ TGLISTP25=/usr/local/etc/TGList_P25.txt
 TGLISTNXDN=/usr/local/etc/TGList_NXDN.txt
 TGLISTYSF=/usr/local/etc/TGList_YSF.txt
 BMTGNAMES=/usr/local/etc/BM_TGs.json
+RADIOIDDB=/usr/local/etc/user.csv
 
 # How many backups
 FILEBACKUP=1
@@ -231,14 +232,13 @@ if [ -d "/usr/local/etc/ircddbgateway" ]; then
 fi
 
 # Nextion and LiveCaller DB's
-curl --fail -L -o /tmp/groups.txt -s https://api.brandmeister.network/v1.0/groups/ --user-agent "W0CHP-HostFileUpdater Ver.#${dashVer}-${dashBranch}"
-curl --fail -L -o /tmp/user.csv -s https://www.radioid.net/static/user.csv --user-agent "W0CHP-HostFileUpdater Ver.#${dashVer}-${dashBranch}"
-cd /tmp/
+cp ${BMTGNAMES} /usr/local/etc/groups.txt
+curl --fail -L -o ${RADIOIDDB} -s ${hostFileURL}/user.csv --user-agent "W0CHP-HostFileUpdater Ver.#${dashVer}-${dashBranch}"
+cp ${RADIOIDDB} /tmp/
 # strip first line of DMRdb and cleanup
-sed -e '1d' < user.csv > stripped.csv
-rm user.csv
-mv groups.txt /usr/local/etc/
-mv stripped.csv /usr/local/etc/
+sed -e '1d' < /tmp/user.csv > /tmp/stripped.csv
+rm /tmp/user.csv
+mv /tmp/stripped.csv /usr/local/etc/
 
 echo -e "\nPi-Star HostFiles, ID Databases and TG Lists Updated!\n"
 
