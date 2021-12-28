@@ -16,5 +16,15 @@ checkDashUpdate() {
 }
 
 if [[ $(checkDashUpdate ${gitFolder}) -gt 0 ]]; then
-  echo '<br /><a href="/admin/update.php"><span style="font-weight:bold;text-decoration:underline;color:#ffffff;">(Update Available)</span></a>'
+    if [ -t 1 ]; then # running from term?
+        echo -e "W0CHP-PiStar-Dash Update Available!"
+    else # text for dashboard:
+        echo ' <a href="/admin/update.php"><span style="font-weight:bold;text-decoration:underline;background:#ffffff;font-size:10px;padding:1px;">(Update Available)</span></a>'
+    fi
+else
+    if [ -t 1 ]; then # running from term?
+        echo -e "W0CHP-PiStar-Dash is Up-to-Date."
+    fi
 fi
+
+exit 0
