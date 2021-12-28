@@ -135,6 +135,7 @@ service_handle() {
 
 main_function() {
 	# Make the disk writable and stop cron to prevent it from making it R/O
+    pkill pistar-hourly.cron > /dev/null 2>&1
     systemctl stop cron.service > /dev/null 2<&1
 	mount -o remount,rw /
 	mount -o remount,rw /boot
