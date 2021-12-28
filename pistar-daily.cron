@@ -33,7 +33,7 @@ gitStatusRemote=$(env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="W0C
 echo ${gitStatusRemote} > /etc/.W0CHP-PiStar-Dash.remote_version
 
 # Host Files Update
-/usr/local/sbin/HostFilesUpdate.sh
+/usr/local/sbin/HostFilesUpdate.sh > /dev/null 2>&1
 
 # Stop all the services...
 systemctl stop pistar-watchdog.service > /dev/null 2>&1
@@ -59,6 +59,9 @@ systemctl stop timeserver.service > /dev/null 2>&1
 
 # Update the Binaries
 git --work-tree=/usr/local/bin --git-dir=/usr/local/bin/.git pull origin master
+if [ -f /usr/local/bin/platformDetect.sh ]; then # remove platformDetect.sh since we have a custom version in /usr/local/sbin
+    git --work-tree=/usr/local/bin --git-dir=/usr/local/bin/.git rm platformDetect.sh > /dev/null 2>&1
+fi
 
 # Purge the logs older than 2 days
 rm -f $(find /var/log/pi-star/*.log -type f -mtime +2 -print)
