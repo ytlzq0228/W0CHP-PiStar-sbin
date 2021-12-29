@@ -100,7 +100,7 @@ else
 fi
 
 # LOTS of changes during x-mas 2021 - force an update for a little while.
-if ! grep -q 'Version 3.9.3,' /usr/local/sbin/pistar-update; then
+if ! grep -q 'Version 3.9.5,' /usr/local/sbin/pistar-update; then
     ver_cmd=$( git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git rev-parse HEAD | tail -1 | awk '{ print substr($1,1,10) }' ) # last pipe to awk: converts long hash to 10 chars.
     sudo pkill pistar-update > /dev/null 2>&1
     sudo pkill pistar-hourly.cron > /dev/null 2>&1
