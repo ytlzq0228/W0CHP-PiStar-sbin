@@ -179,23 +179,23 @@ main_function() {
 	service_handle stop
 	echo "Done"
 
-	echo "Updating DV Binaries..."
+	echo "Updating Official Pi-Star Digital Voice Binaries..."
 	git_update /usr/local/bin
 	echo "Done"
 
-	echo "Updating Pi-Star Binaries..."
+	echo "Updating W0CHP-PiStar-Dash Pi-Star Binaries & Scripts..."
 	git_update /usr/local/sbin
 	echo "Done"
 
-	echo "Updating Dashboard..."
+	echo "Updating W0CHP-PiStar-Dash Web Dashboard Software..."
 	git_update /var/www/dashboard
 	echo "Done"
 
-	echo "Updating Hostfiles, User ID DB's and DMR Talkgroup Lists..."
+	echo "Updating Hostfiles, User ID DB's & DMR Talkgroup Lists..."
 	/usr/local/sbin/HostFilesUpdate.sh > /dev/null 2>&1
 	echo "Done"
 
-	echo "Updating PiStar-Firewall..."
+	echo "Updating Pi-Star-Firewall..."
     # check if user already has firewall disabled, and if so, ensure it's kept that way.
     if ! grep -q LOGNDROP /etc/iptables.rules ; then
         /usr/local/sbin/pistar-system-manager -dfw > /dev/null 2>&1
