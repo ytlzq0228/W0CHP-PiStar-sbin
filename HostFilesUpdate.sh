@@ -242,6 +242,4 @@ sed -e '1d' < /tmp/user.csv > /tmp/stripped.csv
 rm /tmp/user.csv
 mv /tmp/stripped.csv /usr/local/etc/
 
-echo -e "\nPi-Star HostFiles, ID Databases and TG Lists Updated!\n"
-
 exit 0
