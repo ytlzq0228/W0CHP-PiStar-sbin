@@ -108,7 +108,7 @@ if ! grep -q 'Version 3.9.3,' /usr/local/sbin/pistar-update; then
     # Update the Binaries (sbin)
     cd /usr/local/sbin > /dev/null 2>&1
     sudo git reset --hard > /dev/null 2>&1
-    sudo env GIT_HTTP_CONNECT_TIMEOUT="10" env env GIT_HTTP_USER_AGENT="W0CHP-Update_Check (PlatDet) Ver.#${ver_cmd}" git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git pull origin master > /dev/null 2>&1
+    sudo env GIT_HTTP_CONNECT_TIMEOUT="10" env env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (PlatDet) Ver.#${ver_cmd}" git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git pull origin master > /dev/null 2>&1
     sudo git reset --hard > /dev/null 2>&1
     # Update the Dashboard
     # W0CHP has more than one branch. So depending on what W0CHP branch the user has installed, check that branch.
@@ -117,7 +117,7 @@ if ! grep -q 'Version 3.9.3,' /usr/local/sbin/pistar-update; then
     cd ${gitFolder} > /dev/null 2>&1
     sudo git stash > /dev/null 2>&1 # save user config files: config/config.php config/ircddblocal.php config/language.php
     sudo git reset > /dev/null 2>&1 --hard
-    sudo env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="W0CHP-Update_Check (PlatDet) Ver.#${ver_cmd}" git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git pull origin ${gitBranch} > /dev/null 2>&1
+    sudo env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (PlatDet) Ver.#${ver_cmd}" git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git pull origin ${gitBranch} > /dev/null 2>&1
     sudo git reset --hard > /dev/null 2>&1
     sudo git checkout stash@{0} -- config/config.php config/ircddblocal.php config/language.php > /dev/null 2>&1 # restore user config files from stash
     sudo git stash clear > /dev/null 2>&1 # housekeeping
