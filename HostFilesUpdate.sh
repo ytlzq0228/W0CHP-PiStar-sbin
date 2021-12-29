@@ -21,18 +21,6 @@ fi
 dashBranch=$(git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git branch | grep '*' | cut -f2 -d ' ')
 dashVer=$( git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git rev-parse ${dashBranch} HEAD | tail -1 | awk '{ print substr($1,1,10) }' ) # last pipe to awk: converts long hash to 10 chars.
 
-# some files only update every ~24 hours so let's manage those with a cheesy func...
-file_age() {
-    local filename=$1
-    echo $(( $(date +%s) - $(date -r $filename +%s) ))
-}
-
-is_stale() {
-    local filename=$1
-    local max_minutes=$2
-    [ $(file_age $filename) -gt $(( $max_minutes*60 )) ]
-}
-
 hostFileURL=https://repo.w0chp.net/Chipster/W0CHP-PiStar-Install/raw/master/host-files
 
 APRSHOSTS=/usr/local/etc/APRSHosts.txt
@@ -131,11 +119,9 @@ else
 fi
 
 # Grab DMR IDs but filter out IDs less than 7 digits (causing collisions with TGs of < 7 digits in "Target" column"
-if is_stale ${DMRIDFILE} 1380; then # only grab DMRdb every ~23 hours
-    curl --fail -L -o /tmp/DMRIds.tmp -s ${hostFileURL}/DMRIds.dat --user-agent "WPSD-HostFileUpdater Ver.#${dashVer}-${dashBranch}"
-    cat /tmp/DMRIds.tmp  2>/dev/null | grep -v '^#' | awk '($1 > 999999) && ($1 < 10000000) { print $0 }' | sort -un -k1n -o ${DMRIDFILE}
-    rm -f /tmp/DMRIds.tmp
-fi
+curl --fail -L -o /tmp/DMRIds.tmp -s ${hostFileURL}/DMRIds.dat --user-agent "WPSD-HostFileUpdater Ver.#${dashVer}-${dashBranch}"
+cat /tmp/DMRIds.tmp  2>/dev/null | grep -v '^#' | awk '($1 > 999999) && ($1 < 10000000) { print $0 }' | sort -un -k1n -o ${DMRIDFILE}
+rm -f /tmp/DMRIds.tmp
 
 curl --fail -L -o ${P25HOSTS} -s ${hostFileURL}/P25_Hosts.txt --user-agent "WPSD-HostFileUpdater Ver.#${dashVer}-${dashBranch}"
 curl --fail -L -o ${M17HOSTS} -s ${hostFileURL}/M17_Hosts.txt --user-agent "WPSD-HostFileUpdater Ver.#${dashVer}-${dashBranch}"
@@ -247,19 +233,12 @@ fi
 
 # Nextion and LiveCaller DB's
 cp ${BMTGNAMES} /usr/local/etc/groups.txt
-if [ ! -f ${RADIOIDDB} ] ; then # no file...grab it
-    curl --fail -L -o ${RADIOIDDB} -s ${hostFileURL}/user.csv --user-agent "WPSD-HostFileUpdater Ver.#${dashVer}-${dashBranch}"
-else # we already have a file - but don't grab it if it's < 23 hours old
-    if is_stale ${RADIOIDDB} 1380; then # only grab DMRdb every ~23 hours
-        curl --fail -L -o ${RADIOIDDB} -s ${hostFileURL}/user.csv --user-agent "WPSD-HostFileUpdater Ver.#${dashVer}-${dashBranch}"
-    fi
-    # now we can wrangle...
-    cp ${RADIOIDDB} /tmp/
-    # strip first line of DMRdb and cleanup
-    sed -e '1d' < /tmp/user.csv > /tmp/stripped.csv
-    rm /tmp/user.csv
-    mv /tmp/stripped.csv /usr/local/etc/
-fi
+curl --fail -L -o ${RADIOIDDB} -s ${hostFileURL}/user.csv --user-agent "WPSD-HostFileUpdater Ver.#${dashVer}-${dashBranch}"
+cp ${RADIOIDDB} /tmp/
+# strip first line of DMRdb and cleanup
+sed -e '1d' < /tmp/user.csv > /tmp/stripped.csv
+rm /tmp/user.csv
+mv /tmp/stripped.csv /usr/local/etc/
 
 echo -e "\nPi-Star HostFiles, ID Databases and TG Lists Updated!\n"
 
