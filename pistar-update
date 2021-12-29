@@ -32,7 +32,7 @@ git_checkUpdateRequired() {
     gitBranch="$( git --git-dir=${gitFolder}/.git branch | grep '*' | awk {'print $2'} )"
 
 	# Git check / update function
-	gitStatusRemote=$(env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (PS-U) Ver.#${ver_cmd}" git ls-remote --heads ${gitRemoteURL} | grep ${gitBranch} | awk {'print $1'})
+	gitStatusRemote=$(env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${ver_cmd}" git ls-remote --heads ${gitRemoteURL} | grep ${gitBranch} | awk {'print $1'})
 	gitStatusLocal=$(git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git log ${gitBranch} --pretty=tformat:"%H" -1)
 
 	# Return the output
@@ -61,31 +61,31 @@ git_update() {
         	if [[ ${gitFolder} == "/var/www/dashboard" ]]; then
                 cd ${gitFolder}
                 git stash > /dev/null 2<&1 # save user config files: config/config.php config/ircddblocal.php config/language.php
-                env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (PS-U) Ver.#${ver_cmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull origin ${dash_branch}
+                env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${ver_cmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull origin ${dash_branch}
                 git checkout stash@{0} -- config/config.php config/ircddblocal.php config/language.php > /dev/null 2<&1 # restore user config files from stash
                 git stash clear > /dev/null 2<&1 # housekeeping
         	else
 				# If this script is updated, re-run the update with the new version.
 				if [[ ${gitFolder} == "/usr/local/sbin" ]]; then
                         git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard 
-                        env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (PS-U) Ver.#${ver_cmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git fetch
+                        env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${ver_cmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git fetch
                         if [ "$(git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git diff --name-only origin/master 2>/dev/null | grep pistar-update 2>/dev/null)" = "pistar-update" ]; then
                                 echo "Found a new version of pistar-update..."
-                                env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (PS-U) Ver.#${ver_cmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull origin master
+                                env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${ver_cmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull origin master
                                 if [[ $(git_checkUpdateRequired ${gitFolder}) -gt 0 ]]; then
                                         echo "Update to new version of pistar-update was not successfull, forcing update..."
 										if [ -f ${gitFolder}/pistar-upnp.service ]; then
 											rm -f ${gitFolder}/pistar-upnp.service
 										fi
-                                        env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (PS-U) Ver.#${ver_cmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard origin/master
+                                        env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${ver_cmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard origin/master
                                 fi
                                 echo "Restarting update process with the new version..."
                                 exec "$0" "$@"
                                 exit 1
                         fi
                 fi
-                env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (PS-U) Ver.#${ver_cmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull origin master
-                env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (PS-U) Ver.#${ver_cmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard origin/master
+                env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${ver_cmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull origin master
+                env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${ver_cmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard origin/master
 
 		fi
 		# Re-check that the updates are now good
@@ -96,9 +96,9 @@ git_update() {
 			echo "Updates were not successful, reverting to Pi-Star original files..."
            	# W0CHP has more than one branch. So depending on what W0CHP branch the user has installed, pull that branch.
            	if [[ ${gitFolder} == "/var/www/dashboard" ]]; then
-               	env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (PS-U) Ver.#${ver_cmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard origin/${dash_branch}
+               	env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${ver_cmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard origin/${dash_branch}
            	else
-    	    	env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (PS-U) Ver.#${ver_cmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard origin/master
+    	    	env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${ver_cmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard origin/master
 			fi
 		fi
 	else
@@ -400,7 +400,7 @@ main_function() {
     gitFolder="/var/www/dashboard"
     gitRemoteURL=$(git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git config --get remote.origin.url)
     gitBranch="$( git --git-dir=${gitFolder}/.git branch | grep '*' | awk {'print $2'} )"
-    gitStatusRemote=$(env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck Version Cacher (PS-U) Ver.#${ver_cmd}" git ls-remote --heads ${gitRemoteURL} ${dashBranch} | grep ${gitBranch} | awk {'print $1'} | awk '{ print substr($1,1,10) }') # last pipe to awk: converts long hash to 10 chars.
+    gitStatusRemote=$(env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck Version Cacher (Manual-Update) Ver.#${ver_cmd}" git ls-remote --heads ${gitRemoteURL} ${dashBranch} | grep ${gitBranch} | awk {'print $1'} | awk '{ print substr($1,1,10) }') # last pipe to awk: converts long hash to 10 chars.
     echo ${gitStatusRemote} > /etc/.W0CHP-PiStar-Dash.remote_version
 
     echo "Updates complete, syncing disk cache before making the disk Read-Only"
