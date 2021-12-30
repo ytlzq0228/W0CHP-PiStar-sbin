@@ -9,7 +9,7 @@
 # by 3600 and dividing by 32768 results in an integer between 0 and 3599, and
 #interpreting that in seconds gives a duration between nothing and just under
 #one hour.
-sleep $((RANDOM*3600/32768))
+#sleep $((RANDOM*3600/32768))
 
 ver_cmd=$( git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git rev-parse HEAD | tail -1 | awk '{ print substr($1,1,10) }' ) # last pipe to awk: converts long hash to 10 chars.
 

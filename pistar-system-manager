@@ -28,6 +28,7 @@ function DisableFirewall() {
         ln -s /usr/local/sbin/pistar-firewall.disabled /usr/local/sbin/pistar-firewall
         bash /usr/local/sbin/pistar-firewall > /dev/null 2<&1
         if [ -t 1 ]; then
+            echo "Firewall Disabled"
             # This is running from a terminal, so go back ro R/O. Since this is called from another scipt(s) making R/O, ensure _ro is not called.
             _ro
         fi
@@ -44,6 +45,7 @@ function EnableFirewall() {
         ln -s /usr/local/sbin/pistar-firewall.enabled /usr/local/sbin/pistar-firewall
         bash /usr/local/sbin/pistar-firewall > /dev/null 2<&1
         if [ -t 1 ]; then
+            echo "Firewall Enabled"
             # This is running from a terminal, so go back ro R/O. Since this is called from another scipt(s) making R/O, ensure _ro is not called.
             _ro
         fi
@@ -55,10 +57,16 @@ function EnableFirewall() {
 
 function DisableCron() {
     systemctl stop cron.service > /dev/null 2<&1
+        if [ -t 1 ]; then
+            echo "Cron Disabled"
+        fi
 }
 
 function EnableCron() {
     systemctl start cron.service > /dev/null 2<&1
+        if [ -t 1 ]; then
+            echo "Cron Enabled"
+        fi
 }
 
 function DisplayHelp() {
