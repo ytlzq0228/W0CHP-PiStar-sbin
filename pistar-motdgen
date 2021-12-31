@@ -34,7 +34,9 @@ echo -e "
 [1;37mhttp://$(hostname)/  http://$(hostname).local/   http://$(hostname -I | awk '{print $1}')/
 
 [0;0mPi-Star's disk is read-only by default, enable read-write with \"rpi-rw\".
-Pi-Star built by Andy Taylor (MW0MWZ), pi-star tools all start \"pistar-\".
+Pi-Star built by Andy Taylor (MW0MWZ), Enhanced by W0CHP
 
-                     Welcome to Pi-Star:[0;31m v${pistarCurVersion}
+pi-star command-line tools all begin with \"pistar-\".
+
+                Welcome to W0CHP-PiStar-Dash:[0;31m v${pistarCurVersion}
 [0;0m" > /etc/motd
