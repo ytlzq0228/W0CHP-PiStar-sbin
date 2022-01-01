@@ -92,7 +92,7 @@ git_update() {
                 fi
                 env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${versionCmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull origin master
                 env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${versionCmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard origin/master
-                echo -e "Changelog:\n"
+                echo -e "\nChangelog:\n"
                 git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --decorate=short -n1 | sed -e '1,4d'
                 echo -e "\n"
 		fi

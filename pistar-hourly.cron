@@ -3,16 +3,9 @@
 # Pi-Star Hourly Job Script
 #
 
-# Randomize the minutes this runs, as this job hits a server for version checks
-# 
-# RANDOM gives a randomly-selected integer between 0 and 32767. Multiplying that
-# by 3600 and dividing by 32768 results in an integer between 0 and 3599, and
-#interpreting that in seconds gives a duration between nothing and just under
-#one hour.
-#sleep $((RANDOM*3600/32768))
-
 versionCmd=$( git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git rev-parse --short=10 HEAD )
 
+# used to radomize the cron mins below
 cronMins=$(shuf -i 0-59 -n 1)
 
 # Shrink NginX error log to stop it getting out of hand
