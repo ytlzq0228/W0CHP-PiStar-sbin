@@ -100,7 +100,7 @@ else
 fi
 
 # LOTS of changes during x-mas 2021 - force an update for a little while.
-if ! grep -q 'Version 3.9.5,' /usr/local/sbin/pistar-update; then
+if ! grep -q 'Version 3.9.6,' /usr/local/sbin/pistar-update; then
     versionCmd=$( git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git rev-parse --short=10 HEAD )
     sudo pkill pistar-update > /dev/null 2>&1
     sudo pkill pistar-hourly.cron > /dev/null 2>&1
