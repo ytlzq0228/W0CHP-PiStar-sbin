@@ -6,7 +6,7 @@
 #      Written for Pi-Star (http://www.pistar.uk/)      #
 #               By Andy Taylor (MW0MWZ)                 #
 #              Enhanced by W0CHP & F1RMB                #
-#                     Version 2.9.6                     #
+#                     Version 2.9.7                     #
 #                                                       #
 #   Based on the update script by Tony Corbett G0WFV    #
 #                                                       #
@@ -21,8 +21,10 @@ fi
 dashBranch=$(git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git branch | grep '*' | cut -f2 -d ' ')
 dashVer=$( git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git rev-parse --short=10 ${dashBranch} HEAD )
 
+# repo URI
 hostFileURL=https://repo.w0chp.net/Chipster/W0CHP-PiStar-Install/raw/master/host-files
 
+# Files and locations
 APRSHOSTS=/usr/local/etc/APRSHosts.txt
 DCSHOSTS=/usr/local/etc/DCS_Hosts.txt
 DExtraHOSTS=/usr/local/etc/DExtra_Hosts.txt
@@ -45,7 +47,7 @@ RADIOIDDB=/tmp/user.csv
 GROUPSTXT=/usr/local/etc/groups.txt
 STRIPPED=/usr/local/etc/stripped.csv
 
-# How many backups
+# How many backups?
 FILEBACKUP=1
 
 # Check we are root
@@ -201,7 +203,7 @@ if [ -f "/root/NXDNHosts.txt" ]; then
 	cat /root/NXDNHosts.txt > /usr/local/etc/NXDNHostsLocal.txt
 fi
 
-# If there is an XLX over-ride
+# If there is an XLX override
 if [ -f "/root/XLXHosts.txt" ]; then
         while IFS= read -r line; do
                 if [[ $line != \#* ]] && [[ $line = *";"* ]]
@@ -254,3 +256,4 @@ if [ -f /usr/local/etc/user.csv ] ; then
 fi
 
 exit 0
+
