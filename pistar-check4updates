@@ -6,7 +6,7 @@ checkDashUpdate() {
     # W0CHP has more than one branch. So depending on what W0CHP branch the user has installed, check that branch.
     gitBranch="$( git --git-dir=${gitFolder}/.git branch | grep '*' | awk {'print $2'} )"
     gitStatusRemote=$( cat ${gitRemoteVer} )
-    gitStatusLocal=$( git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git rev-parse ${dashBranch} HEAD | tail -1 | awk '{ print substr($1,1,10) }' ) # last pipe to awk: converts long hash to 10 chars.
+    gitStatusLocal=$( git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git rev-parse --short=10 ${dashBranch} HEAD )
 
     if [[ ${gitStatusRemote} != ${gitStatusLocal} ]]; then
         echo "1"
