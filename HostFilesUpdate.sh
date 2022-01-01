@@ -6,7 +6,7 @@
 #      Written for Pi-Star (http://www.pistar.uk/)      #
 #               By Andy Taylor (MW0MWZ)                 #
 #              Enhanced by W0CHP & F1RMB                #
-#                     Version 2.9.2                     #
+#                     Version 2.9.4                     #
 #                                                       #
 #   Based on the update script by Tony Corbett G0WFV    #
 #                                                       #
@@ -14,7 +14,7 @@
 
 # Check that the network is UP and die if its not
 if [ "$(expr length `hostname -I | cut -d' ' -f1`x)" == "1" ]; then
-	exit 0
+	exit 1
 fi
 
 # Get the W0CHP-PiStar-Dash Version
@@ -41,7 +41,9 @@ TGLISTP25=/usr/local/etc/TGList_P25.txt
 TGLISTNXDN=/usr/local/etc/TGList_NXDN.txt
 TGLISTYSF=/usr/local/etc/TGList_YSF.txt
 BMTGNAMES=/usr/local/etc/BM_TGs.json
-RADIOIDDB=/usr/local/etc/user.csv
+RADIOIDDB=/tmp/user.csv
+GROUPSTXT=/usr/local/etc/groups.txt
+STRIPPED=/usr/local/etc/stripped.csv
 
 # How many backups
 FILEBACKUP=1
@@ -55,22 +57,25 @@ fi
 # Create backup of old files
 if [ ${FILEBACKUP} -ne 0 ]; then
 	cp ${APRSHOSTS} ${APRSHOSTS}.$(date +%Y%m%d)
-	cp ${DCSHOSTS} ${DCSHOSTS}.$(date +%Y%m%d)
-	cp ${DExtraHOSTS} ${DExtraHOSTS}.$(date +%Y%m%d)
-	cp ${DMRIDFILE} ${DMRIDFILE}.$(date +%Y%m%d)
-	cp ${DMRHOSTS} ${DMRHOSTS}.$(date +%Y%m%d)
-	cp ${DPlusHOSTS} ${DPlusHOSTS}.$(date +%Y%m%d)
-	cp ${P25HOSTS} ${P25HOSTS}.$(date +%Y%m%d)
-	cp ${M17HOSTS} ${M17HOSTS}.$(date +%Y%m%d)
-	cp ${YSFHOSTS} ${YSFHOSTS}.$(date +%Y%m%d)
-	cp ${FCSHOSTS} ${FCSHOSTS}.$(date +%Y%m%d)
-	cp ${XLXHOSTS} ${XLXHOSTS}.$(date +%Y%m%d)
-	cp ${NXDNIDFILE} ${NXDNIDFILE}.$(date +%Y%m%d)
-	cp ${NXDNHOSTS} ${NXDNHOSTS}.$(date +%Y%m%d)
-	cp ${TGLISTBM} ${TGLISTBM}.$(date +%Y%m%d)
-	cp ${TGLISTP25} ${TGLISTP25}.$(date +%Y%m%d)
-	cp ${TGLISTNXDN} ${TGLISTNXDN}.$(date +%Y%m%d)
-	cp ${TGLISTYSF} ${TGLISTYSF}.$(date +%Y%m%d)
+	cp  ${DCSHOSTS} ${DCSHOSTS}.$(date +%Y%m%d)
+	cp  ${DExtraHOSTS} ${DExtraHOSTS}.$(date +%Y%m%d)
+	cp  ${DMRIDFILE} ${DMRIDFILE}.$(date +%Y%m%d)
+	cp  ${DMRHOSTS} ${DMRHOSTS}.$(date +%Y%m%d)
+	cp  ${DPlusHOSTS} ${DPlusHOSTS}.$(date +%Y%m%d)
+	cp  ${P25HOSTS} ${P25HOSTS}.$(date +%Y%m%d)
+	cp  ${M17HOSTS} ${M17HOSTS}.$(date +%Y%m%d)
+	cp  ${YSFHOSTS} ${YSFHOSTS}.$(date +%Y%m%d)
+	cp  ${FCSHOSTS} ${FCSHOSTS}.$(date +%Y%m%d)
+	cp  ${XLXHOSTS} ${XLXHOSTS}.$(date +%Y%m%d)
+	cp  ${NXDNIDFILE} ${NXDNIDFILE}.$(date +%Y%m%d)
+	cp  ${NXDNHOSTS} ${NXDNHOSTS}.$(date +%Y%m%d)
+	cp  ${TGLISTBM} ${TGLISTBM}.$(date +%Y%m%d)
+	cp  ${TGLISTP25} ${TGLISTP25}.$(date +%Y%m%d)
+	cp  ${TGLISTNXDN} ${TGLISTNXDN}.$(date +%Y%m%d)
+	cp  ${TGLISTYSF} ${TGLISTYSF}.$(date +%Y%m%d)
+	cp  ${BMTGNAMES} ${BMTGNAMES}.$(date +%Y%m%d)
+	cp  ${GROUPSTXT} ${GROUPSTXT}.$(date +%Y%m%d)
+	cp  ${STRIPPED} ${STRIPPED}.$(date +%Y%m%d)
 fi
 
 # Prune backups
@@ -90,7 +95,10 @@ ${NXDNHOSTS}
 ${TGLISTBM}
 ${TGLISTP25}
 ${TGLISTNXDN}
-${TGLISTYSF}"
+${TGLISTYSF}
+${BMTGNAMES}
+${GROUPSTXT}
+${STRIPPED}"
 
 for file in ${FILES}
 do
@@ -138,6 +146,8 @@ curl --fail -L -o ${TGLISTNXDN} -s ${hostFileURL}/TGList_NXDN.txt --user-agent "
 curl --fail -L -o ${TGLISTYSF} -s ${hostFileURL}/TGList_YSF.txt --user-agent "WPSD-HostFileUpdater Ver.#${dashVer}-${dashBranch}"
 
 curl --fail -L -o ${BMTGNAMES} -s https://api.brandmeister.network/v1.0/groups/ # grab BM TG names for admin page
+# live caller and nextion screens:
+cp ${BMTGNAMES} ${GROUPSTXT}
 
 # If there is a DMR Over-ride file, add it's contents to DMR_Hosts.txt
 if [ -f "/root/DMR_Hosts.txt" ]; then
@@ -233,13 +243,14 @@ if [ -d "/usr/local/etc/ircddbgateway" ]; then
 fi
 
 # Nextion and LiveCaller DB's
-cp ${BMTGNAMES} /usr/local/etc/groups.txt
 curl --fail -L -o ${RADIOIDDB}.bz2 -s ${hostFileURL}/user.csv.bz2 --user-agent "WPSD-HostFileUpdater Ver.#${dashVer}-${dashBranch}"
 bunzip2 -f ${RADIOIDDB}.bz2
-cp ${RADIOIDDB} /tmp/
 # strip first line of DMRdb and cleanup
-sed -e '1d' < /tmp/user.csv > /tmp/stripped.csv
-rm /tmp/user.csv
-mv /tmp/stripped.csv /usr/local/etc/
+sed -e '1d' < /tmp/user.csv > ${STRIPPED}
+rm -f ${RADIOIDDB}
+# clean up legacy user.csv:
+if [ -f /usr/local/etc/user.csv ] ; then
+    rm -f /usr/local/etc/user.csv
+fi
 
 exit 0
