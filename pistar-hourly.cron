@@ -13,6 +13,8 @@
 
 ver_cmd=$( git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git rev-parse HEAD | tail -1 | awk '{ print substr($1,1,10) }' ) # last pipe to awk: converts long hash to 10 chars.
 
+cronMins=$(shuf -i 0-59 -n 1)
+
 # Shrink NginX error log to stop it getting out of hand
 echo "$(tail -500 /var/log/nginx/error.log)" > /var/log/nginx/error.log
 
@@ -40,7 +42,6 @@ gitStatusRemote=$(env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPS
 echo ${gitStatusRemote} > /etc/.W0CHP-PiStar-Dash.remote_version
 
 # Shuffle the time for the next hourly crontab job
-cronMins=$(shuf -i 0-59 -n 1)
 sed -i "/cron.hourly/c ${cronMins}  *   * * *   root    mount -o remount,rw / && cd / && run-parts --report /etc/cron.hourly" /etc/crontab
 
 # Mount the disk RO
