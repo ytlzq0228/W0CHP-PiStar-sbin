@@ -6,7 +6,7 @@
 #      Written for Pi-Star (http://www.pistar.uk/)      #
 #               By Andy Taylor (MW0MWZ)                 #
 #              Enhanced by W0CHP & F1RMB                #
-#                     Version 2.9.3                     #
+#                     Version 2.9.2                     #
 #                                                       #
 #   Based on the update script by Tony Corbett G0WFV    #
 #                                                       #
@@ -119,7 +119,8 @@ else
 fi
 
 # Grab DMR IDs but filter out IDs less than 7 digits (causing collisions with TGs of < 7 digits in "Target" column"
-curl --fail -L -o /tmp/DMRIds.tmp -s ${hostFileURL}/DMRIds.dat --user-agent "WPSD-HostFileUpdater Ver.#${dashVer}-${dashBranch}"
+curl --fail -L -o /tmp/DMRIds.tmp.bz2 -s ${hostFileURL}/DMRIds.dat.bz2 --user-agent "WPSD-HostFileUpdater Ver.#${dashVer}-${dashBranch}"
+bunzip2 -f /tmp/DMRIds.tmp.bz2
 cat /tmp/DMRIds.tmp  2>/dev/null | grep -v '^#' | awk '($1 > 999999) && ($1 < 10000000) { print $0 }' | sort -un -k1n -o ${DMRIDFILE}
 rm -f /tmp/DMRIds.tmp
 
@@ -233,7 +234,8 @@ fi
 
 # Nextion and LiveCaller DB's
 cp ${BMTGNAMES} /usr/local/etc/groups.txt
-curl --fail -L -o ${RADIOIDDB} -s ${hostFileURL}/user.csv --user-agent "WPSD-HostFileUpdater Ver.#${dashVer}-${dashBranch}"
+curl --fail -L -o ${RADIOIDDB}.bz2 -s ${hostFileURL}/user.csv.bz2 --user-agent "WPSD-HostFileUpdater Ver.#${dashVer}-${dashBranch}"
+bunzip2 -f ${RADIOIDDB}.bz2
 cp ${RADIOIDDB} /tmp/
 # strip first line of DMRdb and cleanup
 sed -e '1d' < /tmp/user.csv > /tmp/stripped.csv
