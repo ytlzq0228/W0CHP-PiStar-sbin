@@ -89,7 +89,6 @@ function start_services()
     systemctl start p25parrot.service > /dev/null 2>&1
     systemctl start nxdngateway.service > /dev/null 2>&1
     systemctl start nxdnparrot.service > /dev/null 2>&1
-    systemctl start dgidgateway.service > /dev/null 2>&1
     systemctl start ysfgateway.service > /dev/null 2>&1
     systemctl start ysfparrot.service > /dev/null 2>&1
     systemctl start ysf2dmr.service > /dev/null 2>&1
@@ -100,6 +99,7 @@ function start_services()
     systemctl start nxdn2dmr.service > /dev/null 2>&1
     systemctl start timeserver.service > /dev/null 2>&1
     systemctl start mmdvmhost.service > /dev/null 2>&1
+    systemctl start dgidgateway.service > /dev/null 2>&1 # this MMDVM loses link if started before MMDVMhost
     systemctl start dstarrepeater.service > /dev/null 2>&1
     systemctl start pistar-watchdog.service > /dev/null 2>&1
     systemctl start pistar-watchdog.timer > /dev/null 2>&1
