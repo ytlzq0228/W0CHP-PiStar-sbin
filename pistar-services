@@ -61,8 +61,8 @@ function stop_services()
     #systemctl stop nextiondriver.service > /dev/null 2>&1
     
     if [ "$1" == "FULLSTOP" ]; then
-	# Prevent cron to restart services
-	systemctl is-active --quiet cron.service && systemctl stop cron.service
+	    # Prevent cron to restart services
+	    systemctl is-active --quiet cron.service && systemctl stop cron.service
     fi
 
     echo -e "\b\b\b: DONE.\b"
@@ -108,7 +108,7 @@ function start_services()
         systemctl start pistar-upnp.service > /dev/null 2>&1
     fi
     
-    # Restart cron service is fullstop was used before
+    # Restart cron service if fullstop was used before
     systemctl is-active --quiet cron.service || systemctl start cron.service
 
     echo -e "\b\b\b: DONE.\b"
