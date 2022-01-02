@@ -30,7 +30,7 @@ git stash clear # housekeeping
 # Host Files Update
 /usr/local/sbin/HostFilesUpdate.sh > /dev/null 2>&1
 
-# cache W0CHP-PiStar-Dash git version:
+# Get and cache latest W0CHP-PiStar-Dash version from remote Git repo:
 gitRemoteURL=$(git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git config --get remote.origin.url)
 gitBranch="$( git --git-dir=${gitFolder}/.git branch | grep '*' | awk {'print $2'} )"
 gitStatusRemote=$(env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck Version Cacher (Daily-Cron) Ver.#${versionCmd}" git ls-remote --heads ${gitRemoteURL} ${gitBranch} | grep ${gitBranch} | awk {'print $1'} | awk '{ print substr($1,1,10) }') # last pipe to awk: converts long hash to 10 chars.

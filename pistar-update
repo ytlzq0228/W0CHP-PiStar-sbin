@@ -404,7 +404,7 @@ main_function() {
 	service_handle start
 	echo "Done"
 
-    # cache W0CHP-PiStar-Dash git version:
+    # Get and cache latest W0CHP-PiStar-Dash version from remote Git repo:
     gitFolder="/var/www/dashboard"
     gitRemoteURL=$(git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git config --get remote.origin.url)
     gitBranch="$( git --git-dir=${gitFolder}/.git branch | grep '*' | awk {'print $2'} )"
