@@ -6,7 +6,7 @@
 #      Written for Pi-Star (http://www.pistar.uk/)      #
 #               By Andy Taylor (MW0MWZ)                 #
 #              Enhanced by W0CHP & F1RMB                #
-#                     Version 2.9.7                     #
+#                     Version 2.9.8                     #
 #                                                       #
 #   Based on the update script by Tony Corbett G0WFV    #
 #                                                       #
@@ -22,7 +22,7 @@ dashBranch=$(git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.gi
 dashVer=$( git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git rev-parse --short=10 ${dashBranch} HEAD )
 
 # repo URI
-hostFileURL=https://repo.w0chp.net/Chipster/W0CHP-PiStar-Install/raw/master/host-files
+hostFileURL=https://repo.w0chp.net/Chipster/W0CHP-PiStar-Dash_HostFiles/raw/master/
 
 # Files and locations
 APRSHOSTS=/usr/local/etc/APRSHosts.txt
