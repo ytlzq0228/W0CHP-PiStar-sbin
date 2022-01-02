@@ -19,7 +19,7 @@ fi
 
 # Get the W0CHP-PiStar-Dash Version
 dashBranch=$(git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git branch | grep '*' | cut -f2 -d ' ')
-dashVer=$( git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git rev-parse --short=10 ${dashBranch} HEAD )
+dashVer=$( git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git rev-parse --short=10 ${dashBranch} )
 
 # repo URI
 hostFileURL=https://repo.w0chp.net/Chipster/W0CHP-PiStar-Dash_HostFiles/raw/master
