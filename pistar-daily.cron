@@ -40,26 +40,7 @@ echo ${gitStatusRemote} > /etc/.W0CHP-PiStar-Dash.remote_version
 /usr/local/sbin/pistar-motdgen
 
 # Stop all the services...
-systemctl stop pistar-watchdog.service > /dev/null 2>&1
-systemctl stop mmdvmhost.service > /dev/null 2>&1
-systemctl stop dstarrepeater.service > /dev/null 2>&1
-sleep 2
-systemctl stop ircddbgateway.service > /dev/null 2>&1
-systemctl stop aprsgateway.service > /dev/null 2>&1
-systemctl stop dapnetgateway.service > /dev/null 2>&1
-systemctl stop p25gateway.service > /dev/null 2>&1
-systemctl stop p25parrot.service > /dev/null 2>&1
-systemctl stop nxdngateway.service > /dev/null 2>&1
-systemctl stop nxdnparrot.service > /dev/null 2>&1
-systemctl stop ysfgateway.service > /dev/null 2>&1
-systemctl stop ysfparrot.service > /dev/null 2>&1
-systemctl stop ysf2dmr.service > /dev/null 2>&1
-systemctl stop ysf2p25.service > /dev/null 2>&1
-systemctl stop ysf2nxdn.service > /dev/null 2>&1
-systemctl stop dmr2ysf.service > /dev/null 2>&1
-systemctl stop dmr2nxdn.service > /dev/null 2>&1
-systemctl stop dmrgateway.service > /dev/null 2>&1
-systemctl stop timeserver.service > /dev/null 2>&1
+pistar-services fullstop > /dev/null 2>&1
 
 # Update the Binaries
 git --work-tree=/usr/local/bin --git-dir=/usr/local/bin/.git pull origin master
@@ -143,25 +124,7 @@ if [[ $(grep Version /etc/pistar-release | awk '{print $3}' | cut -c 1) -eq 4 ]]
 fi
 
 # Start all the services...
-systemctl start aprsgateway.service > /dev/null 2>&1
-systemctl start ircddbgateway.service > /dev/null 2>&1
-systemctl start dmrgateway.service > /dev/null 2>&1
-systemctl start dapnetgateway.service > /dev/null 2>&1
-systemctl start p25gateway.service > /dev/null 2>&1
-systemctl start p25parrot.service > /dev/null 2>&1
-systemctl start nxdngateway.service > /dev/null 2>&1
-systemctl start nxdnparrot.service > /dev/null 2>&1
-systemctl start ysfgateway.service > /dev/null 2>&1
-systemctl start ysfparrot.service > /dev/null 2>&1
-systemctl start ysf2dmr.service > /dev/null 2>&1
-systemctl start ysf2p25.service > /dev/null 2>&1
-systemctl start ysf2nxdn.service > /dev/null 2>&1
-systemctl start dmr2ysf.service > /dev/null 2>&1
-systemctl start dmr2nxdn.service > /dev/null 2>&1
-systemctl start timeserver.service > /dev/null 2>&1
-systemctl start mmdvmhost.service > /dev/null 2>&1
-systemctl start dstarrepeater.service > /dev/null 2>&1
-systemctl start pistar-watchdog.service > /dev/null 2>&1
+pistar-services start > /dev/null 2>&1
 
 # Fix nginx unit file
 if ! [ $(cat /lib/systemd/system/nginx.service | grep -o "mkdir") ]; then
