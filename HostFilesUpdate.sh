@@ -22,7 +22,7 @@ dashBranch=$(git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.gi
 dashVer=$( git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git rev-parse --short=10 ${dashBranch} HEAD )
 
 # repo URI
-hostFileURL=https://repo.w0chp.net/Chipster/W0CHP-PiStar-Dash_HostFiles/raw/master/
+hostFileURL=https://repo.w0chp.net/Chipster/W0CHP-PiStar-Dash_HostFiles/raw/master
 
 # Files and locations
 APRSHOSTS=/usr/local/etc/APRSHosts.txt
