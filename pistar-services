@@ -30,7 +30,12 @@ function stop_services()
         mount -o remount,rw /
     
     echo -ne "Stopping Pi-Star services..."
-    
+
+    if [ "$1" == "FULLSTOP" ]; then
+	    # Prevent cron to restart services
+	    systemctl is-active --quiet cron.service && systemctl stop cron.service
+    fi
+   
     if [ "$(grep "pistar-upnp.service" /etc/crontab | cut -c 1)" != '#' ]; then
         systemctl stop pistar-upnp.service > /dev/null 2>&1
     fi
@@ -60,11 +65,6 @@ function stop_services()
     systemctl stop timeserver.service > /dev/null 2>&1
     #systemctl stop nextiondriver.service > /dev/null 2>&1
     
-    if [ "$1" == "FULLSTOP" ]; then
-	    # Prevent cron to restart services
-	    systemctl is-active --quiet cron.service && systemctl stop cron.service
-    fi
-
     echo -e "\b\b\b: DONE.\b"
     [[ $SHLVL -gt 2 ]] &&    
         # Mount the disk RO only if NOT called from installer (or another) script
