@@ -40,7 +40,7 @@ echo ${gitStatusRemote} > /etc/.W0CHP-PiStar-Dash.remote_version
 /usr/local/sbin/pistar-motdgen
 
 # Stop all the services...
-REMOUNT_RO="NO" pistar-services fullstop > /dev/null 2>&1
+env REMOUNT_RO="NO" pistar-services fullstop > /dev/null 2>&1
 # Update the Binaries
 git --work-tree=/usr/local/bin --git-dir=/usr/local/bin/.git pull origin master
 if [ -f /usr/local/bin/platformDetect.sh ]; then # remove platformDetect.sh since we have a custom version in /usr/local/sbin

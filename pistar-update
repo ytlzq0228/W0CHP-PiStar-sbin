@@ -160,7 +160,7 @@ main_function() {
     fi
 
 	echo "Stopping Services..."
-	REMOUNT_RO="NO" pistar-services fullstop > /dev/null 2>&1
+	env REMOUNT_RO="NO" pistar-services fullstop > /dev/null 2>&1
 	echo "Done"
 
 	echo "Updating Official Pi-Star Digital Voice Binaries..."
@@ -402,7 +402,7 @@ main_function() {
 
 	# M17 Staging...
 	# reset bad config/scripts
-	if [[ $( grep -m 1 'Callsign' /etc/m17gateway | sed 's/Callsign=//g') ]] ; then # test to see if m17gw *has* been configured by user
+	if [[ $( grep -q -m 1 'Callsign' /etc/m17gateway | sed 's/Callsign=//g') ]] ; then # test to see if m17gw *has* been configured by user
 	    rm /etc/m17gateway
 	fi
 	# reinstall/init
