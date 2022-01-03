@@ -146,6 +146,13 @@ if [[ ! -f /usr/local/etc/M17_Audio/se_SE.indx ]]; then
     curl --fail -o /usr/local/etc/M17_Audio/se_SE.indx -s https://raw.githubusercontent.com/g4klx/M17Gateway/master/Audio/se_SE.indx    
 fi
 
+# M17 Staging
+if [[ ! -f /etc/systemd/system/m17gateway.service ]] ; then
+    cp /usr/local/sbin/m17gateway.service /etc/systemd/system/
+    touch /etc/m17gateway
+    m17gateway.service install
+fi
+
 # Start all the services...
 systemctl daemon-reload &> /dev/null # Reload systemd to account for service changes
 pistar-services start > /dev/null 2>&1
