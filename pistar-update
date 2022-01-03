@@ -402,7 +402,7 @@ main_function() {
 
 	# M17 Staging...
     if [[ -f /etc/m17gateway ]] ; then
-        if [[ $( grep -q -m 1 'Callsign' /etc/m17gateway | sed 's/Callsign=//g') ]] ; then # test to see if m17gw *has* been configured by user
+        if [[ $( grep -m 1 'Callsign' /etc/m17gateway | sed 's/Callsign=//g') ]] ; then # test to see if m17gw *has* been configured by user
             rm /etc/m17gateway
         fi
     fi
