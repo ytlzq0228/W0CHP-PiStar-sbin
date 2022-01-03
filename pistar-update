@@ -412,6 +412,18 @@ main_function() {
 	    touch /etc/m17gateway
 	fi
 
+	# DG-ID Staging...
+    if [[ -f /etc/dgidgateway ]] ; then
+        if [[ $( grep -m 1 'Callsign' /etc/dgidgateway | sed 's/Callsign=//g') ]] ; then # test to see if dgidgw *has* been configured by user
+            rm /etc/dgidgateway
+        fi
+    fi
+	# reinstall/init
+	if [[ ! -f /etc/dgidgateway ]] ; then
+	    bash /usr/local/sbin/dgidgateway.service install
+	    touch /etc/dgidgateway
+	fi
+
     # Get and cache latest W0CHP-PiStar-Dash version from remote Git repo:
     gitFolder="/var/www/dashboard"
     gitRemoteURL=$(git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git config --get remote.origin.url)
