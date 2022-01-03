@@ -146,10 +146,11 @@ if [[ ! -f /usr/local/etc/M17_Audio/se_SE.indx ]]; then
 fi
 
 # M17 Staging...
-# reset bad config/scripts
-if [[ $( grep -m 1 'Callsign' /etc/m17gateway | sed 's/Callsign=//g') ]] ; then # test to see if m17gw *has* been configured by user
-    rm /etc/m17gateway
-fi
+if [[ -f /etc/m17gateway ]] ; then
+    if [[ $( grep -q -m 1 'Callsign' /etc/m17gateway | sed 's/Callsign=//g') ]] ; then # test to see if m17gw *has* been configured by user
+        rm /etc/m17gateway
+    fi  
+fi 
 # reinstall/init
 if [[ ! -f /etc/m17gateway ]] ; then
     bash /usr/local/sbin/m17gateway.service install
