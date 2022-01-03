@@ -23,6 +23,44 @@ GROUP=mmdvm
 LOGDIR=/var/log/pi-star
 ipVar=`hostname -I | cut -d' ' -f1`
 
+case "$1" in
+        install)
+                cat >/etc/systemd/system/dgidgateway.service <<EOS
+[Unit]
+Description=DGIdGateway Servce
+After=syslog.target network.target mmdvmhost.timer
+
+[Service]
+Type=forking
+ExecStart=/usr/local/sbin/dgidgateway.service start
+ExecStop=/usr/local/sbin/dgidgateway.service stop
+ExecReload=/usr/local/sbin/dgidgateway.service restart
+
+[Install]
+WantedBy=multi-user.target
+EOS
+                cat >/etc/systemd/system/dgidgateway.timer <<EOS
+[Timer]
+OnStartupSec=20
+
+[Install]
+WantedBy=multi-user.target
+EOS
+                systemctl daemon-reload
+                systemctl enable dgidgateway.service
+                systemctl enable dgidgateway.timer
+                exit 0
+                ;;
+        uninstall)
+                systemctl stop dgidgateway.service
+                systemctl disable dgidgateway.timer
+                systemctl disable dgidgateway.service
+                rm /etc/systemd/system/dgidgateway.service
+                rm /etc/systemd/system/dgidgateway.timer
+                exit 0
+                ;;
+esac
+
 # Pre-flight checks...
 test -x ${DAEMON_PATH}${DAEMON} || exit 1
 test -r $CONFIG || exit 1
@@ -34,7 +72,7 @@ if [[ $(egrep -h -i "M1ABC" ${CONFIG} | wc -l) -gt 0 ]]; then
   exit 1;
 fi
 
-# temp hack to not start if config is not enabled=1
+ temp hack to not start if config is not enabled=1
 if [ -f '/etc/dgidgateway' ] && [ `sed -n '/\[Enabled\]/{n;p;}' /etc/dgidgateway | cut -c 9` == 0 ]; then
     exit 1;
 fi
@@ -113,6 +151,6 @@ case "$1" in
 		;;
 
 	*)
-		echo $"Usage: $0 {start|stop|restart|status}"
+		echo $"Usage: $0 {start|stop|restart|status|install|uninstall}"
 		exit 1
 esac

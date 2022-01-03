@@ -29,7 +29,7 @@ case "$1" in
 	install)
 	        cat >/etc/systemd/system/m17gateway.service <<EOS
 [Unit]
-Description=M17 Servce
+Description=M17Gateway Service
 After=syslog.target network.target mmdvmhost.timer
 
 [Service]
