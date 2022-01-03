@@ -150,7 +150,7 @@ fi
 if [[ ! -f /etc/systemd/system/m17gateway.service ]] ; then
     cp /usr/local/sbin/m17gateway.service /etc/systemd/system/
     touch /etc/m17gateway
-    m17gateway.service install
+    bash /etc/systemd/system/m17gateway.service install
 fi
 
 # Start all the services...
