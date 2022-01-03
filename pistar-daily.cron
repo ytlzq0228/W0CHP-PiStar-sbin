@@ -147,8 +147,7 @@ if [[ ! -f /usr/local/etc/M17_Audio/se_SE.indx ]]; then
 fi
 
 # M17 Staging
-if [[ ! -f /etc/systemd/system/m17gateway.service ]] ; then
-    cp /usr/local/sbin/m17gateway.service /etc/systemd/system/
+if [[ ! -f /etc/m17gateway ]] ; then
     touch /etc/m17gateway
     bash /etc/systemd/system/m17gateway.service install
 fi
