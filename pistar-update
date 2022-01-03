@@ -402,8 +402,8 @@ main_function() {
 
     # M17 Staging
     if [[ ! -f /etc/m17gateway ]] ; then
+        bash /usr/local/sbin/m17gateway.service install
         touch /etc/m17gateway
-        bash /etc/systemd/system/m17gateway.service install
     fi
 
     # Get and cache latest W0CHP-PiStar-Dash version from remote Git repo:
