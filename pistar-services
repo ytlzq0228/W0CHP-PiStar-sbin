@@ -67,9 +67,10 @@ function stop_services()
     #systemctl stop nextiondriver.service > /dev/null 2>&1
     
     echo -e "\b\b\b: DONE.\b"
-    [[ $SHLVL -gt 2 ]] &&    
-        # Mount the disk RO only if NOT called from installer (or another) script
-        mount -o remount,ro /
+    # Mount the disk RO
+    if [ x"$REMOUNT_RO" != "xNO" ]; then
+	mount -o remount,ro /
+    fi
 }
 
 function start_services()
@@ -114,10 +115,10 @@ function start_services()
     systemctl is-active --quiet cron.service || systemctl start cron.service
 
     echo -e "\b\b\b: DONE.\b"
-
-    [[ $SHLVL -gt 2 ]] && 
-        # Mount the disk RO only if NOT called from installer (or another) script
-        mount -o remount,ro /
+    # Mount the disk RO
+    if [ x"$REMOUNT_RO" != "xNO" ]; then
+	mount -o remount,ro /
+    fi
 }
 
 case "$1" in

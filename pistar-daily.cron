@@ -40,8 +40,7 @@ echo ${gitStatusRemote} > /etc/.W0CHP-PiStar-Dash.remote_version
 /usr/local/sbin/pistar-motdgen
 
 # Stop all the services...
-pistar-services fullstop > /dev/null 2>&1
-
+REMOUNT_RO="NO" pistar-services fullstop > /dev/null 2>&1
 # Update the Binaries
 git --work-tree=/usr/local/bin --git-dir=/usr/local/bin/.git pull origin master
 if [ -f /usr/local/bin/platformDetect.sh ]; then # remove platformDetect.sh since we have a custom version in /usr/local/sbin
@@ -146,14 +145,16 @@ if [[ ! -f /usr/local/etc/M17_Audio/se_SE.indx ]]; then
     curl --fail -o /usr/local/etc/M17_Audio/se_SE.indx -s https://raw.githubusercontent.com/g4klx/M17Gateway/master/Audio/se_SE.indx    
 fi
 
-# M17 Staging
+# M17 Staging...
+# reset bad config/scripts
+if [[ $( grep -m 1 'Callsign' /etc/m17gateway | sed 's/Callsign=//g') ]] ; then # test to see if m17gw *has* been configured by user
+    rm /etc/m17gateway
+fi
+# reinstall/init
 if [[ ! -f /etc/m17gateway ]] ; then
     bash /usr/local/sbin/m17gateway.service install
     touch /etc/m17gateway
 fi
-# Start all the services...
-systemctl daemon-reload &> /dev/null # Reload systemd to account for service changes
-pistar-services start > /dev/null 2>&1
 
 # Fix nginx unit file
 if ! [ $(cat /lib/systemd/system/nginx.service | grep -o "mkdir") ]; then
@@ -161,5 +162,10 @@ if ! [ $(cat /lib/systemd/system/nginx.service | grep -o "mkdir") ]; then
 	systemctl daemon-reload
 	systemctl restart nginx.service
 fi
+
+# Start all the services...
+systemctl daemon-reload &> /dev/null # Reload systemd to account for service changes
+pistar-services start > /dev/null 2>&1
+
 
 exit 0

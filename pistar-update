@@ -160,7 +160,7 @@ main_function() {
     fi
 
 	echo "Stopping Services..."
-	pistar-services fullstop > /dev/null 2>&1
+	REMOUNT_RO="NO" pistar-services fullstop > /dev/null 2>&1
 	echo "Done"
 
 	echo "Updating Official Pi-Star Digital Voice Binaries..."
@@ -400,11 +400,16 @@ main_function() {
         	fi
 	fi
 
-    # M17 Staging
-    if [[ ! -f /etc/m17gateway ]] ; then
-        bash /usr/local/sbin/m17gateway.service install
-        touch /etc/m17gateway
-    fi
+	# M17 Staging...
+	# reset bad config/scripts
+	if [[ $( grep -m 1 'Callsign' /etc/m17gateway | sed 's/Callsign=//g') ]] ; then # test to see if m17gw *has* been configured by user
+	    rm /etc/m17gateway
+	fi
+	# reinstall/init
+	if [[ ! -f /etc/m17gateway ]] ; then
+	    bash /usr/local/sbin/m17gateway.service install
+	    touch /etc/m17gateway
+	fi
 
     # Get and cache latest W0CHP-PiStar-Dash version from remote Git repo:
     gitFolder="/var/www/dashboard"
