@@ -4,7 +4,7 @@
 #                                                                             #
 #                      Pi-Star MMDVMHost Module Tool                          #
 #                                                                             #
-#     Version 1.2, Code, Design and Development by Andy Taylor (MW0MWZ).      #
+#     Version 1.3, Code, Design and Development by Andy Taylor (MW0MWZ).      #
 #                            Enhanced by W0CHP                                #
 #                                                                             #
 #    Make it simple to turn on/off modes from the CLI or Cron.                #
@@ -62,9 +62,17 @@ if [ "$1" ]; then
     CUR_STATUS=$(sed -n "/\[NXDN\]/{n;p;}" ${MMDVMCONFIG} | awk -F '=' '{print $2}')
     MODULE="NXDN"
   ;;
+  ([Mm][1][7])
+    CUR_STATUS=$(sed -n "/\[M17\]/{n;p;}" ${MMDVMCONFIG} | awk -F '=' '{print $2}')
+    MODULE="M17"
+  ;;
   ([Pp]25)
     CUR_STATUS=$(sed -n "/\[P25\]/{n;p;}" ${MMDVMCONFIG} | awk -F '=' '{print $2}')
     MODULE="P25"
+  ;;
+  ([Ff][Mm])
+    CUR_STATUS=$(sed -n "/\[FM\]/{n;p;}" ${MMDVMCONFIG} | awk -F '=' '{print $2}')
+    MODULE="FM"
   ;;
   ([Pp][Oo][Cc][Ss][Aa][Gg])
     CUR_STATUS=$(sed -n "/\[POCSAG\]/{n;p;}" ${MMDVMCONFIG} | awk -F '=' '{print $2}')
