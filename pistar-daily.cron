@@ -145,17 +145,28 @@ if [[ ! -f /usr/local/etc/M17_Audio/se_SE.indx ]]; then
     curl --fail -o /usr/local/etc/M17_Audio/se_SE.indx -s https://raw.githubusercontent.com/g4klx/M17Gateway/master/Audio/se_SE.indx    
 fi
 
-# M17 Staging...
-if [[ -f /etc/m17gateway ]] ; then
-    if [[ $( grep -m 1 'Callsign' /etc/m17gateway | sed 's/Callsign=//g') ]] ; then # test to see if m17gw *has* been configured by user
-        rm /etc/m17gateway
-    fi  
-fi 
-# reinstall/init
-if [[ ! -f /etc/m17gateway ]] ; then
-    bash /usr/local/sbin/m17gateway.service install
-    touch /etc/m17gateway
-fi
+    # M17 Staging...
+    #if [[ -f /etc/m17gateway ]] ; then
+    #    if [[ $( grep -m 1 'Callsign' /etc/m17gateway | sed 's/Callsign=//g') ]] ; then # test to see if m17gw *has* been configured by user
+    #        rm /etc/m17gateway
+    #    fi
+    #fi
+    # reinstall/init
+    if [[ ! -f /etc/m17gateway ]] ; then
+        bash /usr/local/sbin/m17gateway.service install
+        touch /etc/m17gateway
+    fi
+    # DG-ID Staging...
+    #if [[ -f /etc/dgidgateway ]] ; then
+    #    if [[ $( grep -m 1 'Callsign' /etc/dgidgateway | sed 's/Callsign=//g') ]] ; then # test to see if dgidgw *has* been configured by user
+    #        rm /etc/dgidgateway
+    #    fi
+    #fi
+    # reinstall/init
+    if [[ ! -f /etc/dgidgateway ]] ; then
+        bash /usr/local/sbin/dgidgateway.service install
+        touch /etc/dgidgateway
+    fi
 
 # Fix nginx unit file
 if ! [ $(cat /lib/systemd/system/nginx.service | grep -o "mkdir") ]; then
