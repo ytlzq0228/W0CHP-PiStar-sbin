@@ -43,7 +43,7 @@ ${COL_NC}
 [1;37mhttp://$(hostname)/  http://$(hostname).local/   http://$(hostname -I | awk '{print $1}')/
 
 [0;0mPi-Star's disk is read-only by default, enable read-write with \"rpi-rw\".
-Pi-Star built by Andy Taylor (MW0MWZ), Greatly enhanced & forke dby W0CHP.
+Pi-Star built by Andy Taylor (MW0MWZ), Greatly enhanced & forked by W0CHP.
 
 pi-star command-line tools all begin with \"pistar-\".
 
