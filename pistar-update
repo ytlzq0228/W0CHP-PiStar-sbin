@@ -166,6 +166,20 @@ main_function() {
 	echo "Updating Official Pi-Star Digital Voice Binaries..."
 	git_update /usr/local/bin
 	echo "Done"
+        custBinBranch="$( git --git-dir=/var/www/dashboard/.git branch | grep '*' | awk {'print $2'} )"
+        if [[ ${custBinBranch} == "DG-ID_M17" ]] ; then
+            W0CHP_CUST_BINS_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-Dash_CustomBinaries.git"
+	    echo "Updating W0CHP-PiStar-Dash Custom Binaries (DG-ID_M17 branch)..."
+            cd /tmp/
+            GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${versionCmd}" git clone -q ${W0CHP_CUST_BINS_REPO} > /dev/null 
+            cp -a /tmp/W0CHP-PiStar-Dash_CustomBinaries/{YSFGateway,YSFParrot,DGIdGateway,M17Gateway,MMDVMHost,MMDVMCal,RemoteCommand} /usr/local/bin/
+            rm -rf /tmp/W0CHP-PiStar-Dash_CustomBinaries
+            cd /usr/local/bin/
+            chmod root:bin * > /dev/null 2<&1
+            git stash > /dev/null 2<&1 # stash custom bins
+            git checkout stash@{0} -- YSFGateway YSFParrot DGIdGateway M17Gateway MMDVMHost MMDVMCal RemoteCommand > /dev/null 2<&1
+	    echo "Done"
+        fi
 
 	echo "Updating W0CHP-PiStar-Dash Pi-Star Binaries & Scripts..."
 	git_update /usr/local/sbin
@@ -423,6 +437,9 @@ main_function() {
 	    touch /etc/dgidgateway
 	fi
 
+        if [ -f /usr/local/bin/platformDetect.sh ]; then # remove platformDetect.sh since we have a custom version in /usr/local/sbin
+            rm -f /usr/local/bin/platformDetect.sh
+        fi
     # Get and cache latest W0CHP-PiStar-Dash version from remote Git repo:
     gitFolder="/var/www/dashboard"
     gitRemoteURL=$(git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git config --get remote.origin.url)

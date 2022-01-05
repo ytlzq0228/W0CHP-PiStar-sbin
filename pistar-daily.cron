@@ -43,9 +43,19 @@ echo ${gitStatusRemote} > /etc/.W0CHP-PiStar-Dash.remote_version
 env REMOUNT_RO="NO" pistar-services fullstop > /dev/null 2>&1
 # Update the Binaries
 git --work-tree=/usr/local/bin --git-dir=/usr/local/bin/.git pull origin master
-if [ -f /usr/local/bin/platformDetect.sh ]; then # remove platformDetect.sh since we have a custom version in /usr/local/sbin
-    git --work-tree=/usr/local/bin --git-dir=/usr/local/bin/.git rm platformDetect.sh > /dev/null 2>&1
-fi
+
+custBinBranch="$( git --git-dir=/var/www/dashboard/.git branch | grep '*' | awk {'print $2'} )"
+if [[ ${custBinBranch} == "DG-ID_M17" ]] ; then
+    W0CHP_CUST_BINS_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-Dash_CustomBinaries.git"
+    cd /tmp/
+    GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck Version Cacher (Daily-Cron) Ver.#${versionCmd}"  git clone -q ${W0CHP_CUST_BINS_REPO} > /dev/null 
+    cp -a /tmp/W0CHP-PiStar-Dash_CustomBinaries/{YSFGateway,YSFParrot,DGIdGateway,M17Gateway,MMDVMHost,MMDVMCal,RemoteCommand} /usr/local/bin/
+    rm -rf /tmp/W0CHP-PiStar-Dash_CustomBinaries
+    cd /usr/local/bin/
+    chmod root:bin * > /dev/null 2<&1
+    git stash > /dev/null 2<&1 # stash custom bins
+    git checkout stash@{0} -- YSFGateway YSFParrot DGIdGateway M17Gateway MMDVMHost MMDVMCal RemoteCommand > /dev/null 2<&1
+ fi
 
 # Purge the logs older than 2 days
 rm -f $(find /var/log/pi-star/*.log -type f -mtime +2 -print)
@@ -166,6 +176,10 @@ fi
     if [[ ! -f /etc/dgidgateway ]] ; then
         bash /usr/local/sbin/dgidgateway.service install
         touch /etc/dgidgateway
+    fi
+
+    if [ -f /usr/local/bin/platformDetect.sh ]; then # remove platformDetect.sh since we have a custom version in /usr/local/sbin
+        rm -f /usr/local/bin/platformDetect.sh
     fi
 
 # Fix nginx unit file
