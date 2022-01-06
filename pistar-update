@@ -169,6 +169,10 @@ main_function() {
 	env REMOUNT_RO="NO" pistar-services fullstop > /dev/null 2>&1
 	echo "Done"
 
+	echo "Updating W0CHP-PiStar-Dash Pi-Star Binaries & Scripts..."
+	git_update /usr/local/sbin
+	echo "Done"
+
 	echo "Updating Official Pi-Star Digital Voice Binaries..."
 	git_update /usr/local/bin
 	echo "Done"
@@ -182,10 +186,6 @@ main_function() {
             git checkout stash@{0} -- YSFGateway YSFParrot DGIdGateway M17Gateway MMDVMHost MMDVMCal RemoteCommand config_clean.zip> /dev/null 2<&1
 	    echo "Done"
 	fi
-
-	echo "Updating W0CHP-PiStar-Dash Pi-Star Binaries & Scripts..."
-	git_update /usr/local/sbin
-	echo "Done"
 
 	echo "Updating W0CHP-PiStar-Dash Web Dashboard Software..."
 	git_update /var/www/dashboard
