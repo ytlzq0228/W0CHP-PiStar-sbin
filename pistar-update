@@ -117,12 +117,6 @@ git_update() {
 		if [[ ${gitFolder} == "/usr/local/.W0CHP_bin" ]]; then
                 	echo "Updating W0CHP-PiStar-Dash Custom Binaries (DG-ID_M17 branch)..."
 			env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${versionCmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull -q &> /dev/null
-       		 	cp -a ${gitFolder}/{YSFGateway,YSFParrot,DGIdGateway,M17Gateway,MMDVMHost,MMDVMCal,RemoteCommand,config_clean.zip} /usr/local/bin/
-          		chmod root:bin /usr/local/bin/* > /dev/null 2<&1
-            		cd /usr/local/bin
-            		git stash > /dev/null 2<&1 # stash custom bins
-            		git checkout stash@{0} -- YSFGateway YSFParrot DGIdGateway M17Gateway MMDVMHost MMDVMCal RemoteCommand config_clean.zip> /dev/null 2<&1
-            		echo "Done"
 		fi
 		else
 			echo "No updates for ${gitFolder} available"
@@ -181,6 +175,12 @@ main_function() {
 
         if [[ ${W0CHP_DASH_BRANCH} == "DG-ID_M17" ]]; then
 	    git_update /usr/local/.W0CHP_bin
+            cp -a /usr/local/.W0CHP_bin/{YSFGateway,YSFParrot,DGIdGateway,M17Gateway,MMDVMHost,MMDVMCal,RemoteCommand,config_clean.zip}
+/usr/local/bin/
+            chmod root:bin /usr/local/bin/* > /dev/null 2<&1                                                                  
+            cd /usr/local/bin
+            git stash > /dev/null 2<&1 # stash custom bins                                                                    
+            git checkout stash@{0} -- YSFGateway YSFParrot DGIdGateway M17Gateway MMDVMHost MMDVMCal RemoteCommand config_clean.zip> /dev/null 2<&1
 	    echo "Done"
 	fi
 
