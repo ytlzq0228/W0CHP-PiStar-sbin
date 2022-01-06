@@ -24,7 +24,7 @@ fi
 
 W0CHP_DASH_BRANCH="$( git --git-dir=/var/www/dashboard/.git branch | grep '*' | awk {'print $2'} )"
 versionCmd=$( git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git rev-parse --short=10 HEAD )
-custBinsLocal="/usr/local/.W0CHP_bin"
+W0CHP_CUST_BINS_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-Dash_CustomBinaries.git"
 
 git_checkUpdateRequired() {
 	# Set the function variables
@@ -114,16 +114,16 @@ git_update() {
     	    			env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${versionCmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard origin/master
 			fi
 		fi
-		if [[ ${gitFolder} == ${custBinsLocal} ]]; then
+		if [[ ${gitFolder} == "/usr/local/W0CHP_bin" ]]; then
                 	echo "Updating W0CHP-PiStar-Dash Custom Binaries (DG-ID_M17 branch)..."
-                	env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${versionCmd}" git --work-tree=${custBinsLocal} --git-dir=${custBinsLocal}/.git pull -q &> /dev/null
-            		cp -a ${custBinsLocal}/{YSFGateway,YSFParrot,DGIdGateway,M17Gateway,MMDVMHost,MMDVMCal,RemoteCommand} /usr/local/bin/
-            		chmod root:bin /usr/local/bin/* > /dev/null 2<&1
+			env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${versionCmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull -q &> /dev/null
+       		 	cp -a ${gitFolder}/{YSFGateway,YSFParrot,DGIdGateway,M17Gateway,MMDVMHost,MMDVMCal,RemoteCommand} /usr/local/bin/
+          		chmod root:bin /usr/local/bin/* > /dev/null 2<&1
             		cd /usr/local/bin
             		git stash > /dev/null 2<&1 # stash custom bins
             		git checkout stash@{0} -- YSFGateway YSFParrot DGIdGateway M17Gateway MMDVMHost MMDVMCal RemoteCommand > /dev/null 2<&1
             		echo "Done"
-		fi		
+		fi
 		else
 			echo "No updates for ${gitFolder} available"
 	fi
@@ -180,7 +180,7 @@ main_function() {
 	echo "Done"
 
         if [[ ${W0CHP_DASH_BRANCH} == "DG-ID_M17" ]]; then
-	    git_update ${custBinsLocal}
+	    git_update /usr/local/.W0CHP_bin
 	    echo "Done"
 	fi
 
