@@ -114,14 +114,14 @@ git_update() {
     	    			env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${versionCmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard origin/master
 			fi
 		fi
-		if [[ ${gitFolder} == "/usr/local/W0CHP_bin" ]]; then
+		if [[ ${gitFolder} == "/usr/local/.W0CHP_bin" ]]; then
                 	echo "Updating W0CHP-PiStar-Dash Custom Binaries (DG-ID_M17 branch)..."
 			env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${versionCmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull -q &> /dev/null
-       		 	cp -a ${gitFolder}/{YSFGateway,YSFParrot,DGIdGateway,M17Gateway,MMDVMHost,MMDVMCal,RemoteCommand} /usr/local/bin/
+       		 	cp -a ${gitFolder}/{YSFGateway,YSFParrot,DGIdGateway,M17Gateway,MMDVMHost,MMDVMCal,RemoteCommand,config_clean.zip} /usr/local/bin/
           		chmod root:bin /usr/local/bin/* > /dev/null 2<&1
             		cd /usr/local/bin
             		git stash > /dev/null 2<&1 # stash custom bins
-            		git checkout stash@{0} -- YSFGateway YSFParrot DGIdGateway M17Gateway MMDVMHost MMDVMCal RemoteCommand > /dev/null 2<&1
+            		git checkout stash@{0} -- YSFGateway YSFParrot DGIdGateway M17Gateway MMDVMHost MMDVMCal RemoteCommand config_clean.zip> /dev/null 2<&1
             		echo "Done"
 		fi
 		else
@@ -197,20 +197,20 @@ main_function() {
 	echo "Done"
 
 	echo "Updating Pi-Star-Firewall..."
-    # check if user already has firewall disabled, and if so, ensure it's kept that way.
-    if ! grep -q LOGNDROP /etc/iptables.rules ; then
-        /usr/local/sbin/pistar-system-manager -dfw > /dev/null 2>&1
-    else
-        /usr/local/sbin/pistar-system-manager -efw > /dev/null 2>&1
-    fi
+        # check if user already has firewall disabled, and if so, ensure it's kept that way.
+        if ! grep -q LOGNDROP /etc/iptables.rules ; then
+            /usr/local/sbin/pistar-system-manager -dfw > /dev/null 2>&1
+        else
+            /usr/local/sbin/pistar-system-manager -efw > /dev/null 2>&1
+        fi
 	echo "Done"
 
-    # New CSS mappings and funcs (git master #e2d2e9d092)...have to reset :-/
+        # New CSS mappings and funcs (git master #e2d2e9d092)...have to reset :-/
 	CSS_FILE="/etc/pistar-css.ini"
 	if [ -f $CSS_FILE ] && [ ! $( grep 'TextLinkColor' $CSS_FILE) ] ; then
-    	echo -e "\n\nNOTE: Custom user CSS detected. Since W0CHP-PiStar-Dash Ver.#e2d2e9d092, the CSS mappings have been updated, and you must. manually edit your custom values again."
-		echo -e "You can reference the customizations you previously had by viewing the file: /etc/.pistar-css.ini.user and then manually re-mapping those values in the Expert CSS Editor Page.\n\n"
-		mv /etc/pistar-css.ini /etc/.pistar-css.ini.user
+    	    echo -e "\n\nNOTE: Custom user CSS detected. Since W0CHP-PiStar-Dash Ver.#e2d2e9d092, the CSS mappings have been updated, and you must. manually edit your custom values again."
+	    echo -e "You can reference the customizations you previously had by viewing the file: /etc/.pistar-css.ini.user and then manually re-mapping those values in the Expert CSS Editor Page.\n\n"
+	    mv /etc/pistar-css.ini /etc/.pistar-css.ini.user
 	fi 
 
 	# Pre-Fix some config in MMDVMHost for update purposes.
