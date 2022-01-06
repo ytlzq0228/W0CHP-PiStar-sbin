@@ -170,11 +170,14 @@ main_function() {
 
         if [[ ${W0CHP_DASH_BRANCH} == "DG-ID_M17" ]]; then
 	    git_update /usr/local/.W0CHP_bin
-            cp -a /usr/local/.W0CHP_bin/{YSFGateway,YSFParrot,DGIdGateway,M17Gateway,MMDVMHost,MMDVMCal,RemoteCommand,config_clean.zip} /usr/local/bin/
-            chmod root:bin /usr/local/bin/* > /dev/null 2<&1                                                                  
-            cd /usr/local/bin
-            git stash > /dev/null 2<&1 # stash custom bins                                                                    
-            git checkout stash@{0} -- YSFGateway YSFParrot DGIdGateway M17Gateway MMDVMHost MMDVMCal RemoteCommand config_clean.zip> /dev/null 2<&1
+            for i in $( ls /usr/local/.W0CHP_bin/ ) ; do
+                rm -f /usr/local/bin/$i
+                ln -sfn /usr/local/.W0CHP_bin/$i /usr/local/bin/$i
+            done
+            cd /usr/local/bin/
+            chmod root:bin * > /dev/null 2<&1
+            git stash > /dev/null 2<&1 # stash custom bins
+            git checkout stash@{0} -- YSFGateway YSFParrot DGIdGateway M17Gateway MMDVMHost MMDVMCal RemoteCommand config_clean.zip > /dev/null 2<&1
            echo "Done"
        fi
 
