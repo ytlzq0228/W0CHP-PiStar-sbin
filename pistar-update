@@ -171,6 +171,7 @@ main_function() {
 
 	echo "Updating W0CHP-PiStar-Dash Pi-Star Binaries & Scripts..."
 	git_update /usr/local/sbin
+	systemctl daemon-reload > /dev/null 2>&1
 	echo "Done"
 
 	echo "Updating Official Pi-Star Digital Voice Binaries..."
@@ -417,27 +418,31 @@ main_function() {
 	fi
 
 	# M17 Staging...
-    #if [[ -f /etc/m17gateway ]] ; then
-    #    if [[ $( grep -m 1 'Callsign' /etc/m17gateway | sed 's/Callsign=//g') ]] ; then # test to see if m17gw *has* been configured by user
-    #        rm /etc/m17gateway
-    #    fi
-    #fi
+	#if [[ -f /etc/m17gateway ]] ; then
+    		#if [[ $( grep -m 1 'Callsign' /etc/m17gateway | sed 's/Callsign=//g') ]] ; then # test to see if m17gw *has* been configured by user
+    			#rm /etc/m17gateway
+    		#fi
+    	#fi
 	# reinstall/init
 	if [[ ! -f /etc/m17gateway ]] ; then
 	    bash /usr/local/sbin/m17gateway.service install
 	    touch /etc/m17gateway
 	fi
 	# DG-ID Staging...
-    #if [[ -f /etc/dgidgateway ]] ; then
-    #    if [[ $( grep -m 1 'Callsign' /etc/dgidgateway | sed 's/Callsign=//g') ]] ; then # test to see if dgidgw *has* been configured by user
-    #        rm /etc/dgidgateway
-    #    fi
-    #fi
+	#if [[ -f /etc/dgidgateway ]] ; then
+    		#if [[ $( grep -m 1 'Callsign' /etc/dgidgateway | sed 's/Callsign=//g') ]] ; then # test to see if dgidgw *has* been configured by user
+    			#rm /etc/dgidgateway
+    		#fi
+	#fi
 	# reinstall/init
 	if [[ ! -f /etc/dgidgateway ]] ; then
 	    bash /usr/local/sbin/dgidgateway.service install
 	    touch /etc/dgidgateway
 	fi
+
+        if [ -f /usr/local/bin/platformDetect.sh ]; then # remove platformDetect.sh since we have a custom version in /usr/local/sbin
+            rm -f /usr/local/bin/platformDetect.sh
+        fi
 
     # Get and cache latest W0CHP-PiStar-Dash version from remote Git repo:
     gitFolder="/var/www/dashboard"
