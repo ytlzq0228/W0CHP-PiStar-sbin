@@ -4,7 +4,7 @@
 #                                                                             #
 #                        Pi-Star Auto Remote Control                          #
 #                                                                             #
-#    Version 1.8, Code, Design and Development by Andy Taylor (MW0MWZ).       #
+#    Version 1.9, Code, Design and Development by Andy Taylor (MW0MWZ).       #
 #                                                                             #
 #  This Python script is desiged to look for specific things in the logs for  #
 #       MMDVMHost and act on those to give RF control over the repeater.      #
@@ -220,6 +220,7 @@ while True:
 					# Restart the Services
 					os.system(r'systemctl restart mmdvmhost.service')
 					os.system(r'systemctl restart dmrgateway.service')
+					time.sleep(30)
 
 				# DMR Restart the OS
 				# M: 2017-07-03 09:39:38.208 DMR Slot 2, received RF voice header from M1ABC to 123456
@@ -255,6 +256,7 @@ while True:
                                         # Restart the Services
                                         os.system(r'systemctl restart mmdvmhost.service')
                                         os.system(r'systemctl restart dmrgateway.service')
+					time.sleep(30)
 
                                 # P25 Restart the OS
                                 # M: 2017-08-08 08:02:43.352 P25, received RF transmission from M1ABC to TG 123456
@@ -294,6 +296,7 @@ while True:
 					time.sleep(5)
                                         os.system(r'systemctl restart ircddbgateway.service')
                                         os.system(r'systemctl restart mmdvmhost.service')
+					time.sleep(30)
 
 				# D-Star Reboot the OS
 				# M: 2017-07-03 11:38:57.349 D-Star, received RF header from M1ABC  /1234 to COMMAND1
@@ -373,7 +376,7 @@ while True:
 
 								# YSF Stop MMDVMHost
 								# M: 2017-07-13 19:24:59.704 Trying to find non existent reflector with an id of 12345
-								if str('Trying to find non existent reflector') and str(ysfstop) in lineysf:
+								if (str('Trying to find non existent') and str(ysfstop) in lineysf) or (str('Received Connect to') and str(ysfstop) in lineysf):
 									# Kill the Services
 									os.system(r'systemctl stop mmdvmhost.timer')
 									os.system(r'systemctl stop pistar-watchdog.timer')
@@ -382,26 +385,27 @@ while True:
 
 								# YSF Restart MMDVMHost
 								# M: 2017-07-13 19:24:59.704 Trying to find non existent reflector with an id of 12345
-								if str('Trying to find non existent reflector') and str(ysfrestart) in lineysf:
+								if (str('Trying to find non existent') and str(ysfrestart) in lineysf) or (str('Received Connect to') and str(ysfrestart) in lineysf):
 									# Restart the Services
 									os.system(r'systemctl restart ysfgateway.service')
 									os.system(r'systemctl restart mmdvmhost.service')
+									time.sleep(30)
 
 								# YSF Reboot the OS
 								# M: 2017-07-13 19:24:59.704 Trying to find non existent reflector with an id of 12345
-								if str('Trying to find non existent reflector') and str(ysfreboot) in lineysf:
+								if (str('Trying to find non existent') and str(ysfreboot) in lineysf) or (str('Received Connect to') and str(ysfreboot) in lineysf):
 									# Reboot the OS
 									os.system(r'shutdown -r now')
 
 								# YSF Shutdown the OS
 								# M: 2017-07-13 19:24:59.704 Trying to find non existent reflector with an id of 12345
-								if str('Trying to find non existent reflector') and str(ysfshutdown) in lineysf:
+								if (str('Trying to find non existent') and str(ysfshutdown) in lineysf) or (str('Received Connect to') and str(ysfshutdown) in lineysf):
 									# Shutdown the OS
 									os.system(r'shutdown -h now')
 
 								# YSF Update the Hostfiles
 								# M: 2017-07-13 19:24:59.704 Trying to find non existent reflector with an id of 12345
-								if str('Trying to find non existent reflector') and str(ysfhostfiles) in lineysf:
+								if (str('Trying to find non existent') and str(ysfhostfiles) in lineysf) or (str('Received Connect to') and str(ysfhostfiles) in lineysf):
 									# Update the host files
 									os.system(r'/bin/mount -o remount,rw /')
 									os.system(r'/usr/local/sbin/HostFilesUpdate.sh')
