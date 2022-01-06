@@ -30,8 +30,8 @@ git_checkUpdateRequired() {
 	# Set the function variables
 	gitFolder=${1}
 	gitRemoteURL=$(git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git config --get remote.origin.url)
-	# W0CHP has more than one branch. So depending on what W0CHP branch the user has installed, check that branch.
-	gitBranch="$( git --git-dir=${gitFolder}/.git branch | grep '*' | awk {'print $2'} )"
+    # W0CHP has more than one branch. So depending on what W0CHP branch the user has installed, check that branch.
+    gitBranch="$( git --git-dir=${gitFolder}/.git branch | grep '*' | awk {'print $2'} )"
 
 	# Git check / update function
 	gitStatusRemote=$(env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${versionCmd}" git ls-remote --heads ${gitRemoteURL} | grep ${gitBranch} | awk {'print $1'})
@@ -61,73 +61,73 @@ git_update() {
 		echo "Updating ${gitFolder}..."
         	# W0CHP has more than one branch. So depending on what W0CHP branch the user has installed, pull that branch.
         	if [[ ${gitFolder} == "/var/www/dashboard" ]]; then
-                	cd ${gitFolder}
-                	git stash > /dev/null 2<&1 # save user config files: config/config.php config/ircddblocal.php config/language.php
-                	env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${versionCmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull -q origin ${dash_branch} &> /dev/null
-                	git checkout stash@{0} -- config/config.php config/ircddblocal.php config/language.php > /dev/null 2<&1 # restore user config files from stash
-                	git stash clear > /dev/null 2<&1 # housekeeping
-                	echo -e "\nChangeLog:\n"
-                	#git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --decorate=short -n1 | sed -e '1,4d'
-                	git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --no-decorate --pretty=oneline -n5 | cut --complement -d' ' -f1 | fold -w 76 -s
-                	echo -e "\n"
+                cd ${gitFolder}
+                git stash > /dev/null 2<&1 # save user config files: config/config.php config/ircddblocal.php config/language.php
+                env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${versionCmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull -q origin ${dash_branch} &> /dev/null
+                git checkout stash@{0} -- config/config.php config/ircddblocal.php config/language.php > /dev/null 2<&1 # restore user config files from stash
+                git stash clear > /dev/null 2<&1 # housekeeping
+                echo -e "\nChangeLog:\n"
+                #git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --decorate=short -n1 | sed -e '1,4d'
+                git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --no-decorate --pretty=oneline -n5 | cut --complement -d' ' -f1 | fold -w 76 -s
+                echo -e "\n"
         	else
-			# If this script is updated, re-run the update with the new version.
-			if [[ ${gitFolder} == "/usr/local/sbin" ]]; then
-                        	git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard 
-                        	env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${versionCmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull -q origin master &> /dev/null
-                        	if [ "$(git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git diff --name-only origin/master 2>/dev/null | grep pistar-update 2>/dev/null)" = "pistar-update" ]; then
-                                	echo "Found a new version of pistar-update..."
-                                	env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${versionCmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull -q origin master &> /dev/null
-                                	echo -e "\nChangeLog:\n"
-                                	#git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --decorate=short -n1 | sed -e '1,4d'
-                                	git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --no-decorate --pretty=oneline -n5 | cut --complement -d' ' -f1 | fold -w 76 -s
-                                	if [[ $(git_checkUpdateRequired ${gitFolder}) -gt 0 ]]; then
-                                        	echo "Update to new version of pistar-update was not successfull, forcing update..."
-						if [ -f ${gitFolder}/pistar-upnp.service ]; then
-							rm -f ${gitFolder}/pistar-upnp.service
-						fi
-                                        	env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${versionCmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard origin/master
-                                	fi
-                                	echo -e "\n"
-                                	echo -e "\nRestarting update process with the new version..."
-                                	exec "$0" "$@"
-                                	exit 1
-                        	fi
-                	fi
-                	env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${versionCmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull -q &> /dev/null
-                	env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${versionCmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard  &> /dev/null
-                	echo -e "\nChangeLog:\n"
-                	#git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --decorate=short -n1 | sed -e '1,4d'
-                	git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --no-decorate --pretty=oneline -n5 | cut --complement -d' ' -f1 | fold -w 76 -s
-                	echo -e "\n"
-			fi
-			# Re-check that the updates are now good
-			if [[ $(git_checkUpdateRequired ${gitFolder}) -gt 0 ]]; then
+				# If this script is updated, re-run the update with the new version.
 				if [[ ${gitFolder} == "/usr/local/sbin" ]]; then
-					rm -rf ${gitFolder}/pistar-upnp.service
-				fi
-				echo "Updates were not successful, reverting to Pi-Star original files..."
-           		# W0CHP has more than one branch. So depending on what W0CHP branch the user has installed, pull that branch.
-           		if [[ ${gitFolder} == "/var/www/dashboard" ]]; then
-               			env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${versionCmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard origin/${dash_branch}
-           		else
-    	    			env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${versionCmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard origin/master
+                        git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard 
+                        env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${versionCmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git fetch
+                        if [ "$(git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git diff --name-only origin/master 2>/dev/null | grep pistar-update 2>/dev/null)" = "pistar-update" ]; then
+                                echo "Found a new version of pistar-update..."
+                                env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${versionCmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull -q origin master &> /dev/null
+                                echo -e "\nChangeLog:\n"
+                                #git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --decorate=short -n1 | sed -e '1,4d'
+                                git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --no-decorate --pretty=oneline -n5 | cut --complement -d' ' -f1 | fold -w 76 -s
+                                if [[ $(git_checkUpdateRequired ${gitFolder}) -gt 0 ]]; then
+                                        echo "Update to new version of pistar-update was not successfull, forcing update..."
+										if [ -f ${gitFolder}/pistar-upnp.service ]; then
+											rm -f ${gitFolder}/pistar-upnp.service
+										fi
+                                        env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${versionCmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard origin/master
+                                fi
+                                echo -e "\n"
+                                echo -e "\nRestarting update process with the new version..."
+                                exec "$0" "$@"
+                                exit 1
+                        fi
+                fi
+                env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${versionCmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull -q origin master &> /dev/null
+                env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${versionCmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard origin/master
+                echo -e "\nChangeLog:\n"
+                #git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --decorate=short -n1 | sed -e '1,4d'
+                git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --no-decorate --pretty=oneline -n5 | cut --complement -d' ' -f1 | fold -w 76 -s
+                echo -e "\n"
+		fi
+		# Re-check that the updates are now good
+		if [[ $(git_checkUpdateRequired ${gitFolder}) -gt 0 ]]; then
+			if [[ ${gitFolder} == "/usr/local/sbin" ]]; then
+				rm -rf ${gitFolder}/pistar-upnp.service
+			fi
+			echo "Updates were not successful, reverting to Pi-Star original files..."
+           	# W0CHP has more than one branch. So depending on what W0CHP branch the user has installed, pull that branch.
+           	if [[ ${gitFolder} == "/var/www/dashboard" ]]; then
+               	env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${versionCmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard origin/${dash_branch}
+           	else
+    	    	env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${versionCmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard origin/master
 			fi
 		fi
-		if [[ ${gitFolder} == "/usr/local/.W0CHP_bin" ]]; then
+                if [[ ${gitFolder} == "/usr/local/.W0CHP_bin" ]]; then
                 	echo "Updating W0CHP-PiStar-Dash Custom Binaries (DG-ID_M17 branch)..."
-			env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${versionCmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull -q &> /dev/null
-		fi
-		else
-			echo "No updates for ${gitFolder} available"
+                	env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${versionCmd}" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull -q &> /dev/null
+              	fi
+               	else
+                	echo "No updates for ${gitFolder} available"
 	fi
 }
 
 main_function() {
 	# Make the disk writable and stop cron to prevent it from making it R/O
-    	systemctl stop cron.service > /dev/null 2<&1
-    	pkill pistar-hourly.cron > /dev/null 2>&1
-    	pkill pistar-daily.cron > /dev/null 2>&1
+    systemctl stop cron.service > /dev/null 2<&1
+    pkill pistar-hourly.cron > /dev/null 2>&1
+    pkill pistar-daily.cron > /dev/null 2>&1
 	mount -o remount,rw /
 	mount -o remount,rw /boot
 
@@ -184,8 +184,8 @@ main_function() {
             cd /usr/local/bin
             git stash > /dev/null 2<&1 # stash custom bins                                                                    
             git checkout stash@{0} -- YSFGateway YSFParrot DGIdGateway M17Gateway MMDVMHost MMDVMCal RemoteCommand config_clean.zip> /dev/null 2<&1
-	    echo "Done"
-	fi
+           echo "Done"
+       fi
 
 	echo "Updating W0CHP-PiStar-Dash Web Dashboard Software..."
 	git_update /var/www/dashboard
@@ -196,20 +196,20 @@ main_function() {
 	echo "Done"
 
 	echo "Updating Pi-Star-Firewall..."
-        # check if user already has firewall disabled, and if so, ensure it's kept that way.
-        if ! grep -q LOGNDROP /etc/iptables.rules ; then
-            /usr/local/sbin/pistar-system-manager -dfw > /dev/null 2>&1
-        else
-            /usr/local/sbin/pistar-system-manager -efw > /dev/null 2>&1
-        fi
+    # check if user already has firewall disabled, and if so, ensure it's kept that way.
+    if ! grep -q LOGNDROP /etc/iptables.rules ; then
+        /usr/local/sbin/pistar-system-manager -dfw > /dev/null 2>&1
+    else
+        /usr/local/sbin/pistar-system-manager -efw > /dev/null 2>&1
+    fi
 	echo "Done"
 
-        # New CSS mappings and funcs (git master #e2d2e9d092)...have to reset :-/
+    # New CSS mappings and funcs (git master #e2d2e9d092)...have to reset :-/
 	CSS_FILE="/etc/pistar-css.ini"
 	if [ -f $CSS_FILE ] && [ ! $( grep 'TextLinkColor' $CSS_FILE) ] ; then
-    	    echo -e "\n\nNOTE: Custom user CSS detected. Since W0CHP-PiStar-Dash Ver.#e2d2e9d092, the CSS mappings have been updated, and you must. manually edit your custom values again."
-	    echo -e "You can reference the customizations you previously had by viewing the file: /etc/.pistar-css.ini.user and then manually re-mapping those values in the Expert CSS Editor Page.\n\n"
-	    mv /etc/pistar-css.ini /etc/.pistar-css.ini.user
+    	echo -e "\n\nNOTE: Custom user CSS detected. Since W0CHP-PiStar-Dash Ver.#e2d2e9d092, the CSS mappings have been updated, and you must. manually edit your custom values again."
+		echo -e "You can reference the customizations you previously had by viewing the file: /etc/.pistar-css.ini.user and then manually re-mapping those values in the Expert CSS Editor Page.\n\n"
+		mv /etc/pistar-css.ini /etc/.pistar-css.ini.user
 	fi 
 
 	# Pre-Fix some config in MMDVMHost for update purposes.
@@ -308,6 +308,7 @@ main_function() {
 		curl --fail -o /usr/local/etc/DMR_Audio/se_SE.ambe -s https://raw.githubusercontent.com/g4klx/DMRGateway/master/Audio/se_SE.ambe
 		curl --fail -o /usr/local/etc/DMR_Audio/se_SE.indx -s https://raw.githubusercontent.com/g4klx/DMRGateway/master/Audio/se_SE.indx	
 	fi
+
 
 	# I previously had the wrong URL for the P25 Audio files; remove the broken downloads.
 	if [[ -f /usr/local/etc/P25_Audio/en_GB.imbe ]]; then
@@ -438,9 +439,6 @@ main_function() {
 	    touch /etc/dgidgateway
 	fi
 
-        if [ -f /usr/local/bin/platformDetect.sh ]; then # remove platformDetect.sh since we have a custom version in /usr/local/sbin
-            rm -f /usr/local/bin/platformDetect.sh
-        fi
     # Get and cache latest W0CHP-PiStar-Dash version from remote Git repo:
     gitFolder="/var/www/dashboard"
     gitRemoteURL=$(git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git config --get remote.origin.url)
