@@ -38,7 +38,7 @@ if [ -z "$1" ]; then
   echo "Ex: ${THIS_SCRIPT} D-Star Disable    - disable D-Star mode and restart appropriate daemon"
   echo ""
   echo "Valid module names are: D-Star, DMR, YSF, P25, NXDN,"
-  echo "                        M17, FM, POCSAG and APRS"
+  echo "                        M17, AX25, POCSAG and APRS"
   echo ""
   exit 0
 fi
@@ -71,9 +71,9 @@ if [ "$1" ]; then
     CUR_STATUS=$(sed -n "/\[P25\]/{n;p;}" ${MMDVMCONFIG} | awk -F '=' '{print $2}')
     MODULE="P25"
   ;;
-  ([Ff][Mm])
-    CUR_STATUS=$(sed -n "/\[FM\]/{n;p;}" ${MMDVMCONFIG} | awk -F '=' '{print $2}')
-    MODULE="FM"
+  ([Aa][Xx][2][5])
+    CUR_STATUS=$(sed -n "/\[AX 25\]/{n;p;}" ${MMDVMCONFIG} | awk -F '=' '{print $2}')
+    MODULE="AX25"
   ;;
   ([Pp][Oo][Cc][Ss][Aa][Gg])
     CUR_STATUS=$(sed -n "/\[POCSAG\]/{n;p;}" ${MMDVMCONFIG} | awk -F '=' '{print $2}')
