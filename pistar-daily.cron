@@ -45,7 +45,7 @@ echo ${gitStatusRemote} > /etc/.W0CHP-PiStar-Dash.remote_version
 env REMOUNT_RO="NO" pistar-services fullstop > /dev/null 2>&1
 # Update the Binaries
 git --work-tree=/usr/local/bin --git-dir=/usr/local/bin/.git pull origin master
-if [[ ${W0CHP_DASH_BRANCH} == "DG-ID_M17" ]]; then
+if [[ ${W0CHP_DASH_BRANCH} == "DO_NOT_USE" ]]; then
 	env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH})" git --work-tree=${custBinsLocal} --git-dir=${custBinsLocal}/.git pull origin master
 	for i in $( ls /usr/local/.W0CHP_bin/ ) ; do
 		rm -f /usr/local/bin/$i

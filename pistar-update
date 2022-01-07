@@ -168,7 +168,7 @@ main_function() {
 	git_update /usr/local/bin
 	echo "Done"
 
-        if [[ ${W0CHP_DASH_BRANCH} == "DG-ID_M17" ]]; then
+        if [[ ${W0CHP_DASH_BRANCH} == "DO_NOT_USE" ]]; then
 	    git_update /usr/local/.W0CHP_bin
             for i in $( ls /usr/local/.W0CHP_bin/ ) ; do
                 rm -f /usr/local/bin/$i
