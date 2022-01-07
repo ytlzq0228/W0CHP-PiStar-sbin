@@ -32,7 +32,10 @@ INFO="${BOLD}[i]${COL_NC}"
 # Get the Pi-Star Version Info
 pistarCurVersion=$(awk -F "= " '/Version/ {print $2}' /etc/pistar-release)
 
-echo -e "${COL_LIGHT_CYAN}
+echo -e "
+Pi-Star built by Andy Taylor (MW0MWZ), Greatly enhanced & forked by W0CHP.
+
+${COL_LIGHT_CYAN}
                   ██╗    ██╗ ██████╗  ██████╗██╗  ██╗██████╗                    
                   ██║    ██║██╔═████╗██╔════╝██║  ██║██╔══██╗                   
                   ██║ █╗ ██║██║██╔██║██║     ███████║██████╔╝                   
@@ -47,13 +50,12 @@ echo -e "${COL_LIGHT_CYAN}
 ██║     ██║███████║   ██║   ██║  ██║██║  ██║      ██████╔╝██║  ██║███████║██║  ██║
 ╚═╝     ╚═╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝      ╚═════╝ ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝
 ${COL_NC} 
-[0;0mThe Pi-Star Dashboard can be found at one of the following locations:
-[1;37mhttp://$(hostname)/  http://$(hostname).local/   http://$(hostname -I | awk '{print $1}')/
+${INFO} The Pi-Star Dashboard can be found at one of the following locations:
+    ${COL_LIGHT_GREEN}http://$(hostname)/  http://$(hostname).local/   http://$(hostname -I | awk '{print $1}')/${COL_NC}
 
-[0;0mPi-Star's disk is read-only by default, enable read-write with \"rpi-rw\".
-Pi-Star built by Andy Taylor (MW0MWZ), Greatly enhanced & forked by W0CHP.
+${INFO} Pi-Star's disk is read-only by default, enable read-write with \"rpi-rw\".
 
-pi-star command-line tools all begin with \"pistar-\".
+${INFO} Pi-star command-line tools all begin with \"pistar-\".
 
                 Welcome to W0CHP-PiStar-Dash: ${COL_BRIGHT_RED}v${pistarCurVersion}${COL_NC}
 " > /etc/motd
