@@ -18,13 +18,21 @@ fi
 
 COL_NC='\e[0m' # No Color
 COL_LIGHT_GREEN='\e[1;32m'
+COL_BRIGHT_GREEN='\e[1;92m'
 COL_LIGHT_RED='\e[1;31m'
-INFO="[i]"
+COL_BRIGHT_RED='\e[1;91m'
+COL_LIGHT_CYAN='\e[1;36m'
+COL_LIGHT_BLUE='\e[1;46m'
+COL_LIGHT_MAGENTA='\e[1;95m'
+COL_LIGHT_YELLOW='\e[1;93m'
+BOLD='\e[1m'
+REVERSE='\e[7m'
+INFO="${BOLD}[i]${COL_NC}"
 
 # Get the Pi-Star Version Info
 pistarCurVersion=$(awk -F "= " '/Version/ {print $2}' /etc/pistar-release)
 
-echo -e "${COL_LIGHT_GREEN}
+echo -e "${COL_LIGHT_CYAN}
                   ██╗    ██╗ ██████╗  ██████╗██╗  ██╗██████╗                    
                   ██║    ██║██╔═████╗██╔════╝██║  ██║██╔══██╗                   
                   ██║ █╗ ██║██║██╔██║██║     ███████║██████╔╝                   
@@ -47,5 +55,5 @@ Pi-Star built by Andy Taylor (MW0MWZ), Greatly enhanced & forked by W0CHP.
 
 pi-star command-line tools all begin with \"pistar-\".
 
-                Welcome to W0CHP-PiStar-Dash:[0;31m v${pistarCurVersion}
-[0;0m" > /etc/motd
+                Welcome to W0CHP-PiStar-Dash: ${COL_BRIGHT_RED}v${pistarCurVersion}${COL_NC}
+" > /etc/motd
