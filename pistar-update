@@ -68,7 +68,7 @@ git_update() {
                 git stash clear > /dev/null 2<&1 # housekeeping
                 echo -e "\nChangeLog:\n"
                 #git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --decorate=short -n1 | sed -e '1,4d'
-                git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --no-decorate --pretty=oneline -n5 | cut --complement -d' ' -f1 | fold -w 76 -s
+                git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --no-decorate --pretty=oneline -n1 | cut --complement -d' ' -f1 | fold -w 76 -s
                 echo -e "\n"
         	else
 			# If this script is updated, re-run the update with the new version.
@@ -80,7 +80,7 @@ git_update() {
                                 	env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH})" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull -q origin master &> /dev/null
                                 	echo -e "\nChangeLog:\n"
                                 	#git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --decorate=short -n1 | sed -e '1,4d'
-                                	git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --no-decorate --pretty=oneline -n5 | cut --complement -d' ' -f1 | fold -w 76 -s
+                                	git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --no-decorate --pretty=oneline -n1 | cut --complement -d' ' -f1 | fold -w 76 -s
                                 	if [[ $(git_checkUpdateRequired ${gitFolder}) -gt 0 ]]; then
                                         	echo "Update to new version of pistar-update was not successful, forcing update..."
 						if [ -f ${gitFolder}/pistar-upnp.service ]; then
@@ -98,7 +98,7 @@ git_update() {
                 env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH})" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard origin/master
                 echo -e "\nChangeLog:\n"
                 #git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --decorate=short -n1 | sed -e '1,4d'
-                git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --no-decorate --pretty=oneline -n5 | cut --complement -d' ' -f1 | fold -w 76 -s
+                git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --no-decorate --pretty=oneline -n1 | cut --complement -d' ' -f1 | fold -w 76 -s
                 echo -e "\n"
 		fi
 		# Re-check that the updates are now good
