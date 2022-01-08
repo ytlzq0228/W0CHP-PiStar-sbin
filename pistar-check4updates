@@ -1,13 +1,13 @@
 #!/bin/bash
 
-checkDashUpdate() {
-    gitFolder="/var/www/dashboard"
-    gitRemoteVer=/etc/.W0CHP-PiStar-Dash.remote_version
-    # W0CHP has more than one branch. So depending on what W0CHP branch the user has installed, check that branch.
-    gitBranch="$( git --git-dir=${gitFolder}/.git branch | grep '*' | awk {'print $2'} )"
-    gitStatusRemote=$( cat ${gitRemoteVer} )
-    gitStatusLocal=$( git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git rev-parse --short=10 ${gitBranch} )
+gitFolder="/var/www/dashboard"
+gitRemoteVer=/etc/.W0CHP-PiStar-Dash.remote_version
+# W0CHP has more than one branch. So depending on what W0CHP branch the user has installed, check that branch.
+gitBranch="$( git --git-dir=${gitFolder}/.git branch | grep '*' | awk {'print $2'} )"
+gitStatusRemote=$( cat ${gitRemoteVer} )
+gitStatusLocal=$( git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git rev-parse --short=10 ${gitBranch} )
 
+checkDashUpdate() {
     if [[ ${gitStatusRemote} != ${gitStatusLocal} ]]; then
         echo "1"
     else
@@ -15,16 +15,21 @@ checkDashUpdate() {
     fi
 }
 
-if [[ $(checkDashUpdate ${gitFolder}) -gt 0 ]]; then
-    if [ -t 1 ]; then # running from term?
-        echo -e "W0CHP-PiStar-Dash Update Available!"
-    else # text for dashboard:
-        echo ' <a href="/admin/update.php"><span style="font-weight:bold;text-decoration:underline;background:#ffffff;font-size:10px;padding:1px;margin: 0 0 0 1px;">(Update Available)</span></a>'
-    fi
+FILESIZE=$( stat -c%s ${gitRemoteVer} )
+if [[ $FILESIZE -lt 5 ]]; then
+    exit "1"
 else
-    if [ -t 1 ]; then # running from term?
-        echo -e "W0CHP-PiStar-Dash is Up-to-Date."
+    if [[ $(checkDashUpdate ${gitFolder}) -gt 0 ]]; then
+        if [ -t 1 ]; then # running from term?
+            echo -e "W0CHP-PiStar-Dash Update Available!"
+        else # text for dashboard:
+            echo ' <a href="/admin/update.php"><span style="font-weight:bold;text-decoration:underline;background:#ffffff;font-size:10px;padding:1px;margin: 0 0 0 1px;">(Update Available)</span></a>'
+        fi
+else
+        if [ -t 1 ]; then # running from term?
+            echo -e "W0CHP-PiStar-Dash is Up-to-Date."
+        fi
     fi
 fi
-
 exit 0
+
