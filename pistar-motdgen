@@ -33,8 +33,11 @@ INFO="${BOLD}[i]${COL_NC}"
 
 # Get the Pi-Star Version Info
 pistarCurVersion=$(awk -F "= " '/Version/ {print $2}' /etc/pistar-release)
+# WPSD git id
+gitId=$( cat /etc/.W0CHP-PiStar-Dash.remote_version )
 
-echo -e "Pi-Star built by Andy Taylor (MW0MWZ), Greatly enhanced & forked by W0CHP.
+echo -e "
+Pi-Star built by Andy Taylor (MW0MWZ), Greatly enhanced & forked by W0CHP.
 ${COL_REG_CYAN}
  ▄         ▄   ▄▄▄▄▄▄▄▄▄   ▄▄▄▄▄▄▄▄▄▄▄  ▄         ▄  ▄▄▄▄▄▄▄▄▄▄▄ 
 ▐░▌       ▐░▌ ▐░░░░░░░░░▌ ▐░░░░░░░░░░░▌▐░▌       ▐░▌▐░░░░░░░░░░░▌
@@ -47,15 +50,15 @@ ${COL_REG_CYAN}
 ▐░▌░▌   ▐░▐░▌▐░█▄▄▄▄▄█░█░▌▐░█▄▄▄▄▄▄▄▄▄ ▐░▌       ▐░▌▐░▌          
 ▐░░▌     ▐░░▌ ▐░░░░░░░░░▌ ▐░░░░░░░░░░░▌▐░▌       ▐░▌▐░▌          
  ▀▀       ▀▀   ▀▀▀▀▀▀▀▀▀   ▀▀▀▀▀▀▀▀▀▀▀  ▀         ▀  ▀ ${COL_NC}
-${COL_REG_ORANGE}
+${COL_LIGHT_YELLOW}
                            PiStar-Dash${COL_NC}
 
 ${INFO} The Pi-Star Dashboard can be found at one of the following locations:
-    ${COL_LIGHT_GREEN}http://$(hostname)/  http://$(hostname).local/   http://$(hostname -I | awk '{print $1}')/${COL_NC}
+${COL_LIGHT_GREEN}http://$(hostname)/  http://$(hostname).local/   http://$(hostname -I | awk '{print $1}')/${COL_NC}
 
 ${INFO} Pi-Star's disk is read-only by default, enable read-write with \"rpi-rw\".
 
 ${INFO} Pi-star command-line tools all begin with \"pistar-\".
 
-                Welcome to W0CHP-PiStar-Dash: ${COL_BRIGHT_RED}v${pistarCurVersion}${COL_NC}
+${COL_LIGHT_CYAN}Welcome to W0CHP-PiStar-Dash:${COL_NC} ${COL_BRIGHT_RED}v${pistarCurVersion}${COL_NC} (Git ID #: ${COL_REG_ORANGE}${gitId}${COL_NC})
 " > /etc/motd
