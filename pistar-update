@@ -69,7 +69,9 @@ git_update() {
                 echo -e "\nChangeLog:\n"
                 #git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --decorate=short -n1 | sed -e '1,4d'
                 git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --no-decorate --pretty=oneline -n1 | cut --complement -d' ' -f1 | fold -w 76 -s
-                echo -e "\n"
+		echo -e "Files affected:"
+		git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --oneline --name-only -n1 | tail -1
+                echo -e ""
         	else
 			# If this script is updated, re-run the update with the new version.
 			if [[ ${gitFolder} == "/usr/local/sbin" ]]; then
@@ -81,6 +83,8 @@ git_update() {
                                 	echo -e "\nChangeLog:\n"
                                 	#git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --decorate=short -n1 | sed -e '1,4d'
                                 	git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --no-decorate --pretty=oneline -n1 | cut --complement -d' ' -f1 | fold -w 76 -s
+                			echo -e "Files affected:"
+                			git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --oneline --name-only -n1 | tail -1
                                 	if [[ $(git_checkUpdateRequired ${gitFolder}) -gt 0 ]]; then
                                         	echo "Update to new version of pistar-update was not successful, forcing update..."
 						if [ -f ${gitFolder}/pistar-upnp.service ]; then
@@ -88,7 +92,7 @@ git_update() {
 					fi
                                         env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH})" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard origin/master
                                 fi
-                                echo -e "\n"
+                                echo -e ""
                                 echo -e "\nRestarting update process with the new version..."
                                 exec "$0" "$@"
                                 exit 1
@@ -99,14 +103,16 @@ git_update() {
                 echo -e "\nChangeLog:\n"
                 #git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --decorate=short -n1 | sed -e '1,4d'
                 git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --no-decorate --pretty=oneline -n1 | cut --complement -d' ' -f1 | fold -w 76 -s
-                echo -e "\n"
+                echo -e "Files affected:"
+                git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --oneline --name-only -n1 | tail -1
+                echo -e ""
 		fi
 		# Re-check that the updates are now good
 		if [[ $(git_checkUpdateRequired ${gitFolder}) -gt 0 ]]; then
 			if [[ ${gitFolder} == "/usr/local/sbin" ]]; then
 				rm -rf ${gitFolder}/pistar-upnp.service
 			fi
-			echo "Updates were not successful, reverting to Pi-Star original files..."
+			echo "Updates were not successful; reverting to original files..."
            		# W0CHP has more than one branch. So depending on what W0CHP branch the user has installed, pull that branch.
            		if [[ ${gitFolder} == "/var/www/dashboard" ]]; then
                			env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH})" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard origin/${dash_branch}
