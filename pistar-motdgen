@@ -27,7 +27,7 @@ COL_LIGHT_CYAN='\e[1;36m'
 COL_REG_CYAN='\e[38;5;30m'
 COL_REG_ORANGE='\e[38;5;173m'
 COL_LIGHT_BLUE='\e[1;46m'
-COL_LIGHT_MAGENTA='\e[1;95m'
+COL_LIGHT_MAGENTA='\e[1;35m'
 COL_LIGHT_YELLOW='\e[1;93m'
 INFO="${BOLD}[i]${COL_NC}"
 
@@ -37,7 +37,7 @@ pistarCurVersion=$(awk -F "= " '/Version/ {print $2}' /etc/pistar-release)
 gitId=$( cat /etc/.W0CHP-PiStar-Dash.remote_version )
 
 echo -e "
-Pi-Star built by Andy Taylor (MW0MWZ), Greatly enhanced & forked by W0CHP.
+Pi-Star built by Andy Taylor (MW0MWZ); Greatly enhanced & forked by W0CHP.
 ${COL_REG_CYAN}
  ▄         ▄   ▄▄▄▄▄▄▄▄▄   ▄▄▄▄▄▄▄▄▄▄▄  ▄         ▄  ▄▄▄▄▄▄▄▄▄▄▄ 
 ▐░▌       ▐░▌ ▐░░░░░░░░░▌ ▐░░░░░░░░░░░▌▐░▌       ▐░▌▐░░░░░░░░░░░▌
@@ -50,7 +50,7 @@ ${COL_REG_CYAN}
 ▐░▌░▌   ▐░▐░▌▐░█▄▄▄▄▄█░█░▌▐░█▄▄▄▄▄▄▄▄▄ ▐░▌       ▐░▌▐░▌          
 ▐░░▌     ▐░░▌ ▐░░░░░░░░░▌ ▐░░░░░░░░░░░▌▐░▌       ▐░▌▐░▌          
  ▀▀       ▀▀   ▀▀▀▀▀▀▀▀▀   ▀▀▀▀▀▀▀▀▀▀▀  ▀         ▀  ▀ ${COL_NC}
-${COL_LIGHT_YELLOW}
+${COL_LIGHT_MAGENTA}
                            PiStar-Dash${COL_NC}
 
 ${INFO} The Pi-Star Dashboard can be found at one of the following locations:
@@ -60,5 +60,5 @@ ${INFO} Pi-Star's disk is read-only by default, enable read-write with \"rpi-rw\
 
 ${INFO} Pi-star command-line tools all begin with \"pistar-\".
 
-${COL_LIGHT_CYAN}Welcome to W0CHP-PiStar-Dash:${COL_NC} ${COL_BRIGHT_RED}v${pistarCurVersion}${COL_NC} (Git ID #: ${COL_REG_ORANGE}${gitId}${COL_NC})
+${COL_LIGHT_CYAN}Welcome to W0CHP-PiStar-Dash:${COL_NC} ${COL_LIGHT_RED}v${pistarCurVersion}${COL_NC} (Git ID #: ${COL_REG_ORANGE}${gitId}${COL_NC})
 " > /etc/motd
