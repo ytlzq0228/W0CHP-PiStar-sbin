@@ -22,7 +22,7 @@ gitBranch=$(git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git
 dashVer=$( git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git rev-parse --short=10 ${gitBranch} )
 
 # repo URI
-hostFileURL=https://repo.w0chp.net/Chipster/W0CHP-PiStar-Dash_HostFiles/raw/master
+hostFileURL=https://repo.w0chp.net/Chipster/W0CHP-PiStar-Dash_HostFiles/raw/branch/master
 # U/A Str.
 uaStr="WPSD-HostFileUpdater Ver.#${dashVer} (${gitBranch})"
 
