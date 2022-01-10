@@ -71,6 +71,9 @@ function stop_services()
     echo -e "\b\b\b: DONE.\b"
     # Mount the disk RO
     if [ x"$REMOUNT_RO" != "xNO" ]; then
+	/bin/sync
+	/bin/sync
+	/bin/sync
 	mount -o remount,ro /
     fi
 }
@@ -121,6 +124,9 @@ function start_services()
     echo -e "\b\b\b: DONE.\b"
     # Mount the disk RO
     if [ x"$REMOUNT_RO" != "xNO" ]; then
+	/bin/sync
+	/bin/sync
+	/bin/sync
 	mount -o remount,ro /
     fi
 }
