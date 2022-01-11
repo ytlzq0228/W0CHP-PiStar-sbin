@@ -6,7 +6,7 @@
 #      Written for Pi-Star (http://www.pistar.uk/)      #
 #               By Andy Taylor (MW0MWZ)                 #
 #                  Enhanced by W0CHP                    #
-#                     Version 2.9.9                     #
+#                     Version 2.10.0                    #
 #                                                       #
 #   Based on the update script by Tony Corbett G0WFV    #
 #                                                       #
@@ -22,7 +22,7 @@ gitBranch=$(git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git
 dashVer=$( git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git rev-parse --short=10 ${gitBranch} )
 
 # repo URI
-hostFileURL=https://repo.w0chp.net/Chipster/W0CHP-PiStar-Dash_HostFiles/raw/branch/master
+hostFileURL=https://repo.w0chp.net/Chipster/WPSD-HostFiles/raw/branch/master
 # U/A Str.
 uaStr="WPSD-HostFileUpdater Ver.#${dashVer} (${gitBranch})"
 
