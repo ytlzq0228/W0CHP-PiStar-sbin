@@ -189,6 +189,10 @@ if ! [ $(cat /lib/systemd/system/nginx.service | grep -o "mkdir") ]; then
 	systemctl restart nginx.service
 fi
 
+if ! grep -q TIME_FORMAT /var/www/dashboard/config/config.php ; then # insert req'd constant if not found. WIll be stashed on next update :-)
+    sed -i "/^date_default_timezone_set.*/i define('TIME_FORMAT', '24');" /var/www/dashboard/config/config.php 
+fi
+
 # Start all the services...
 systemctl daemon-reload &> /dev/null # Reload systemd to account for service changes
 pistar-services start > /dev/null 2>&1
