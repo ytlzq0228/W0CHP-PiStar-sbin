@@ -466,6 +466,9 @@ main_function() {
 	systemctl start cron.service > /dev/null 2<&1
 	# Tell the user we are done
 	echo "Finished"
+	if [ ! -t 1 ]; then
+		echo -e "\n\t<b><a style='color:white;text-decoration:underline;'' href='/changelog.php'>See the extended ChangeLog of the last 20 changes...</a></b>\n"
+	fi
 }
 
 	if [ -t 1 ]; then
