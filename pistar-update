@@ -4,7 +4,7 @@
 #                                                                             #
 #                        Pi-Star Auto Update Tool                             #
 #                                                                             #
-#    Version 3.10.1, Code, Design and Development by Andy Taylor (MW0MWZ)     #
+#    Version 3.10.2, Code, Design and Development by Andy Taylor (MW0MWZ)     #
 #                            Enhanced by W0CHP                                #
 #                                                                             #
 #                     Make it simple to update the OS.                        #
@@ -467,7 +467,7 @@ main_function() {
 	# Tell the user we are done
 	echo "Finished"
 	if [ ! -t 1 ]; then
-		echo -e "\n\t<b><a style='color:white;text-decoration:underline;'' href='/changelog.php'>See the extended ChangeLog of the last 20 changes...</a></b>\n"
+		echo -e "\n<b><a style='color:white;text-decoration:underline;'' href='/config/changelog.php'>See the extended ChangeLog of the last 20 changes...</a></b>\n"
 	fi
 }
 
