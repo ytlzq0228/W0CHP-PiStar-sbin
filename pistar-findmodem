@@ -26,6 +26,15 @@ if [[ $(/usr/bin/pgrep dstarrepeaterd) ]]; then
         svcRestart=dstarrepeaterd
 fi
 
+# Reset GPIO connected Modems
+echo 21 > /sys/class/gpio/export
+echo out > /sys/class/gpio/gpio21/direction
+sleep 0.5
+echo 0 > /sys/class/gpio/gpio21/value
+echo 1 > /sys/class/gpio/gpio21/value
+sleep 1.0
+echo 21 > /sys/class/gpio/unexport
+
 # Random Filename
 randomFilename=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 
@@ -124,14 +133,16 @@ function checkMMDVMoutput {
                 if [[ ${modemData} == "MMDVM"* || ${modemData} == "HS_Hat"* || ${modemData} == "D2RG_MMDVM_HS"* || ${modemData} == "ZUMspot"* || ${modemData} == "Nano_"* ]]; then
                         # Print the output
                         echo -e "Detected ${mmdvmClass} ${mmdvmPort} (${serialSpeed}): ${modemDevice} (${modemData})"
+                        boardDetected="true"
                 elif [[ ${modemData} == "DV-MEGA"* || ${modemData} == "DVMEGA"* ]]; then
                         # Print the output
                         echo -e "Detected ${mmdvmClass} ${mmdvmPort} (${serialSpeed}): ${modemDevice} (${modemData} - MMDMVM Protocol)"
+                        boardDetected="true"
                 elif [[ ${modemData} == *"u-blox"* ]]; then
                         # Print the output
                         echo -e "Detected ${mmdvmClass} ${mmdvmPort} (${serialSpeed}): ${modemDevice} (u-blox GPS Device)"
+                        boardDetected="true"
                 fi
-                
                 echo "" > /tmp/${randomFilename}
         fi
 }
@@ -141,7 +152,7 @@ function checkDVMEGAoutput {
         if [[ $(cat /tmp/${randomFilename} | wc -c) -ge 16 ]]; then
                 # OK we have some output, clean up the string and remove non-printables
                 dvmegaData=$(tr -cd '\11\12\15\40-\176' < /tmp/${randomFilename})
-                
+
                 # Sanity check the output from the DV-Mega
                 if [[ ${dvmegaData} == *"DV-MEGA"* ]]; then
                         # Clean up the port information
@@ -155,10 +166,12 @@ function checkDVMEGAoutput {
                 if [[ ${dvmegaData} == "DV-MEGA"* || ${dvmegaData} == "DVMEGA"* ]]; then
                         # Print the output
                         echo -e "Detected DV-Mega  ${dvmegaPort} (${serialSpeed}): ${modemDevice} (${dvmegaData}  - DStarRepeater Protocol)"
+                        boardDetected="true"
                 fi
                 if [[ ${dvmegaData} == *"u-blox"* ]]; then
                         # Print the output
                         echo -e "Detected GPS      ${dvmegaPort} (${serialSpeed}): ${modemDevice} (u-blox GPS Device)"
+                        boardDetected="true"
                 fi
                 echo "" > /tmp/${randomFilename}
         fi
@@ -194,6 +207,7 @@ function checkNEXTIONoutput {
 
                         # Print the output
                         echo -e "Detected Nextion  ${nextionPort} (${serialSpeed}): ${modemDevice} (Model: ${nextionModel} Serial: ${nextionSerial} Touch: ${nextionTouch})"
+                        boardDetected="true"
                 fi
                 echo "" > /tmp/${randomFilename}
         fi
@@ -220,20 +234,30 @@ for modemDevice in $(find /dev/tty* ! -type l | grep -E "tty(AMA|ACM|USB|S)."); 
         touch /tmp/${randomFilename}                                            # Make the output File
 
         # Send the MMDVM "Get Version" command to test the ports.
+        boardDetected="false"
         for speed in 115200 230400 460800
         do
                 # Try MMDVM Protocol
+                if [ "${boardDetected}" == "true" ]; then
+                        break
+                fi
                 readDevice mmdvm ${speed}
                 checkMMDVMoutput ${speed}
         done
 
         # Sent the DVMega "Get Version" Command
+        boardDetected="false"
         readDevice dvmega 115200                                                # Try DVMega Protocol
         checkDVMEGAoutput 115200
 
+        # Detect Nextion Screens
+        boardDetected="false"
         for speed in 2400 4800 9600 19200 31250 38400 57600 115200 230400 250000 256000 512000 921600
         do
                 # Try Nextion Protocol
+                if [ "${boardDetected}" == "true" ]; then
+                        break
+                fi
                 readDevice nextion ${speed}
                 checkNEXTIONoutput ${speed}
         done

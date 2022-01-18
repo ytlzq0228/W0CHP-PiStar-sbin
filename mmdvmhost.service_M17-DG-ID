@@ -43,7 +43,7 @@ fi
 # Verify the logging directory exists, if not create it and setup the ownership / permissions
 if [ ! -d $LOGDIR ]; then
   mkdir -p $LOGDIR
-  chown ${USER}:${GROUP} $LOGDIR
+  chown ${GROUP}:${GROUP} $LOGDIR
   chmod 775 $LOGDIR
 fi
 
@@ -58,6 +58,8 @@ case "$1" in
 				sleep 10
 				ipVar=`hostname -I`
 			done
+			chown -R ${GROUP}:${GROUP} $LOGDIR
+			chmod 775 $LOGDIR
 			nice -n -10 ${DAEMON} ${DAEMON_OPTS}
 			echo -e "$BINARY started as PID "`$PGREP $BINARY`
 			exit 0;
