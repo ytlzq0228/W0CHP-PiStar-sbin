@@ -16,6 +16,27 @@ if [ "$(id -u)" != "0" ]; then
   exit 1
 fi
 
+function resetGPIOModem {
+        # Reset GPIO connected Modems
+        echo 20 > /sys/class/gpio/export
+        echo 21 > /sys/class/gpio/export
+        echo out > /sys/class/gpio/gpio20/direction
+        echo out > /sys/class/gpio/gpio21/direction
+        sleep 0.5
+        echo 0 > /sys/class/gpio/gpio20/value
+        echo 0 > /sys/class/gpio/gpio21/value
+        echo 1 > /sys/class/gpio/gpio21/value
+        sleep 1
+        echo 0 > /sys/class/gpio/gpio20/value
+        echo 1 > /sys/class/gpio/gpio20/value
+        echo 0 > /sys/class/gpio/gpio20/value
+        sleep 0.5
+        echo 20 > /sys/class/gpio/unexport
+        echo 21 > /sys/class/gpio/unexport
+        # Let the modem boot, or this script cant find it
+        sleep 2
+}
+
 # Kill any MMDVMHost or DStarRepeater processes
 if [[ $(/usr/bin/pgrep MMDVMHost) ]]; then
         systemctl stop mmdvmhost > /dev/null 2>&1
@@ -25,15 +46,7 @@ if [[ $(/usr/bin/pgrep dstarrepeaterd) ]]; then
         systemctl stop dstarrepeaterd > /dev/null 2>&1
         svcRestart=dstarrepeaterd
 fi
-
-# Reset GPIO connected Modems
-echo 21 > /sys/class/gpio/export
-echo out > /sys/class/gpio/gpio21/direction
-sleep 0.5
-echo 0 > /sys/class/gpio/gpio21/value
-echo 1 > /sys/class/gpio/gpio21/value
-sleep 1.0
-echo 21 > /sys/class/gpio/unexport
+resetGPIOModem
 
 # Random Filename
 randomFilename=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
@@ -74,6 +87,7 @@ function checkMMDVMoutput {
         if [[ $(cat /tmp/${randomFilename} | wc -c) -ge 16 ]]; then
                 # OK we have some output, clean up the modem version string and remove non-printables
                 modemData=$(tr -cd '[[:print:]]' < /tmp/${randomFilename} | sed 's/^.*MMDVM/MMDVM/g' | sed 's/^.*DVMEGA/DVMEGA/g' | sed 's/^.*D2RG_MMDVM/D2RG_MMDVM/g' | sed 's/^.*ZUMspot/ZUMspot/g' | sed 's/^.*Nano_/Nano_/g' | sed 's/^.*OpenGD77_HS/OpenGD77_HS/g' | sed 's/^.*SkyBridge/SkyBridge/g')
+                protocolVersion=$(xxd -p -l1 -s 3 /tmp/${randomFilename})
 
                 # OK we have some output, format it into somthing useful.
                 case ${modemData} in
@@ -117,30 +131,42 @@ function checkMMDVMoutput {
 
                 case ${modemDevice} in
                         /dev/ttyS*)
-                                mmdvmPort="(GPIO)"
+                                mmdvmPort="GPIO"
                         ;;
                         /dev/ttyAMA*)
-                                mmdvmPort="(GPIO)"
+                                mmdvmPort="GPIO"
                         ;;
                         /dev/ttyACM*)
-                                mmdvmPort="(USB) "
+                                mmdvmPort="USB"
                         ;;
                         /dev/ttyUSB*)
-                                mmdvmPort="(USB) "
+                                mmdvmPort="USB"
+                        ;;
+                esac
+
+                case ${protocolVersion} in
+                        01)
+                              mmdvmProtocolVer="V1"
+                        ;;
+                        02)
+                              mmdvmProtocolVer="V2"
+                        ;;
+                        *)
+                              mmdvmProtocolVer="Unknown"
                         ;;
                 esac
 
                 if [[ ${modemData} == "MMDVM"* || ${modemData} == "HS_Hat"* || ${modemData} == "D2RG_MMDVM_HS"* || ${modemData} == "ZUMspot"* || ${modemData} == "Nano_"* ]]; then
                         # Print the output
-                        echo -e "Detected ${mmdvmClass} ${mmdvmPort} (${serialSpeed}): ${modemDevice} (${modemData})"
+                        echo -e "Detected ${mmdvmClass} Port: ${modemDevice} (${mmdvmPort}) Baud: ${serialSpeed} Protocol: ${mmdvmProtocolVer} \n\t Modem Data: ${modemData}"
                         boardDetected="true"
                 elif [[ ${modemData} == "DV-MEGA"* || ${modemData} == "DVMEGA"* ]]; then
                         # Print the output
-                        echo -e "Detected ${mmdvmClass} ${mmdvmPort} (${serialSpeed}): ${modemDevice} (${modemData} - MMDMVM Protocol)"
+                        echo -e "Detected ${mmdvmClass} Port: ${modemDevice} (${mmdvmPort}) Baud: ${serialSpeed} Protocol: ${mmdvmProtocolVer} \n\t Modem Data: ${modemData} - MMDMVM Protocol"
                         boardDetected="true"
                 elif [[ ${modemData} == *"u-blox"* ]]; then
                         # Print the output
-                        echo -e "Detected ${mmdvmClass} ${mmdvmPort} (${serialSpeed}): ${modemDevice} (u-blox GPS Device)"
+                        echo -e "Detected ${mmdvmClass} Port: ${modemDevice} (${mmdvmPort}) Baud: ${serialSpeed} \n\t Modem Data: u-blox GPS Device"
                         boardDetected="true"
                 fi
                 echo "" > /tmp/${randomFilename}
@@ -157,20 +183,20 @@ function checkDVMEGAoutput {
                 if [[ ${dvmegaData} == *"DV-MEGA"* ]]; then
                         # Clean up the port information
                         if [[ ${modemDevice} == *"USB"* ]]; then
-                                dvmegaPort="(USB) "
+                                dvmegaPort="USB"
                         else
-                                dvmegaPort="(GPIO)"
+                                dvmegaPort="GPIO"
                         fi
                 fi
 
                 if [[ ${dvmegaData} == "DV-MEGA"* || ${dvmegaData} == "DVMEGA"* ]]; then
                         # Print the output
-                        echo -e "Detected DV-Mega  ${dvmegaPort} (${serialSpeed}): ${modemDevice} (${dvmegaData}  - DStarRepeater Protocol)"
+                        echo -e "Detected DV-Mega  Port: ${modemDevice} (${dvmegaPort}) Baud: ${serialSpeed} \n\t Modem Data: ${dvmegaData}  - DStarRepeater Protocol"
                         boardDetected="true"
                 fi
                 if [[ ${dvmegaData} == *"u-blox"* ]]; then
                         # Print the output
-                        echo -e "Detected GPS      ${dvmegaPort} (${serialSpeed}): ${modemDevice} (u-blox GPS Device)"
+                        echo -e "Detected GPS      Port: ${modemDevice} (${dvmegaPort}) Baud: ${serialSpeed} \n\t Modem Data: u-blox GPS Device"
                         boardDetected="true"
                 fi
                 echo "" > /tmp/${randomFilename}
@@ -193,9 +219,9 @@ function checkNEXTIONoutput {
 
                         # Clean up the port information
                         if [[ ${modemDevice} == *"USB"* ]]; then
-                                nextionPort="(USB) "
+                                nextionPort="USB"
                         else
-                                nextionPort="(GPIO)"
+                                nextionPort="GPIO"
                         fi
 
                         # Show Touchscreen support
@@ -206,7 +232,7 @@ function checkNEXTIONoutput {
                         fi
 
                         # Print the output
-                        echo -e "Detected Nextion  ${nextionPort} (${serialSpeed}): ${modemDevice} (Model: ${nextionModel} Serial: ${nextionSerial} Touch: ${nextionTouch})"
+                        echo -e "Detected Nextion  Port: ${modemDevice} (${nextionPort}) Baud: ${serialSpeed} \n\t Model: ${nextionModel} Serial: ${nextionSerial} Touch: ${nextionTouch}"
                         boardDetected="true"
                 fi
                 echo "" > /tmp/${randomFilename}
@@ -267,6 +293,7 @@ for modemDevice in $(find /dev/tty* ! -type l | grep -E "tty(AMA|ACM|USB|S)."); 
 done
 
 # Restart the service(s) if I stopped them
+resetGPIOModem
 if [[ -v svcRestart ]]; then
         systemctl start ${svcRestart} > /dev/null 2>&1
 fi
