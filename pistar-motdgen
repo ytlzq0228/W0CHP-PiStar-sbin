@@ -21,15 +21,19 @@ BOLD='\e[1m'
 REVERSE='\e[7m'
 COL_LIGHT_GREEN='\e[1;32m'
 COL_BRIGHT_GREEN='\e[1;92m'
-COL_LIGHT_RED='\e[1;31m'
-COL_BRIGHT_RED='\e[1;91m'
+COL_LIGHT_RED='\e[31m'
+COL_BRIGHT_RED='\e[1;31m'
 COL_LIGHT_CYAN='\e[1;36m'
 COL_REG_CYAN='\e[38;5;30m'
 COL_REG_ORANGE='\e[38;5;173m'
 COL_LIGHT_BLUE='\e[1;46m'
 COL_LIGHT_MAGENTA='\e[1;35m'
 COL_LIGHT_YELLOW='\e[1;93m'
+COL_REG_YELLOW='\e[93m'
 INFO="${BOLD}[i]${COL_NC}"
+TICK="${BOLD}[${COL_LIGHT_GREEN}✓${COL_NC}]"
+CROSS="${BOLD}[${COL_BRIGHT_RED}✗${COL_NC}]"
+DONE="${BOLD}${COL_LIGHT_GREEN}Done!${COL_NC}"
 
 # Get the Pi-Star Version Info
 pistarCurVersion=$(awk -F "= " '/Version/ {print $2}' /etc/pistar-release)
@@ -50,7 +54,7 @@ ${COL_REG_CYAN}
 ▐░▌░▌   ▐░▐░▌▐░█▄▄▄▄▄█░█░▌▐░█▄▄▄▄▄▄▄▄▄ ▐░▌       ▐░▌▐░▌          
 ▐░░▌     ▐░░▌ ▐░░░░░░░░░▌ ▐░░░░░░░░░░░▌▐░▌       ▐░▌▐░▌          
  ▀▀       ▀▀   ▀▀▀▀▀▀▀▀▀   ▀▀▀▀▀▀▀▀▀▀▀  ▀         ▀  ▀ ${COL_NC}
-${COL_LIGHT_MAGENTA}
+${COL_REG_CYAN}
                            PiStar-Dash${COL_NC}
 
 ${INFO} The Pi-Star Dashboard can be found at one of the following locations:
@@ -60,5 +64,5 @@ ${INFO} Pi-Star's disk is read-only by default, enable read-write with \"rpi-rw\
 
 ${INFO} Pi-star command-line tools all begin with \"pistar-\".
 
-${COL_LIGHT_CYAN}Welcome to W0CHP-PiStar-Dash:${COL_NC} ${COL_LIGHT_RED}v${pistarCurVersion}${COL_NC} (Git ID #: ${COL_REG_ORANGE}${gitId}${COL_NC})
+${COL_LIGHT_CYAN}Welcome to W0CHP-PiStar-Dash:${COL_NC} ${COL_LIGHT_RED}v${pistarCurVersion}${COL_NC} (Git ID #: ${COL_REG_YELLOW}${gitId}${COL_NC})
 " > /etc/motd
