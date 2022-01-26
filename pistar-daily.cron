@@ -6,9 +6,10 @@ if [ "$(id -u)" != "0" ]; then
   exit 1
 fi
 
+W0CHP_BIN_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-bin.git"
+OFFICIAL_BIN_REPO="https://github.com/AndyTaylorTweet/Pi-Star_v4_Binaries_Bin.git"
 W0CHP_DASH_BRANCH="$( git --git-dir=/var/www/dashboard/.git branch | grep '*' | awk {'print $2'} )"
 versionCmd=$( git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git rev-parse --short=10 HEAD )
-custBinsLocal="/usr/local/.W0CHP_bin"
 
 # Make the disk RW
 mount -o remount,rw /
@@ -43,19 +44,33 @@ echo ${gitStatusRemote} > /etc/.W0CHP-PiStar-Dash.remote_version
 
 # Stop all the services...
 env REMOUNT_RO="NO" pistar-services fullstop > /dev/null 2>&1
+
+function GetBinStatus() {
+    dir="/usr/local/bin"
+    repo=$(git --work-tree=${dir} --git-dir=${dir}/.git config --get remote.origin.url)
+    if [ "$repo" == "$OFFICIAL_BIN_REPO" ]; then
+        echo "1" # bin switch needed
+    else
+        echo "0" # already on W0CHP bins
+    fi
+}
+
+function BinRepoSwitch() {
+    if [[ $(GetBinStatus) == 1 ]]; then # "1" = bin switch needed
+        rm -rf /usr/local/bin
+        GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron; BinSwitch) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH})" git clone  $W0CHP_BIN_REPO /usr/local/bin
+        checkMMDVMhostINI=$(grep -A 15 "DMR Network" /etc/mmdvmhost | grep -v "DMR Network" | grep -v '^\d*$' | grep "RemoteAddress=127.0.0.1")
+        if [[ ! ${checkMMDVMhostINI} ]] ; then
+            sed -i '/\[DMR Network\]/a RemoteAddress=127.0.0.1' /etc/mmdvmhost # need this for new conf. dicts.
+        fi
+    fi
+}
+
+# check if bin repo switch is needed
+BinRepoSwitch
+
 # Update the Binaries
-git --work-tree=/usr/local/bin --git-dir=/usr/local/bin/.git pull origin master
-if [[ ${W0CHP_DASH_BRANCH} == "DO_NOT_USE" ]]; then
-	env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH})" git --work-tree=${custBinsLocal} --git-dir=${custBinsLocal}/.git pull origin master
-	for i in $( ls /usr/local/.W0CHP_bin/ ) ; do
-		rm -f /usr/local/bin/$i
-		ln -sfn /usr/local/.W0CHP_bin/$i /usr/local/bin/$i
-	done
-	cd /usr/local/bin/
-	chmod root:bin * > /dev/null 2<&1
-	git stash > /dev/null 2<&1 # stash custom bins
-	git checkout stash@{0} -- YSFGateway YSFParrot DGIdGateway M17Gateway MMDVMHost MMDVMCal RemoteCommand config_clean.zip > /dev/null 2<&1
-fi
+GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH})" git --work-tree=/usr/local/bin --git-dir=/usr/local/bin/.git pull origin master
 
 # Purge the logs older than 2 days
 rm -f $(find /var/log/pi-star/*.log -type f -mtime +2 -print)
@@ -193,9 +208,12 @@ if ! grep -q TIME_FORMAT /var/www/dashboard/config/config.php ; then # insert re
     sed -i "/^date_default_timezone_set.*/i define('TIME_FORMAT', '24');" /var/www/dashboard/config/config.php 
 fi
 
+# log file perms
+chown -R mmdvm:mmdvm /var/log/pi-star > /dev/null 2>&1
+chmod 775 /var/log/pi-star > /dev/null 2>&1
+
 # Start all the services...
 systemctl daemon-reload &> /dev/null # Reload systemd to account for service changes
 pistar-services start > /dev/null 2>&1
-
 
 exit 0

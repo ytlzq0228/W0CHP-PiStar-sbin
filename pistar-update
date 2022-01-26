@@ -4,7 +4,7 @@
 #                                                                             #
 #                        Pi-Star Auto Update Tool                             #
 #                                                                             #
-#    Version 3.10.2, Code, Design and Development by Andy Taylor (MW0MWZ)     #
+#    Version 3.10.3, Code, Design and Development by Andy Taylor (MW0MWZ)     #
 #                            Enhanced by W0CHP                                #
 #                                                                             #
 #                     Make it simple to update the OS.                        #
@@ -22,9 +22,31 @@ if ! flock -n 200 ; then
   exit 1
 fi
 
-W0CHP_DASH_BRANCH="$( git --git-dir=/var/www/dashboard/.git branch | grep '*' | awk {'print $2'} )"
 versionCmd=$( git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git rev-parse --short=10 HEAD )
-W0CHP_CUST_BINS_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-Dash_CustomBinaries.git"
+W0CHP_DASH_BRANCH="$( git --git-dir=/var/www/dashboard/.git branch | grep '*' | awk {'print $2'} )"
+W0CHP_BIN_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-bin.git"
+OFFICIAL_BIN_REPO="https://github.com/AndyTaylorTweet/Pi-Star_v4_Binaries_Bin.git"
+
+function GetBinStatus() {
+    dir="/usr/local/bin"
+    repo=$(git --work-tree=${dir} --git-dir=${dir}/.git config --get remote.origin.url)
+    if [ "$repo" == "$OFFICIAL_BIN_REPO" ]; then
+        echo "1" # bin switch needed
+    else
+        echo "0" # already on W0CHP bins
+    fi
+}
+
+function BinRepoSwitch() {
+    if [[ $(GetBinStatus) == 1 ]]; then # "1" = bin switch needed
+        rm -rf /usr/local/bin
+        GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update; BinSwitch) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH})" git clone -q $W0CHP_BIN_REPO /usr/local/bin > /dev/null 2<&1
+        checkMMDVMhostINI=$(grep -A 15 "DMR Network" /etc/mmdvmhost | grep -v "DMR Network" | grep -v '^\d*$' | grep "RemoteAddress=127.0.0.1")
+        if [[ ! ${checkMMDVMhostINI} ]] ; then
+            sed -i '/\[DMR Network\]/a RemoteAddress=127.0.0.1' /etc/mmdvmhost # need this for new conf. dicts.
+        fi
+    fi
+}
 
 git_checkUpdateRequired() {
 	# Set the function variables
@@ -150,36 +172,25 @@ main_function() {
 		fi
 	fi
 
-	# ensure fucking MS crap remains removed from apt sources (restored via W0CHP-install script):
-	if [ -e /etc/apt/sources.list.d/vscode.list ]; then
-		mv /etc/apt/sources.list.d/vscode.list /etc/apt/sources.list.d/.vscode.disabled
-	fi
-
 	echo "Stopping Services..."
 	env REMOUNT_RO="NO" pistar-services fullstop > /dev/null 2>&1
 	echo "Done"
 
-	echo "Updating W0CHP-PiStar-Dash Pi-Star Binaries & Scripts..."
+	if [[ $(GetBinStatus) == 1 ]]; then # "1" = bin switch needed
+	    echo "New binaries required from W0CHP"
+	    echo "Retrieving them now. This will take some time..."
+	    BinRepoSwitch
+	    echo "Done"
+	fi
+
+	echo "Updating W0CHP-PiStar-Dash Binaries & Scripts..."
 	git_update /usr/local/sbin
 	systemctl daemon-reload > /dev/null 2>&1
 	echo "Done"
 
-	echo "Updating Official Pi-Star Digital Voice Binaries..."
+	echo "Updating W0CHP-PiStar-Dash Digital Voice Binaries..."
 	git_update /usr/local/bin
 	echo "Done"
-
-        if [[ ${W0CHP_DASH_BRANCH} == "DO_NOT_USE" ]]; then
-	    git_update /usr/local/.W0CHP_bin
-            for i in $( ls /usr/local/.W0CHP_bin/ ) ; do
-                rm -f /usr/local/bin/$i
-                ln -sfn /usr/local/.W0CHP_bin/$i /usr/local/bin/$i
-            done
-            cd /usr/local/bin/
-            chmod root:bin * > /dev/null 2<&1
-            git stash > /dev/null 2<&1 # stash custom bins
-            git checkout stash@{0} -- YSFGateway YSFParrot DGIdGateway M17Gateway MMDVMHost MMDVMCal RemoteCommand config_clean.zip > /dev/null 2<&1
-           echo "Done"
-       fi
 
 	echo "Updating W0CHP-PiStar-Dash Web Dashboard Software..."
 	git_update /var/www/dashboard
@@ -410,23 +421,12 @@ main_function() {
         	fi
 	fi
 
-	# M17 Staging...
-	#if [[ -f /etc/m17gateway ]] ; then
-    		#if [[ $( grep -m 1 'Callsign' /etc/m17gateway | sed 's/Callsign=//g') ]] ; then # test to see if m17gw *has* been configured by user
-    			#rm /etc/m17gateway
-    		#fi
-    	#fi
 	# reinstall/init
 	if [[ ! -f /etc/m17gateway ]] ; then
 		bash /usr/local/sbin/m17gateway.service install
 		touch /etc/m17gateway
 	fi
-	# DG-ID Staging...
-	#if [[ -f /etc/dgidgateway ]] ; then
-    		#if [[ $( grep -m 1 'Callsign' /etc/dgidgateway | sed 's/Callsign=//g') ]] ; then # test to see if dgidgw *has* been configured by user
-    			#rm /etc/dgidgateway
-    		#fi
-	#fi
+
 	# reinstall/init
 	if [[ ! -f /etc/dgidgateway ]] ; then
 		bash /usr/local/sbin/dgidgateway.service install
@@ -451,6 +451,10 @@ main_function() {
 	# Shuffle the time for the next hourly crontab job
 	cronMins=$(shuf -i 0-59 -n 1)
 	sed -i "/cron.hourly/c ${cronMins}  *   * * *   root    mount -o remount,rw / && cd / && run-parts --report /etc/cron.hourly" /etc/crontab
+
+	# log file perms
+	chown -R mmdvm:mmdvm /var/log/pi-star > /dev/null 2>&1
+	chmod 775 /var/log/pi-star > /dev/null 2>&1
 
 	echo "Starting Services..."
 	pistar-services start > /dev/null 2>&1
