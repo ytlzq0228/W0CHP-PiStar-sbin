@@ -128,7 +128,7 @@ git_update() {
 			if [[ ${gitFolder} == "/usr/local/sbin" ]]; then
 				rm -rf ${gitFolder}/pistar-upnp.service
 			fi
-			echo "Updates were not successful, reverting to Pi-Star original files..."
+			#echo "Updates were not successful, reverting to Pi-Star original files..."
            		# W0CHP has more than one branch. So depending on what W0CHP branch the user has installed, pull that branch.
            		if [[ ${gitFolder} == "/var/www/dashboard" ]]; then
                			env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH})" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard origin/${dash_branch}
