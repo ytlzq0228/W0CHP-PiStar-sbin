@@ -7,10 +7,10 @@
 # Pi Rev codes available at <https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#raspberry-pi-revision-codes>
 
 # important messages go here:
-if ! egrep -q '4.1.6|4.1.7|4.1.8' /etc/pistar-release ; then
-    echo -e "<h3>Older/Unsupported version of Pi-Star Detected!</h3><p>To use W0CHP-Pi-Star-Dash, you must run<br />at least Pi-Star v.4.1.6.</p><p><b><a href='/admin/expert/upgrade.php'>Upgrade Now</a></b>, then click \"Apply Changes\" in the configuration screen. Done! :^)</p>"
-    exit 1
-fi
+#if ! egrep -q '4.1.6|4.1.7|4.1.8' /etc/pistar-release ; then
+#    echo -e "<h3>Older/Unsupported version of Pi-Star Detected!</h3><p>To use W0CHP-Pi-Star-Dash, you must run<br />at least Pi-Star v.4.1.6.</p><p><b><a href='/admin/expert/upgrade.php'>Upgrade Now</a></b>, then click \"Apply Changes\" in the configuration screen. Done! :^)</p>"
+#    exit 1
+#fi
 
 # Pull the CPU Model from /proc/cpuinfo
 modelName=$(grep 'model name' /proc/cpuinfo | sed 's/.*: //')
