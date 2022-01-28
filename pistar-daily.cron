@@ -1,10 +1,10 @@
 #!/bin/bash
 
 #
-# W0CHP pistar-daily.cron (enhanced) v2.2.3
+# W0CHP pistar-daily.cron (enhanced) v2.2.4
 #
 
-# Make sure we are root, if we cant stop the services, the results are a bit hit and miss.
+# Make sure we are root
 if [ "$(id -u)" != "0" ]; then
   echo -e "You need to be root to run this command...\n"
   exit 1
@@ -39,7 +39,7 @@ env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Dai
 # If this script is updated, re-run the update with the new version.
 git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git reset --hard
 env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH})" git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git fetch
-if [ "$(git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git diff --name-only origin/master | grep pistar-daily.cron)" = "pistar-daily-cron" ]; then
+if [ "$(git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git diff --name-only origin/master | grep pistar-daily.cron)" = "pistar-daily.cron" ]; then
 	echo "Found a new version of pistar-daily.cron..."
 	env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH})" git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git pull origin master
 	git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git --no-pager log --no-decorate --pretty=oneline -n1 | cut --complement -d' ' -f1 | fold -w 76 -s
