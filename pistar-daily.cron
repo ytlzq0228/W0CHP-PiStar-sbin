@@ -19,7 +19,7 @@ sbinCheckUpdateRequired() {
         gitFolder="/usr/local/sbin"
         gitRemoteURL=$(git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git config --get remote.origin.url)
         # Git check / update function
-        gitStatusRemote=$(${gitVars}  git ls-remote --heads ${gitRemoteURL} | grep ${gitBranch} | awk {'print $1'})
+        gitStatusRemote=$(${gitVars}  git ls-remote --heads ${gitRemoteURL} | awk {'print $1'})
         gitStatusLocal=$(git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git log ${gitBranch} --pretty=tformat:"%H" -1)
         # Return the output
         if [[ ${gitStatusRemote} != ${gitStatusLocal} ]]; then
