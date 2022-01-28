@@ -4,7 +4,7 @@
 #                                                                             #
 #                        Pi-Star Auto Update Tool                             #
 #                                                                             #
-#    Version 3.10.3, Code, Design and Development by Andy Taylor (MW0MWZ)     #
+#    Version 3.10.4, Code, Design and Development by Andy Taylor (MW0MWZ)     #
 #                            Enhanced by W0CHP                                #
 #                                                                             #
 #                     Make it simple to update the OS.                        #
@@ -159,7 +159,7 @@ main_function() {
 		apt-get update
 		apt-get upgrade --fix-missing --fix-broken -y
 		apt-get clean
-		echo "Done"
+		echo -e "Done\n"
 
 		echo "Checking nginx config"
 		if ! [ $(cat /lib/systemd/system/nginx.service | grep -o "mkdir") ]; then
@@ -170,35 +170,36 @@ main_function() {
 			exec "$0" "$@"
 			exit 1
 		fi
+		echo -e "Done\n"
 	fi
 
 	echo "Stopping Services..."
 	env REMOUNT_RO="NO" pistar-services fullstop > /dev/null 2>&1
-	echo "Done"
+	echo -e "Done\n"
 
 	if [[ $(GetBinStatus) == 1 ]]; then # "1" = bin switch needed
 	    echo "New binaries required from W0CHP"
 	    echo "Retrieving them now. This will take some time..."
 	    BinRepoSwitch
-	    echo "Done"
+	    echo -e "Done\n"
 	fi
 
 	echo "Updating W0CHP-PiStar-Dash Binaries & Scripts..."
 	git_update /usr/local/sbin
 	systemctl daemon-reload > /dev/null 2>&1
-	echo "Done"
+	echo -e "Done\n"
 
 	echo "Updating W0CHP-PiStar-Dash Digital Voice Binaries..."
 	git_update /usr/local/bin
-	echo "Done"
+	echo -e "Done\n"
 
 	echo "Updating W0CHP-PiStar-Dash Web Dashboard Software..."
 	git_update /var/www/dashboard
-	echo "Done"
+	echo -e "Done\n"
 
 	echo "Updating Hostfiles, User ID DB's & DMR Talkgroup Lists..."
 	/usr/local/sbin/HostFilesUpdate.sh > /dev/null 2>&1
-	echo "Done"
+	echo -e "Done\n"
 
 	echo "Updating Pi-Star-Firewall..."
 	# check if user already has firewall disabled, and if so, ensure it's kept that way.
@@ -207,7 +208,7 @@ main_function() {
     	else
         	/usr/local/sbin/pistar-system-manager -efw > /dev/null 2>&1
     	fi
-	echo "Done"
+	echo -e "Done\n"
 
 	# New CSS mappings and funcs (git master #e2d2e9d092)...have to reset :-/
 	CSS_FILE="/etc/pistar-css.ini"
@@ -347,7 +348,7 @@ main_function() {
 		curl --fail -o /usr/local/etc/P25_Audio/pl_PL.indx -s https://raw.githubusercontent.com/g4klx/P25Clients/master/P25Gateway/Audio/pl_PL.indx
 		curl --fail -o /usr/local/etc/P25_Audio/se_SE.imbe -s https://raw.githubusercontent.com/g4klx/P25Clients/master/P25Gateway/Audio/se_SE.imbe
 		curl --fail -o /usr/local/etc/P25_Audio/se_SE.indx -s https://raw.githubusercontent.com/g4klx/P25Clients/master/P25Gateway/Audio/se_SE.indx
-		echo "Done"
+		echo -e "Done\n"
 	fi
 
 	# Download M17 Audio files if missing
@@ -381,14 +382,14 @@ main_function() {
 		curl --fail -o /usr/local/etc/ircddbgateway/TIME_pt_PT.indx -s https://raw.githubusercontent.com/g4klx/ircDDBGateway/master/Data/TIME_pt_PT.indx
 		chmod 664 /usr/local/etc/ircddbgateway/*.ambe
 		chmod 664 /usr/local/etc/ircddbgateway/*.indx
-		echo "Done"
+		echo -e "Done\n"
 	fi
 	
 	if [[ $(grep "\[Voice\]" /etc/p25gateway | wc -l) -eq 0 ]]; then
 		echo "Updating P25Gateway config..."
 		echo "" >> /etc/p25gateway
 		sed -i '$a[Voice]\nEnabled=1\nLanguage=en_GB\nDirectory=/usr/local/etc/P25_Audio\n' /etc/p25gateway
-		echo "Done"
+		echo -e "Done\n"
 	fi
 
 	if [[ $(grep Version /etc/pistar-release | awk '{print $3}' | cut -c 1) -eq 4 ]]; then
@@ -458,7 +459,7 @@ main_function() {
 
 	echo "Starting Services..."
 	pistar-services start > /dev/null 2>&1
-	echo "Done"
+	echo -e "Done\n"
 
 	echo "Updates complete, syncing disk cache before making the disk Read-Only"
 	# Make the disk read-only

@@ -18,6 +18,27 @@ pkill pistar-hourly.cron > /dev/null 2>&1
 
 # Update the Binaries (sbin)
 env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH})" git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git pull origin master
+env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH})" git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git update-index --assume-unchanged pistar-upnp.service
+# If this script is updated, re-run the update with the new version.
+git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git reset --hard
+env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH})" git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git fetch
+if [ "$(git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git diff --name-only origin/master | grep pistar-daily.cron)" = "pistar-daily-cron" ]; then
+	echo "Found a new version of pistar-daily.cron..."
+	env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH})" git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git pull origin master
+	git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git --no-pager log --no-decorate --pretty=oneline -n1 | cut --complement -d' ' -f1 | fold -w 76 -s
+	if [[ $(sbinCheckUpdateRequired) -gt 0 ]]; then
+		echo "Update to new version of pistar-update was not successful, forcing update..."
+		if [ -f ${gitFolder}/pistar-upnp.service ]; then
+			rm -f ${gitFolder}/pistar-upnp.service
+		fi
+		env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH})" git --work-tree=${gitFolder} --git-dir=/usr/local/sbin/.git reset --hard origin/master
+	fi
+	echo -e "\n"
+	echo -e "\nRestarting update process with the new version..."
+	exec "$0" "$@"
+	exit 1
+fi
+env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH})" git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git pull origin master
 
 # Update the Dashboard
 # W0CHP has more than one branch. So depending on what W0CHP branch the user has installed, check that branch.
