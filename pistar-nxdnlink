@@ -43,7 +43,7 @@ fi
 
 case ${1} in
 unlink)
-  (cd /var/log/pi-star/; ${cmd} ${port} TalkGroup9999)
+  (cd /var/log/pi-star/; ${cmd} ${port} TalkGroup 9999)
   exit 0
 ;;
 *)
@@ -51,7 +51,7 @@ unlink)
     echo -e "Invalid target ${1}"
     exit 1
   fi
-  (cd /var/log/pi-star/; ${cmd} ${port} TalkGroup${1^^})
+  (cd /var/log/pi-star/; ${cmd} ${port} TalkGroup ${1})
   exit 0
 ;;
 esac
