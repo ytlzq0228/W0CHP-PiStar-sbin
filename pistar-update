@@ -173,6 +173,16 @@ main_function() {
 		echo -e "Done\n"
 	fi
 
+        # Check for gpsd
+        if [ ! -f /lib/systemd/system/gpsd.socket ]; then
+	    echo "GPSd (required) not installed on hotspot. Installing now..."
+            # Install GPSd
+            apt-get -qq install -y libgps-dev gpsd > /dev/null 2>&1
+	    systemctl restart gpsd > /dev/null 2>&1
+	    systemctl daemon-reload > /dev/null 2>&1
+	    echo -e "Done\n"
+        fi
+
 	echo "Stopping Services..."
 	env REMOUNT_RO="NO" pistar-services fullstop > /dev/null 2>&1
 	echo -e "Done\n"

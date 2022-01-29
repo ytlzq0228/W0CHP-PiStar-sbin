@@ -10,10 +10,7 @@ fi
 
 # Display services active status
 function status_services() {
-    services=("pistar-upnp.service" "pistar-watchdog.timer" "pistar-watchdog.service" "nextiondriver.service" "mmdvmhost.service" "dstarrepeater.service"
-	      "ircddbgateway.service" "dapnetgateway.service" "dmrgateway.service"  "p25gateway.service" "p25parrot.service" "nxdngateway.service" "m17gateway.service"
-          "nxdnparrot.service" "dgidgateway.service" "ysfgateway.service" "ysfparrot.service" "ysf2dmr.service" "ysf2p25.service" "ysf2nxdn.service"
-	      "dmr2ysf.service" "dmr2nxdn.service" "nxdn2dmr.service" "aprsgateway.service" "gpsd.service" "timeserver.service" "cron.service" "pistar-remote.timer" "pistar-remote.service")
+    services=("pistar-upnp.service" "pistar-watchdog.timer" "pistar-watchdog.service" "nextiondriver.service" "mmdvmhost.service" "dstarrepeater.service" "ircddbgateway.service" "dapnetgateway.service" "dmrgateway.service"  "p25gateway.service" "p25parrot.service" "nxdngateway.service" "m17gateway.service" "nxdnparrot.service" "dgidgateway.service" "ysfgateway.service" "ysfparrot.service" "ysf2dmr.service" "ysf2p25.service" "ysf2nxdn.service" "dmr2ysf.service" "dmr2nxdn.service" "nxdn2dmr.service" "aprsgateway.service" "gpsd.service" "timeserver.service" "cron.service" "pistar-remote.timer" "pistar-remote.service")
     
     for s in "${services[@]}"; do
 	status=$(systemctl is-active "$s" | tr [a-z] [A-Z])

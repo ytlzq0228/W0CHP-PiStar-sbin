@@ -208,6 +208,29 @@ if [[ ! -f /usr/local/etc/M17_Audio/se_SE.indx ]]; then
     curl --fail -o /usr/local/etc/M17_Audio/se_SE.indx -s https://raw.githubusercontent.com/g4klx/M17Gateway/master/Audio/se_SE.indx    
 fi
 
+if [[ $(grep Version /etc/pistar-release | awk '{print $3}' | cut -c 1) -eq 4 ]]; then
+        if [[ $(cat /etc/ircddbgateway | grep -o "xlx" | wc -l) -eq 0 ]]; then
+                echo "xlxEnabled=0" >> /etc/ircddbgateway
+                echo "xlxOverrideLocal=0" >> /etc/ircddbgateway
+                echo "xlxHostsFileUrl=" >> /etc/ircddbgateway
+        fi
+
+        if [[ $(cat /etc/ircddbgateway | grep -o "gpsd" | wc -l) -eq 0 ]]; then
+                echo "gpsdSEnabled=0" >> /etc/ircddbgateway
+                echo "gpsdAddress=127.0.0.1" >> /etc/ircddbgateway
+                echo "gpsdPort=2947" >> /etc/ircddbgateway
+        fi
+
+        if [[ $(cat /etc/dstarrepeater | grep -o "mmdvmRXInvert" | wc -l) -eq 0 ]]; then
+                echo "mmdvmRXInvert=0" >> /etc/dstarrepeater
+                echo "mmdvmTXInvert=0" >> /etc/dstarrepeater
+                echo "mmdvmPTTInvert=0" >> /etc/dstarrepeater
+                echo "mmdvmTXDelay=50" >> /etc/dstarrepeater
+                echo "mmdvmRXLevel=100" >> /etc/dstarrepeater
+                echo "mmdvmTXLevel=100" >> /etc/dstarrepeater
+        fi
+fi
+
     # M17 Staging...
     #if [[ -f /etc/m17gateway ]] ; then
     #    if [[ $( grep -m 1 'Callsign' /etc/m17gateway | sed 's/Callsign=//g') ]] ; then # test to see if m17gw *has* been configured by user
