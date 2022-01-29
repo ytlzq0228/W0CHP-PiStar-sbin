@@ -250,6 +250,10 @@ fi
 chown -R mmdvm:mmdvm /var/log/pi-star > /dev/null 2>&1
 chmod 775 /var/log/pi-star > /dev/null 2>&1
 
+# Update the ircDDBGateway and DSTARrepeater versions in /etc/pistar-release
+sed -i "/ircddbgateway/c ircddbgateway = 20190621_W0CHP" /etc/pistar-release
+sed -i "/dstarrepeater/c dstarrepeater = 20180911_W0CHP" /etc/pistar-release
+
 # Start all the services...
 systemctl daemon-reload &> /dev/null # Reload systemd to account for service changes
 pistar-services start > /dev/null 2>&1
