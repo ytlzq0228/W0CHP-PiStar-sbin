@@ -277,6 +277,16 @@ chmod 775 /var/log/pi-star > /dev/null 2>&1
 sed -i "/ircddbgateway/c ircddbgateway = 20190621_W0CHP" /etc/pistar-release
 sed -i "/dstarrepeater/c dstarrepeater = 20180911_W0CHP" /etc/pistar-release
 
+# Check for gpsd
+if ! [ -x "$(command -v gpsd)" ]; then
+    echo "GPSd (required) not installed on hotspot. Installing now..."
+    # Install GPSd
+    apt-get -qq install -y libgps-dev gpsd > /dev/null 2>&1
+    systemctl restart gpsd > /dev/null 2>&1
+    systemctl daemon-reload > /dev/null 2>&1
+    echo -e "Done\n"
+fi
+
 # Start all the services...
 systemctl daemon-reload &> /dev/null # Reload systemd to account for service changes
 pistar-services start > /dev/null 2>&1

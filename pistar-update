@@ -174,7 +174,7 @@ main_function() {
 	fi
 
         # Check for gpsd
-        if [ ! -f /lib/systemd/system/gpsd.socket ]; then
+	if ! [ -x "$(command -v gpsd)" ]; then
 	    echo "GPSd (required) not installed on hotspot. Installing now..."
 	    # Install GPSd
 	    apt-get -qq install -y libgps-dev gpsd > /dev/null 2>&1
