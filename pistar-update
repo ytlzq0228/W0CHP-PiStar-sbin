@@ -459,6 +459,28 @@ main_function() {
 	gitStatusRemote=$(env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck Version Cacher (Manual-Update) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH})" git ls-remote --heads ${gitRemoteURL} ${gitBranch} | grep ${gitBranch} | awk {'print $1'} | awk '{ print substr($1,1,10) }') # last pipe to awk: converts long hash to 10 chars.
 	echo ${gitStatusRemote} > /etc/.W0CHP-PiStar-Dash.remote_version
 
+	# nextion/mmdvmhost fix
+	if grep -q nextion /lib/systemd/system/mmdvmhost.service ; then
+	    systemctl disable mmdvmhost.service  > /dev/null 2>&1
+	    rm -rf /lib/systemd/system/mmdvmhost.service
+	    systemctl disable nextiondriver.service  > /dev/null 2>&1
+	    rm -rf /lib/systemd/system/nextiondriver.service
+	    echo '[Unit]' > /lib/systemd/system/mmdvmhost.service
+	    echo 'Description=MMDVMHost Radio Service' >> /lib/systemd/system/mmdvmhost.service
+	    echo 'After=syslog.target network.target' >> /lib/systemd/system/mmdvmhost.service
+	    echo '' >> /lib/systemd/system/mmdvmhost.service
+	    echo '[Service]' >> /lib/systemd/system/mmdvmhost.service
+ 	    echo 'Type=forking' >> /lib/systemd/system/mmdvmhost.service
+	    echo 'ExecStart=/usr/local/sbin/mmdvmhost.service start' >> /lib/systemd/system/mmdvmhost.service
+	    echo 'ExecStop=/usr/local/sbin/mmdvmhost.service stop' >> /lib/systemd/system/mmdvmhost.service
+	    echo 'ExecReload=/usr/local/sbin/mmdvmhost.service restart' >> /lib/systemd/system/mmdvmhost.service
+	    echo '' >> /lib/systemd/system/mmdvmhost.service
+	    echo '[Install]' >> /lib/systemd/system/mmdvmhost.service
+	    echo 'WantedBy=multi-user.target' >> /lib/systemd/system/mmdvmhost.service
+	    systemctl enable mmdvmhost.service  > /dev/null 2>&1
+	    systemctl daemon-reload  > /dev/null 2>&1
+	fi
+
 	# Shuffle the time for the next hourly crontab job
 	cronMins=$(shuf -i 0-59 -n 1)
 	sed -i "/cron.hourly/c ${cronMins}  *   * * *   root    mount -o remount,rw / && cd / && run-parts --report /etc/cron.hourly" /etc/crontab
