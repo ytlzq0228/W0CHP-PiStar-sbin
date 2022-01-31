@@ -6,7 +6,7 @@
 #      Written for Pi-Star (http://www.pistar.uk/)      #
 #               By Andy Taylor (MW0MWZ)                 #
 #                  Enhanced by W0CHP                    #
-#                     Version 2.10.0                    #
+#                    Version 2.10.0                     #
 #                                                       #
 #   Based on the update script by Tony Corbett G0WFV    #
 #                                                       #
@@ -20,11 +20,14 @@ fi
 # Get the W0CHP-PiStar-Dash Version
 gitBranch=$(git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git branch | grep '*' | cut -f2 -d ' ')
 dashVer=$( git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git rev-parse --short=10 ${gitBranch} )
-
 # repo URI
 hostFileURL=https://repo.w0chp.net/Chipster/WPSD-HostFiles/raw/branch/master
+if [ ! -f /etc/WPSD-release ]; then
+    cat /proc/sys/kernel/random/uuid > /etc/WPSD-release
+fi
+uuidStr=$( cat /etc/WPSD-release )
 # U/A Str.
-uaStr="WPSD-HostFileUpdater Ver.#${dashVer} (${gitBranch})"
+uaStr="WPSD-HostFileUpdater Ver.#${dashVer} (${gitBranch} UUID:${uuidStr})"
 
 # Files and locations
 APRSHOSTS=/usr/local/etc/APRSHosts.txt
