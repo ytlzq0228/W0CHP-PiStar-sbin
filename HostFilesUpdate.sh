@@ -27,7 +27,7 @@ if [ ! -f /etc/WPSD-release ]; then
 fi
 uuidStr=$( cat /etc/WPSD-release )
 # U/A Str.
-uaStr="WPSD-HostFileUpdater Ver.#${dashVer} (${gitBranch} UUID:${uuidStr})"
+uaStr="WPSD-HostFileUpdater Ver.#${dashVer} (${gitBranch}) UUID:${uuidStr}"
 
 # Files and locations
 APRSHOSTS=/usr/local/etc/APRSHosts.txt
