@@ -1,13 +1,18 @@
 #!/bin/bash
 
 #
-# W0CHP pistar-daily.cron (enhanced) v2.3
+# W0CHP pistar-daily.cron (enhanced) v2.4
 #
 
 # Make sure we are root
 if [ "$(id -u)" != "0" ]; then
   echo -e "You need to be root to run this command...\n"
   exit 1
+fi
+
+# Add DGIdGateway timer to the APRS timer (dependency).
+if ! grep -q 'Before=mmdvmhost.timer' /lib/systemd/system/aprsgateway.service ; then
+    sed -i '/After=/a Before=mmdvmhost.timer ircddbgateway.timer ysfgateway.timer nxdngateway.timer dgidgateway.timer' /lib/systemd/system/aprsgateway.service
 fi
 
 W0CHP_BIN_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-bin.git"
