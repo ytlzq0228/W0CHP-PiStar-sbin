@@ -24,7 +24,8 @@ OFFICIAL_BIN_REPO="https://github.com/AndyTaylorTweet/Pi-Star_v4_Binaries_Bin.gi
 W0CHP_DASH_BRANCH="$( git --git-dir=/var/www/dashboard/.git branch | grep '*' | awk {'print $2'} )"
 versionCmd=$( git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git rev-parse --short=10 HEAD )
 uuidStr=$( cat /etc/WPSD-release )
-
+checkProc=$( uname -m )
+ 
 sbinCheckUpdateRequired() {
         gitFolder="/usr/local/sbin"
         gitRemoteURL=$(git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git config --get remote.origin.url)
@@ -45,29 +46,30 @@ mount -o remount,rw /
 pkill pistar-hourly.cron > /dev/null 2>&1
 
 # Update the Binaries (sbin)
-env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr}" git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git update-index --assume-unchanged pistar-upnp.service
+env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${checkProc}]" git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git update-index --assume-unchanged pistar-upnp.service
 # If this script is updated, re-run the update with the new version.
 git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git reset --hard
-env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr}" git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git fetch
+env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${checkProc}]" git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git fetch
 
-#if [ "$(git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git diff --name-only origin/master | grep pistar-daily.cron)" = "pistar-daily.cron" ]; then
-#	echo "Found a new version of pistar-daily.cron..."
-#	env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr}" git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git pull origin master
-#	git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git --no-pager log --no-decorate --pretty=oneline -n1 | cut --complement -d' ' -f1 | fold -w 76 -s
-#	if [[ $(sbinCheckUpdateRequired) -gt 0 ]]; then
-#		echo "Update to new version of pistar-update was not successful, forcing update..."
-#		if [ -f ${gitFolder}/pistar-upnp.service ]; then
-#			rm -f ${gitFolder}/pistar-upnp.service
-#		fi
-#		env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr}" git --work-tree=${gitFolder} --git-dir=/usr/local/sbin/.git reset --hard origin/master
-#	fi
-#	echo -e "\n"
-#	echo -e "\nRestarting update process with the new version..."
-#	exec "$0" "$@"
-#	exit 1
-#fi
+if [ "$(git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git diff --name-only origin/master | grep pistar-daily.cron)" = "pistar-daily.cron" ]; then
+	echo "Found a new version of pistar-daily.cron..."
+	env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${checkProc}]" git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git pull origin master
+	git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git --no-pager log --no-decorate --pretty=oneline -n1 | cut --complement -d' ' -f1 | fold -w 76 -s
+	if [[ $(sbinCheckUpdateRequired) -gt 0 ]]; then
+		echo "Update to new version of pistar-update was not successful, forcing update..."
+		if [ -f ${gitFolder}/pistar-upnp.service ]; then
+			rm -f ${gitFolder}/pistar-upnp.service
+		fi
+		env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${checkProc}]" git --work-tree=${gitFolder} --git-dir=/usr/local/sbin/.git reset --hard origin/master
+	fi
+	echo -e "\n"
+	echo -e "\nRestarting update process with the new version..."
+	cd /usr/local/sbin
+	exec "$0" "$@"
+	exit 1
+fi
 
-env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr}" git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git pull origin master
+env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${checkProc}]" git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git pull origin master
 
 # Update the Dashboard
 # W0CHP has more than one branch. So depending on what W0CHP branch the user has installed, check that branch.
@@ -75,7 +77,7 @@ gitFolder="/var/www/dashboard"
 gitBranch="$( git --git-dir=${gitFolder}/.git branch | grep '*' | awk {'print $2'} )"
 cd ${gitFolder}
 git stash # save user config files: config/config.php config/ircddblocal.php config/language.php
-env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr}" git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git pull origin ${gitBranch}
+env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${checkProc}]" git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git pull origin ${gitBranch}
 git reset --hard
 git checkout stash@{0} -- config/config.php config/ircddblocal.php config/language.php # restore user config files from stash
 git stash clear # housekeeping
@@ -86,7 +88,7 @@ git stash clear # housekeeping
 # Get and cache latest W0CHP-PiStar-Dash version from remote Git repo:
 gitRemoteURL=$(git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git config --get remote.origin.url)
 gitBranch="$( git --git-dir=${gitFolder}/.git branch | grep '*' | awk {'print $2'} )"
-gitStatusRemote=$(env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck Version Cacher (Daily-Cron) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr}" git ls-remote --heads ${gitRemoteURL} ${gitBranch} | grep ${gitBranch} | awk {'print $1'} | awk '{ print substr($1,1,10) }') # last pipe to awk: converts long hash to 10 chars.
+gitStatusRemote=$(env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck Version Cacher (Daily-Cron) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${checkProc}]" git ls-remote --heads ${gitRemoteURL} ${gitBranch} | grep ${gitBranch} | awk {'print $1'} | awk '{ print substr($1,1,10) }') # last pipe to awk: converts long hash to 10 chars.
 echo ${gitStatusRemote} > /etc/.W0CHP-PiStar-Dash.remote_version
 
 # Generate /etc/motd
@@ -108,7 +110,7 @@ function GetBinStatus() {
 function BinRepoSwitch() {
     if [[ $(GetBinStatus) == 1 ]]; then # "1" = bin switch needed
         rm -rf /usr/local/bin
-        GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron; BinSwitch) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr}" git clone  $W0CHP_BIN_REPO /usr/local/bin
+        GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron; BinSwitch) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${checkProc}]" git clone  $W0CHP_BIN_REPO /usr/local/bin
         checkMMDVMhostINI=$(grep -A 15 "DMR Network" /etc/mmdvmhost | grep -v "DMR Network" | grep -v '^\d*$' | grep "RemoteAddress=127.0.0.1")
         if [[ ! ${checkMMDVMhostINI} ]] ; then
             sed -i '/\[DMR Network\]/a RemoteAddress=127.0.0.1' /etc/mmdvmhost # need this for new conf. dicts.
@@ -120,7 +122,7 @@ function BinRepoSwitch() {
 BinRepoSwitch
 
 # Update the Binaries
-GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr}" git --work-tree=/usr/local/bin --git-dir=/usr/local/bin/.git pull origin master
+GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${checkProc}]" git --work-tree=/usr/local/bin --git-dir=/usr/local/bin/.git pull origin master
 
 # Purge the logs older than 2 days
 rm -f $(find /var/log/pi-star/*.log -type f -mtime +2 -print)
