@@ -6,7 +6,7 @@
 #      Written for Pi-Star (http://www.pistar.uk/)      #
 #               By Andy Taylor (MW0MWZ)                 #
 #                  Enhanced by W0CHP                    #
-#                    Version 2.10.1                     #
+#                    Version 2.10.2                     #
 #                                                       #
 #   Based on the update script by Tony Corbett G0WFV    #
 #                                                       #
@@ -255,12 +255,8 @@ fi
 curl --fail -L -o ${RADIOIDDB}.bz2 -s ${hostFileURL}/user.csv.bz2 --user-agent "${uaStr}"
 bunzip2 -f ${RADIOIDDB}.bz2
 # strip first line of DMRdb and cleanup
-sed -e '1d' < /tmp/user.csv > ${STRIPPED}
-rm -f ${RADIOIDDB}
-# clean up legacy user.csv:
-if [ -f /usr/local/etc/user.csv ] ; then
-    rm -f /usr/local/etc/user.csv
-fi
+sed -e '1d' < /tmp/user.csv | sort --field-separator=',' --key=2 > ${STRIPPED}
+mv /tmp/user.csv /usr/local/etc
 
 exit 0
 
