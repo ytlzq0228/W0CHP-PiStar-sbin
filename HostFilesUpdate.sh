@@ -6,7 +6,7 @@
 #      Written for Pi-Star (http://www.pistar.uk/)      #
 #               By Andy Taylor (MW0MWZ)                 #
 #                  Enhanced by W0CHP                    #
-#                    Version 2.10.0                     #
+#                    Version 2.10.1                     #
 #                                                       #
 #   Based on the update script by Tony Corbett G0WFV    #
 #                                                       #
@@ -26,8 +26,10 @@ if [ ! -f /etc/WPSD-release ]; then
     cat /proc/sys/kernel/random/uuid > /etc/WPSD-release
 fi
 uuidStr=$( cat /etc/WPSD-release )
-# U/A Str.
-uaStr="WPSD-HostFileUpdater Ver.#${dashVer} (${gitBranch}) UUID:${uuidStr}"
+modelName=$(grep -m 1 'model name' /proc/cpuinfo | sed 's/.*: //')
+hardwareField=$(grep 'Model' /proc/cpuinfo | sed 's/.*: //')
+hwDeetz="${hardwareField} - ${modelName}"
+uaStr="WPSD-HostFileUpdater Ver.#${dashVer} (${gitBranch}) UUID:${uuidStr} [${hwDeetz}]"
 
 # Files and locations
 APRSHOSTS=/usr/local/etc/APRSHosts.txt
