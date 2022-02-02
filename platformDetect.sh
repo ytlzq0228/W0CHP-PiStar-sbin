@@ -13,7 +13,7 @@
 #fi
 
 # Pull the CPU Model from /proc/cpuinfo
-modelName=$(grep 'model name' /proc/cpuinfo | sed 's/.*: //')
+modelName=$(grep -m 1 'model name' /proc/cpuinfo | sed 's/.*: //')
 hardwareField=$(grep 'Hardware' /proc/cpuinfo | sed 's/.*: //')
 
 if [ -f /proc/device-tree/model ]; then
