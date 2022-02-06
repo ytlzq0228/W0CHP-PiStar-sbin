@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# W0CHP pistar-daily.cron (enhanced) v2.6
+# W0CHP pistar-daily.cron (enhanced) v2.7
 #
 
 # Make sure we are root
@@ -15,7 +15,7 @@ if ! grep -q 'Before=mmdvmhost.timer' /lib/systemd/system/aprsgateway.service ; 
     sed -i '/After=/a Before=mmdvmhost.timer ircddbgateway.timer ysfgateway.timer nxdngateway.timer dgidgateway.timer' /lib/systemd/system/aprsgateway.service
 fi
 
-if [ ! -f /etc/WPSD-release ]; then
+if [[ ! -f /etc/WPSD-release ]] || [[ $( cat /etc/WPSD-release ) == '69dee892-b82e-400e-b2bd-39e602969e94' ]] ; then
     cat /proc/sys/kernel/random/uuid > /etc/WPSD-release
 fi
 

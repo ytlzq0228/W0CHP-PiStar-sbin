@@ -4,7 +4,7 @@
 #                                                                             #
 #                        Pi-Star Auto Update Tool                             #
 #                                                                             #
-#    Version 3.10.6, Code, Design and Development by Andy Taylor (MW0MWZ)     #
+#    Version 3.10.8, Code, Design and Development by Andy Taylor (MW0MWZ)     #
 #                            Enhanced by W0CHP                                #
 #                                                                             #
 #                     Make it simple to update the OS.                        #
@@ -22,7 +22,7 @@ if ! flock -n 200 ; then
   exit 1
 fi
 
-if [ ! -f /etc/WPSD-release ]; then
+if [[ ! -f /etc/WPSD-release ]] || [[ $( cat /etc/WPSD-release ) == '69dee892-b82e-400e-b2bd-39e602969e94' ]] ; then
     cat /proc/sys/kernel/random/uuid > /etc/WPSD-release
 fi
 
