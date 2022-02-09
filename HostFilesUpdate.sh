@@ -255,7 +255,7 @@ fi
 curl --fail -L -o ${RADIOIDDB}.bz2 -s ${hostFileURL}/user.csv.bz2 --user-agent "${uaStr}"
 bunzip2 -f ${RADIOIDDB}.bz2
 # strip first line of DMRdb and cleanup
-sed -e '1d' < /tmp/user.csv | sort -r --field-separator=',' --key=2 > ${STRIPPED}
+sed -e '1d' < /tmp/user.csv > ${STRIPPED}
 mv /tmp/user.csv /usr/local/etc
 
 exit 0
