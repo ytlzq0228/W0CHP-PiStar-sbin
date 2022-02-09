@@ -24,7 +24,7 @@ if [[ ${modelName} == "ARM"* ]]; then
     # Pull the Board revision from /proc/cpuinfo
     boardRev=$(grep 'Revision' /proc/cpuinfo | awk '{print $3}' | sed 's/^100//')
     # Grab actual model name as well...as a fallback to $raspberryModel: /proc/device-tree/model
-    actualModel=$(grep 'Model' /proc/cpuinfo| cut -d' ' -f2- | sed 's/Raspberry //' | sed 's/Rev /r/')
+    actualModel=$(grep 'Model' /proc/cpuinfo| cut -d' ' -f2- | sed 's/Raspberry /R/' | sed 's/Rev /Rev./')
 
     # Make the board revision human readable
     case $boardRev in
@@ -93,7 +93,7 @@ if [[ ${modelName} == "ARM"* ]]; then
     elif [[ ${hardwareField} == *"s5p4418"* ]]; then
         echo "Samsung Artik"
     elif [[ ${raspberryModel} == "Raspberry"* ]]; then
-        raspberryModel=$(echo $raspberryModel  | sed 's/Raspberry /R/' | sed 's/Rev /r/') # Shorten to "RPi" and "Rev " to "r"
+        raspberryModel=$(echo $raspberryModel  | sed 's/Raspberry /R/' | sed 's/Rev /Rev./') # Shorten to "RPi"
         echo ${raspberryModel}
     else
         echo "R$actualModel $raspberryVer"
