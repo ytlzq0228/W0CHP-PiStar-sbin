@@ -19,6 +19,20 @@ if [[ ! -f /etc/WPSD-release ]] || [[ $( cat /etc/WPSD-release ) == '69dee892-b8
     cat /proc/sys/kernel/random/uuid > /etc/WPSD-release
 fi
 
+# New CSS mappings and funcs (git master #e2d2e9d092)...have to reset :-/
+CSS_FILE="/etc/pistar-css.ini"
+if [ -f $CSS_FILE ] && [ ! $( grep 'TextLinkColor' $CSS_FILE) ] ; then
+	echo -e "\n\nNOTE: Custom user CSS detected. Since W0CHP-PiStar-Dash Ver.#e2d2e9d092, the CSS mappings have been updated, and you must. manually edit your custom values again."
+	echo -e "You can reference the customizations you previously had by viewing the file: /etc/.pistar-css.ini.user and then manually re-mapping those values in the Expert CSS Editor Page.\n\n"
+	mv /etc/pistar-css.ini /etc/.pistar-css.ini.user
+fi
+#  in place edit for new mappings
+if [ -f $CSS_FILE ] && [ ! $( grep 'TableBorderColor' $CSS_FILE) ] ; then
+	sed -i '/\[ExtraSettings\]/a TableBorderColor=#777777' $CSS_FILE
+	sed -i 's/FontSize=/MainFontSize=/' $CSS_FILE
+	sed -i '/MainFontSize=/a HeaderFontSize=34' $CSS_FILE
+fi
+
 W0CHP_BIN_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-bin.git"
 OFFICIAL_BIN_REPO="https://github.com/AndyTaylorTweet/Pi-Star_v4_Binaries_Bin.git"
 W0CHP_DASH_BRANCH="$( git --git-dir=/var/www/dashboard/.git branch | grep '*' | awk {'print $2'} )"
