@@ -224,23 +224,11 @@ if [[ $(grep Version /etc/pistar-release | awk '{print $3}' | cut -c 1) -eq 4 ]]
         fi
 fi
 
-    # M17 Staging...
-    #if [[ -f /etc/m17gateway ]] ; then
-    #    if [[ $( grep -m 1 'Callsign' /etc/m17gateway | sed 's/Callsign=//g') ]] ; then # test to see if m17gw *has* been configured by user
-    #        rm /etc/m17gateway
-    #    fi
-    #fi
     # reinstall/init
     if [[ ! -f /etc/m17gateway ]] ; then
         bash /usr/local/sbin/m17gateway.service install
         touch /etc/m17gateway
     fi
-    # DG-ID Staging...
-    #if [[ -f /etc/dgidgateway ]] ; then
-    #    if [[ $( grep -m 1 'Callsign' /etc/dgidgateway | sed 's/Callsign=//g') ]] ; then # test to see if dgidgw *has* been configured by user
-    #        rm /etc/dgidgateway
-    #    fi
-    #fi
     # reinstall/init
     if [[ ! -f /etc/dgidgateway ]] ; then
         bash /usr/local/sbin/dgidgateway.service install
@@ -249,6 +237,27 @@ fi
 
     if [ -f /usr/local/bin/platformDetect.sh ]; then # remove platformDetect.sh since we have a custom version in /usr/local/sbin
         rm -f /usr/local/bin/platformDetect.sh
+    fi
+
+    # Add pistar-service bash completion
+    DEST="/usr/share/bash-completion/completions/pistar-services"
+    if [ ! -f $DEST ] ; then
+            echo "#!/bin/bash" > $DEST
+            echo "" >> $DEST
+            echo "_pistar_services()" >> $DEST
+            echo "{" >> $DEST
+            echo "    local cur prev words cword" >> $DEST
+            echo "    _init_completion -n = || return" >> $DEST
+            echo "" >> $DEST
+            echo "    _expand || return 0" >> $DEST
+            echo "" >> $DEST
+            echo "    COMPREPLY=( \$( compgen -W 'start stop restart fullstop status' -- \"\$cur\" ) )" >> $DEST
+            echo "" >> $DEST
+            echo "} &&" >> $DEST
+            echo "complete -F _pistar_services pistar-services" >> $DEST
+            echo "" >> $DEST
+            chown root:root $DEST
+            chmod 0644 $DEST
     fi
 
 # Fix nginx unit file
