@@ -85,6 +85,9 @@ iptables -t mangle -A POSTROUTING -p udp --dport 55550:55580 -j DSCP --set-dscp 
 iptables -t mangle -A POSTROUTING -p udp --dport 62031 -j DSCP --set-dscp 46
 iptables -A OUTPUT -p tcp --dport 5040 -j ACCEPT #            tgif.network API
 
+# Allow Outbound IMRS / DGId port
+iptables -A OUTPUT -p udp --dport 21110  -j ACCEPT
+
 # Allow Outbound XLX Ports
 iptables -A OUTPUT -p udp --dport 62030 -j ACCEPT #			XLX Networking
 iptables -t mangle -A POSTROUTING -p udp --dport 62030 -j DSCP --set-dscp 46
@@ -189,6 +192,9 @@ iptables -A INPUT -p udp --sport 41000:41010 --dport 32768:60999 -j ACCEPT #  P2
 # Allow M17 Inbound Ports
 iptables -A INPUT -p udp --dport 17000 -j ACCEPT #			M17 mrefd
 iptables -A INPUT -p udp --dport 17010 -j ACCEPT #			M17 M17Gateway
+
+#Allow Inbound IMRS / DGId Port
+iptables -A INPUT -p udp --dport 21110 -j ACCEPT
 
 # Set up debug logging for incoming traffic.
 iptables -N LOGNDROP
