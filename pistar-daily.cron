@@ -1,13 +1,29 @@
 #!/bin/bash
 
 #
-# W0CHP pistar-daily.cron (enhanced) v2.7
+# W0CHP pistar-daily.cron (enhanced) v2.8
 #
 
 # Make sure we are root
 if [ "$(id -u)" != "0" ]; then
   echo -e "You need to be root to run this command...\n"
   exit 1
+fi
+
+W0CHP_BIN_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-bin.git"
+OFFICIAL_BIN_REPO="https://github.com/AndyTaylorTweet/Pi-Star_v4_Binaries_Bin.git"
+W0CHP_DASH_BRANCH="$( git --git-dir=/var/www/dashboard/.git branch | grep '*' | awk {'print $2'} )"
+versionCmd=$( git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git rev-parse --short=10 HEAD )
+uuidStr=$( cat /etc/WPSD-release )
+modelName=$(grep -m 1 'model name' /proc/cpuinfo | sed 's/.*: //')
+hardwareField=$(grep 'Model' /proc/cpuinfo | sed 's/.*: //')
+hwDeetz="${hardwareField} - ${modelName}"
+uaStr="WPSD-ConnectivityCheck (Daily-Cron) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]"
+
+# connectivity check
+status_code=$(curl -A "${uaStr}" --write-out %{http_code} --silent --output /dev/null https://repo.w0chp.net/Chipster/W0CHP-PiStar-Dash.git)
+if [[ "$status_code" -ne 200 ]] ; then
+    exit 1
 fi
 
 # Add DGIdGateway timer to the APRS timer (dependency).
@@ -33,15 +49,6 @@ if [ -f $CSS_FILE ] && [ $( grep 'HeaderFontSize' $CSS_FILE) ] ; then
 	#sed -i '/MainFontSize=/a HeaderFontSize=34' $CSS_FILE
 	sed -i '/HeaderFontSize=/a BodyFontSize=17' $CSS_FILE
 fi
-
-W0CHP_BIN_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-bin.git"
-OFFICIAL_BIN_REPO="https://github.com/AndyTaylorTweet/Pi-Star_v4_Binaries_Bin.git"
-W0CHP_DASH_BRANCH="$( git --git-dir=/var/www/dashboard/.git branch | grep '*' | awk {'print $2'} )"
-versionCmd=$( git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git rev-parse --short=10 HEAD )
-uuidStr=$( cat /etc/WPSD-release )
-modelName=$(grep -m 1 'model name' /proc/cpuinfo | sed 's/.*: //')
-hardwareField=$(grep 'Model' /proc/cpuinfo | sed 's/.*: //')
-hwDeetz="${hardwareField} - ${modelName}"
 
 # Make the disk RW
 mount -o remount,rw /

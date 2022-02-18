@@ -15,6 +15,13 @@ uuidStr=$( cat /etc/WPSD-release )
 modelName=$(grep -m 1 'model name' /proc/cpuinfo | sed 's/.*: //')
 hardwareField=$(grep 'Model' /proc/cpuinfo | sed 's/.*: //')
 hwDeetz="${hardwareField} - ${modelName}"
+uaStr="WPSD-ConnectivityCheck (Hourly-Cron) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]"
+
+# connectivity check
+status_code=$(curl -A "${uaStr}" --write-out %{http_code} --silent --output /dev/null https://repo.w0chp.net/Chipster/W0CHP-PiStar-Dash.git)
+if [[ "$status_code" -ne 200 ]] ; then
+    exit 1
+fi
 
 # used to radomize the cron mins below
 cronMins=$(shuf -i 0-59 -n 1)
