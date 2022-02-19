@@ -21,7 +21,7 @@ hwDeetz="${hardwareField} - ${modelName}"
 uaStr="WPSD-ConnectivityCheck (Daily-Cron) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]"
 
 # connectivity check
-status_code=$(curl -A "${uaStr}" --write-out %{http_code} --silent --output /dev/null https://repo.w0chp.net/Chipster/W0CHP-PiStar-Dash.git)
+status_code=$(curl -m 3 -A "${uaStr}" --write-out %{http_code} --silent --output /dev/null https://repo.w0chp.net/Chipster/W0CHP-PiStar-Dash.git)
 if [[ "$status_code" -ne 200 ]] ; then
     exit 1
 fi
