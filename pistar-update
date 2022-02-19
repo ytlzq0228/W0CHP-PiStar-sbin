@@ -244,12 +244,12 @@ main_function() {
         	mv /etc/pistar-css.ini /etc/.pistar-css.ini.user
 	fi
 	#  in place edit for new mappings
-	if [ -f $CSS_FILE ] && [ $( grep 'HeaderFontSize' $CSS_FILE) ] ; then
+	#if [ -f $CSS_FILE ] && [ $( grep 'HeaderFontSize' $CSS_FILE) ] ; then
         	#sed -i '/\[ExtraSettings\]/a TableBorderColor=#777777' $CSS_FILE
 		#sed -i 's/FontSize=/MainFontSize=/' $CSS_FILE
         	#sed -i '/MainFontSize=/a HeaderFontSize=34' $CSS_FILE
-        	sed -i '/HeaderFontSize=/a BodyFontSize=17' $CSS_FILE
-	fi
+        #	sed -i '/HeaderFontSize=/a BodyFontSize=17' $CSS_FILE
+	#fi
 
 	# Pre-Fix some config in MMDVMHost for update purposes.
 	mmdvmHostVer=`MMDVMHost -v | awk '{print $3}' | cut -c 1-8`
