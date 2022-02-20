@@ -300,7 +300,7 @@ fi
 # Randomize the time for the daily cron jobs
 cronMins=$(shuf -i 0-59 -n 1)
 cronHours=$(shuf -i 1-4 -n1)
-sed -i "/cron.daily/c ${cronMins} ${cronHours}   * * *   root    mount -o remount,rw / && cd / && run-parts --report /etc/cron.daily" /etc/crontab
+sed -i "/cron.daily/c ${cronMins} ${cronHours}	* * *	root	mount -o remount,rw / && cd / && run-parts --report /etc/cron.daily" /etc/crontab
 
 # Start all the services...
 systemctl daemon-reload &> /dev/null # Reload systemd to account for service changes
