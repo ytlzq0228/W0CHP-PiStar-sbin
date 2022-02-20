@@ -503,10 +503,6 @@ main_function() {
 	gitStatusRemote=$(env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck Version Cacher (Manual-Update) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]" git ls-remote --heads ${gitRemoteURL} ${gitBranch} | grep ${gitBranch} | awk {'print $1'} | awk '{ print substr($1,1,10) }') # last pipe to awk: converts long hash to 10 chars.
 	echo ${gitStatusRemote} > /etc/.W0CHP-PiStar-Dash.remote_version
 
-	# Shuffle the time for the next hourly crontab job
-	cronMins=$(shuf -i 0-59 -n 1)
-	sed -i "/cron.hourly/c ${cronMins}  *   * * *   root    mount -o remount,rw / && cd / && run-parts --report /etc/cron.hourly" /etc/crontab
-
 	# log file perms
 	chown -R mmdvm:mmdvm /var/log/pi-star > /dev/null 2>&1
 	chmod 775 /var/log/pi-star > /dev/null 2>&1
