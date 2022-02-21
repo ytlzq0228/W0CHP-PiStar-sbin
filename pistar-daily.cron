@@ -295,6 +295,11 @@ sed -i "/MMDVMHost/c MMDVMHost = $_MMDVMHostVer" /etc/pistar-release
 
 
 # Check for gpsd
+systemctl disable mobilegps.timer > /dev/null 2<&1
+systemctl disable mobilegps.service > /dev/null 2<&1
+if compgen -G "/lib/systemd/system/mobilegps*" > /dev/null; then
+    rm -rf /lib/systemd/system/mobilegps*
+fi
 if ! [ -x "$(command -v gpsd)" ]; then
     echo "GPSd (required) not installed on hotspot. Installing now..."
     # Install GPSd
