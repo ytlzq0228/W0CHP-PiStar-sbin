@@ -81,6 +81,7 @@ else
     sed -i "/Firmware/c Firmware = $_FWver" /etc/pistar-release
     sed -i "/TCXO/c TCXO = $_TCXO" /etc/pistar-release
 fi
+sed -i '${/^$/d}' /etc/pistar-release
 
 # Mount the disk RO
 /bin/sync
