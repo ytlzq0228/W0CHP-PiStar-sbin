@@ -4,7 +4,7 @@
 #                                                                             #
 #                        Pi-Star Auto Update Tool                             #
 #                                                                             #
-#    Version 3.10.9, Code, Design and Development by Andy Taylor (MW0MWZ)     #
+#   Version 3.10.10, Code, Design and Development by Andy Taylor (MW0MWZ)     #
 #                            Enhanced by W0CHP                                #
 #                                                                             #
 #                     Make it simple to update the OS.                        #
@@ -353,7 +353,6 @@ main_function() {
 		curl --fail -o /usr/local/etc/DMR_Audio/se_SE.indx -s https://raw.githubusercontent.com/g4klx/DMRGateway/master/Audio/se_SE.indx	
 	fi
 
-
 	# I previously had the wrong URL for the P25 Audio files; remove the broken downloads.
 	if [[ -f /usr/local/etc/P25_Audio/en_GB.imbe ]]; then
 		testFileIMBE=`file -i /usr/local/etc/P25_Audio/en_GB.imbe | cut -d " " -f2`
@@ -478,6 +477,26 @@ main_function() {
 
 	if ! grep -q TIME_FORMAT /var/www/dashboard/config/config.php ; then # insert req'd constant if not found. WIll be stashed on next update :-)
 		sed -i "/^date_default_timezone_set.*/i define('TIME_FORMAT', '24');" /var/www/dashboard/config/config.php
+	fi
+
+	# Update pertinent versions in /etc/pistar-release
+	sed -i "/ircddbgateway/c ircddbgateway = 20190621_W0CHP" /etc/pistar-release
+	sed -i "/dstarrepeater/c dstarrepeater = 20180911_W0CHP" /etc/pistar-release
+	_KernelVer=`uname -r`
+	_MMDVMHostVer=`MMDVMHost -v | awk '{ print $3 }'`
+	logDate=`printf '%(%Y-%m-%d)T\n' -1`
+	mmdvmHostLog="/var/log/pi-star/MMDVM-${logDate}.log"
+	_FWver=`grep 'MMDVM protocol version' ${mmdvmHostLog} | awk '{print $9}' | tail -1`
+	_TCXO=`grep 'MMDVM protocol version' ${mmdvmHostLog} | awk '{print $11}' | tail -1`
+	sed -i "/kernel/c kernel = $_KernelVer" /etc/pistar-release
+	sed -i "/MMDVMHost/c MMDVMHost = $_MMDVMHostVer" /etc/pistar-release
+	if ! grep -q 'Firmware' /etc/pistar-release > /dev/null; then
+	    sed -i "/Hardware = /a Firmware = \nTCXO = \n" /etc/pistar-release
+	    sed -i "/Firmware/c Firmware = $_FWver" /etc/pistar-release
+	    sed -i "/TCXO/c TCXO = $_TCXO" /etc/pistar-release
+	else
+	    sed -i "/Firmware/c Firmware = $_FWver" /etc/pistar-release
+	    sed -i "/TCXO/c TCXO = $_TCXO" /etc/pistar-release
 	fi
 
 	# Add pistar-service bash completion

@@ -62,6 +62,26 @@ sed -i "/cron.hourly/c ${cronMins}  *   * * *   root    mount -o remount,rw / &&
 # Generate /etc/motd
 /usr/local/sbin/pistar-motdgen
 
+# Update pertinent versions in /etc/pistar-release
+sed -i "/ircddbgateway/c ircddbgateway = 20190621_W0CHP" /etc/pistar-release
+sed -i "/dstarrepeater/c dstarrepeater = 20180911_W0CHP" /etc/pistar-release
+_KernelVer=`uname -r`
+_MMDVMHostVer=`MMDVMHost -v | awk '{ print $3 }'`
+logDate=`printf '%(%Y-%m-%d)T\n' -1`
+mmdvmHostLog="/var/log/pi-star/MMDVM-${logDate}.log"
+_FWver=`grep 'MMDVM protocol version' ${mmdvmHostLog} | awk '{print $9}' | tail -1`
+_TCXO=`grep 'MMDVM protocol version' ${mmdvmHostLog} | awk '{print $11}' | tail -1`
+sed -i "/kernel/c kernel = $_KernelVer" /etc/pistar-release
+sed -i "/MMDVMHost/c MMDVMHost = $_MMDVMHostVer" /etc/pistar-release
+if ! grep -q 'Firmware' /etc/pistar-release > /dev/null; then
+    sed -i "/Hardware = /a Firmware = \nTCXO = \n" /etc/pistar-release
+    sed -i "/Firmware/c Firmware = $_FWver" /etc/pistar-release
+    sed -i "/TCXO/c TCXO = $_TCXO" /etc/pistar-release
+else
+    sed -i "/Firmware/c Firmware = $_FWver" /etc/pistar-release
+    sed -i "/TCXO/c TCXO = $_TCXO" /etc/pistar-release
+fi
+
 # Mount the disk RO
 /bin/sync
 /bin/sync

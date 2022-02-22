@@ -285,15 +285,6 @@ fi
 chown -R mmdvm:mmdvm /var/log/pi-star > /dev/null 2>&1
 chmod 775 /var/log/pi-star > /dev/null 2>&1
 
-# Update pertinent versions in /etc/pistar-release
-sed -i "/ircddbgateway/c ircddbgateway = 20190621_W0CHP" /etc/pistar-release
-sed -i "/dstarrepeater/c dstarrepeater = 20180911_W0CHP" /etc/pistar-release
-_KernelVer=`uname -r`
-_MMDVMHostVer=`MMDVMHost -v | awk '{ print $3 }'`
-sed -i "/kernel/c kernel = $_KernelVer" /etc/pistar-release
-sed -i "/MMDVMHost/c MMDVMHost = $_MMDVMHostVer" /etc/pistar-release
-
-
 # Check for gpsd
 systemctl disable mobilegps.timer > /dev/null 2<&1
 systemctl disable mobilegps.service > /dev/null 2<&1
