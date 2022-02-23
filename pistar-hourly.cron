@@ -5,6 +5,7 @@
 
 W0CHP_DASH_BRANCH="$( git --git-dir=/var/www/dashboard/.git branch | grep '*' | awk {'print $2'} )"
 versionCmd=$( git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git rev-parse --short=10 HEAD )
+psVer=$( grep Version /etc/pistar-release | awk '{print $3}' ) 
 
 if [[ ! -f /etc/WPSD-release ]] || [[ $( cat /etc/WPSD-release ) == '69dee892-b82e-400e-b2bd-39e602969e94' ]] ; then
     cat /proc/sys/kernel/random/uuid > /etc/WPSD-release
@@ -18,7 +19,7 @@ cronMins=$(shuf -i 0-59 -n 1)
 modelName=$(grep -m 1 'model name' /proc/cpuinfo | sed 's/.*: //')
 hardwareField=$(grep 'Model' /proc/cpuinfo | sed 's/.*: //')
 hwDeetz="${hardwareField} - ${modelName}"
-uaStr="WPSD-ConnectivityCheck (Hourly-Cron [${cronMins}]) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]"
+uaStr="WPSD-ConnectivityCheck (Hourly-Cron [${cronMins}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]"
 
 # connectivity check
 status_code=$(curl -m 3 -A "${uaStr}" --write-out %{http_code} --silent --output /dev/null "https://repo.w0chp.net/Chipster/W0CHP-PiStar-Dash.git/info/refs?service=git-upload-pack")
@@ -53,7 +54,7 @@ fi
 gitFolder="/var/www/dashboard"
 gitRemoteURL=$(git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git config --get remote.origin.url)
 gitBranch="$( git --git-dir=${gitFolder}/.git branch | grep '*' | awk {'print $2'} )"
-gitStatusRemote=$(env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck Version Cacher (Hourly-Cron [${cronMins}]) Ver.#${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]" git ls-remote --heads ${gitRemoteURL} | grep ${gitBranch} | awk {'print $1'} | awk '{ print substr($1,1,10) }') # last pipe to awk: converts long hash to 10 chars.
+gitStatusRemote=$(env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck Version Cacher (Hourly-Cron [${cronMins}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]" git ls-remote --heads ${gitRemoteURL} | grep ${gitBranch} | awk {'print $1'} | awk '{ print substr($1,1,10) }') # last pipe to awk: converts long hash to 10 chars.
 echo ${gitStatusRemote} > /etc/.W0CHP-PiStar-Dash.remote_version
 
 # Shuffle the time for the next hourly crontab job
