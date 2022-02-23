@@ -20,6 +20,7 @@ fi
 # Get the W0CHP-PiStar-Dash Version
 gitBranch=$(git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git branch | grep '*' | cut -f2 -d ' ')
 dashVer=$( git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git rev-parse --short=10 ${gitBranch} )
+psVer=$( grep Version /etc/pistar-release | awk '{print $3}' )
 # repo URI
 hostFileURL=https://repo.w0chp.net/Chipster/WPSD-HostFiles/raw/branch/master
 if [ ! -f /etc/WPSD-release ]; then
@@ -29,7 +30,7 @@ uuidStr=$( cat /etc/WPSD-release )
 modelName=$(grep -m 1 'model name' /proc/cpuinfo | sed 's/.*: //')
 hardwareField=$(grep 'Model' /proc/cpuinfo | sed 's/.*: //')
 hwDeetz="${hardwareField} - ${modelName}"
-uaStr="WPSD-HostFileUpdater Ver.#${dashVer} (${gitBranch}) UUID:${uuidStr} [${hwDeetz}]"
+uaStr="WPSD-HostFileUpdater Ver.# ${psVer} ${dashVer} (${gitBranch}) UUID:${uuidStr} [${hwDeetz}]"
 
 # Files and locations
 APRSHOSTS=/usr/local/etc/APRSHosts.txt
