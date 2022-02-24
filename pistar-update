@@ -490,6 +490,8 @@ main_function() {
 	sed -i "/dstarrepeater/c dstarrepeater = 20180911_W0CHP" /etc/pistar-release
 	_KernelVer=`uname -r`
 	_MMDVMHostVer=`MMDVMHost -v | awk '{ print $3 }'`
+	sed -i "/kernel/c kernel = $_KernelVer" /etc/pistar-release
+	sed -i "/MMDVMHost/c MMDVMHost = $_MMDVMHostVer" /etc/pistar-release
 	/usr/local/sbin/pistar-modemcache
 
 	# Add pistar-service bash completion
