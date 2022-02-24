@@ -480,25 +480,17 @@ main_function() {
 		sed -i "/^date_default_timezone_set.*/i define('TIME_FORMAT', '24');" /var/www/dashboard/config/config.php
 	fi
 
+	# add modem cache to rc.local
+	if ! grep -q 'modemcache' /etc/rc.local ; then
+	    sed -i '/^\/usr\/local\/sbin\/pistar-motdgen/a \\n\n# cache modem info\n\/usr\/local\/sbin\/pistar-modemcache' /etc/rc.local 
+	fi
+
 	# Update pertinent versions in /etc/pistar-release
 	sed -i "/ircddbgateway/c ircddbgateway = 20190621_W0CHP" /etc/pistar-release
 	sed -i "/dstarrepeater/c dstarrepeater = 20180911_W0CHP" /etc/pistar-release
 	_KernelVer=`uname -r`
 	_MMDVMHostVer=`MMDVMHost -v | awk '{ print $3 }'`
-	mmdvmHostLog="/var/log/pi-star/MMDVM-*.log"
-	_FWver=`grep 'MMDVM protocol version' ${mmdvmHostLog} | awk '{print $9}' | tail -1`
-	_TCXO=`grep 'MMDVM protocol version' ${mmdvmHostLog} | awk '{print $11}' | tail -1`
-	sed -i "/kernel/c kernel = $_KernelVer" /etc/pistar-release
-	sed -i "/MMDVMHost/c MMDVMHost = $_MMDVMHostVer" /etc/pistar-release
-	if ! grep -q 'Firmware' /etc/pistar-release > /dev/null; then
-	    sed -i "/Hardware = /a Firmware = \nTCXO = " /etc/pistar-release
-	    sed -i "/Firmware/c Firmware = $_FWver" /etc/pistar-release
-	    sed -i "/TCXO/c TCXO = $_TCXO" /etc/pistar-release
-	else
-	    sed -i "/Firmware/c Firmware = $_FWver" /etc/pistar-release
-	    sed -i "/TCXO/c TCXO = $_TCXO" /etc/pistar-release
-	fi
-	sed -i '${/^$/d}' /etc/pistar-release
+	/usr/local/sbin/pistar-modemcache
 
 	# Add pistar-service bash completion
 	DEST="/usr/share/bash-completion/completions/pistar-services"

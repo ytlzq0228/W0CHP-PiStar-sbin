@@ -87,6 +87,12 @@ echo ${gitStatusRemote} > /etc/.W0CHP-PiStar-Dash.remote_version
 # Generate /etc/motd
 /usr/local/sbin/pistar-motdgen
 
+# add modem cache to rc.local
+if ! grep -q 'modemcache' /etc/rc.local ; then
+    sed -i '/^\/usr\/local\/sbin\/pistar-motdgen/a \\n\n# cache modem info\n\/usr\/local\/sbin\/pistar-modemcache' /etc/rc.local 
+fi
+/usr/local/sbin/pistar-modemcache
+
 function GetBinStatus() {
     dir="/usr/local/bin"
     repo=$(git --work-tree=${dir} --git-dir=${dir}/.git config --get remote.origin.url)
