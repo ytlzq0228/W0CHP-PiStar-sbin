@@ -485,8 +485,7 @@ main_function() {
 	sed -i "/dstarrepeater/c dstarrepeater = 20180911_W0CHP" /etc/pistar-release
 	_KernelVer=`uname -r`
 	_MMDVMHostVer=`MMDVMHost -v | awk '{ print $3 }'`
-	logDate=`printf '%(%Y-%m-%d)T\n' -1`
-	mmdvmHostLog="/var/log/pi-star/MMDVM-${logDate}.log"
+	mmdvmHostLog="/var/log/pi-star/MMDVM-*.log"
 	_FWver=`grep 'MMDVM protocol version' ${mmdvmHostLog} | awk '{print $9}' | tail -1`
 	_TCXO=`grep 'MMDVM protocol version' ${mmdvmHostLog} | awk '{print $11}' | tail -1`
 	sed -i "/kernel/c kernel = $_KernelVer" /etc/pistar-release
