@@ -3,12 +3,16 @@
 mmdvmHostLog="/var/log/pi-star/MMDVM-*.log"
 _FWver=`grep 'MMDVM protocol version' ${mmdvmHostLog} | awk '{print $9}' | tail -1`
 _TCXO=`grep 'MMDVM protocol version' ${mmdvmHostLog} | awk '{print $11}' | tail -1`
-if ! grep -q 'Firmware' /etc/pistar-release > /dev/null; then
-    sed -i "/Hardware = /a Firmware = \nTCXO = " /etc/pistar-release
-    sed -i "/Firmware/c Firmware = $_FWver" /etc/pistar-release
-    sed -i "/TCXO/c TCXO = $_TCXO" /etc/pistar-release
-else
-    sed -i "/Firmware/c Firmware = $_FWver" /etc/pistar-release
-    sed -i "/TCXO/c TCXO = $_TCXO" /etc/pistar-release
+if ! grep -q 'MMDVM protocol version' ${mmdvmHostLog} ; then
+    exit 1
+else 
+    if ! grep -q 'Firmware' /etc/pistar-release > /dev/null; then
+        sed -i "/Hardware = /a Firmware = \nTCXO = " /etc/pistar-release
+        sed -i "/Firmware/c Firmware = $_FWver" /etc/pistar-release
+        sed -i "/TCXO/c TCXO = $_TCXO" /etc/pistar-release
+    else
+        sed -i "/Firmware/c Firmware = $_FWver" /etc/pistar-release
+        sed -i "/TCXO/c TCXO = $_TCXO" /etc/pistar-release
+    fi
+    sed -i '${/^$/d}' /etc/pistar-release
 fi
-sed -i '${/^$/d}' /etc/pistar-release
