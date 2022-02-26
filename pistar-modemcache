@@ -16,3 +16,10 @@ else
     fi
     sed -i '${/^$/d}' /etc/pistar-release
 fi
+
+countProcs=$(grep -c ^processor /proc/cpuinfo)
+if ! grep -w 'ProcNum' /etc/pistar-release > /dev/null; then
+    sed -i "/Hardware = /a ProcNum = ${countProcs} " /etc/pistar-release
+else
+    sed -i "/ProcNum/c ProcNum = ${countProcs}" /etc/pistar-release
+fi
