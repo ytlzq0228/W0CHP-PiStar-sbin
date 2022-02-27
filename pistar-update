@@ -486,7 +486,7 @@ main_function() {
 	fi
 
 	# Update pertinent info in /etc/pistar-release
-	/usr/local/sbin/pistar-modemcache
+	/usr/local/sbin/pistar-modemcache > /dev/null 2>&1
 
 	# Add pistar-service bash completion
 	DEST="/usr/share/bash-completion/completions/pistar-services"
