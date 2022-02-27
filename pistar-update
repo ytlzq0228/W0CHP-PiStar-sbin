@@ -485,13 +485,7 @@ main_function() {
 	    sed -i '/^\/usr\/local\/sbin\/pistar-motdgen/a \\n\n# cache modem info\n\/usr\/local\/sbin\/pistar-modemcache' /etc/rc.local 
 	fi
 
-	# Update pertinent versions in /etc/pistar-release
-	sed -i "/ircddbgateway/c ircddbgateway = 20190621_W0CHP" /etc/pistar-release
-	sed -i "/dstarrepeater/c dstarrepeater = 20180911_W0CHP" /etc/pistar-release
-	_KernelVer=`uname -r`
-	_MMDVMHostVer=`MMDVMHost -v | awk '{ print $3 }'`
-	sed -i "/kernel/c kernel = $_KernelVer" /etc/pistar-release
-	sed -i "/MMDVMHost/c MMDVMHost = $_MMDVMHostVer" /etc/pistar-release
+	# Update pertinent info in /etc/pistar-release
 	/usr/local/sbin/pistar-modemcache
 
 	# Add pistar-service bash completion
