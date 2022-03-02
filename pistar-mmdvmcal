@@ -61,4 +61,4 @@ systemctl start mmdvmhost.timer
 systemctl start mmdvmhost
 
 # Complete
-echo "Finnished..."
+echo "Finished..."

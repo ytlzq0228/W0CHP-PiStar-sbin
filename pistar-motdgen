@@ -64,5 +64,5 @@ ${INFO} Pi-Star's disk is read-only by default, enable read-write with \"rpi-rw\
 
 ${INFO} Pi-star command-line tools all begin with \"pistar-\".
 
-${COL_LIGHT_CYAN}Welcome to W0CHP-PiStar-Dash:${COL_NC} ${COL_LIGHT_RED}v${pistarCurVersion}${COL_NC} (Git ID #: ${COL_REG_YELLOW}${gitId}${COL_NC})
+${COL_LIGHT_CYAN}Welcome to W0CHP-PiStar-Dash:${COL_NC} ${COL_LIGHT_MAGENTA}v${pistarCurVersion}${COL_NC} (Git ID #: ${COL_REG_YELLOW}${gitId}${COL_NC})
 " > /etc/motd
