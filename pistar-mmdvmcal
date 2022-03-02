@@ -35,9 +35,9 @@ sleep 3
 
 # Force Kill any remaining MMDVMHost processes
 echo "Killing any remaining MMDVMHost processes..."
-killall MMDVMHost
-killall MMDVMHost_NoOLED
-killall MMDVMHost_Adafruit
+killall MMDVMHost >/dev/null 2>&1
+killall MMDVMHost_NoOLED >/dev/null 2>&1
+killall MMDVMHost_Adafruit >/dev/null 2>&1
 
 # Output some feedback to the terminal
 echo "Starting Calibration..."
