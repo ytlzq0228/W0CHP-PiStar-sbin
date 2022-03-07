@@ -6,7 +6,7 @@
 #      Written for Pi-Star (http://www.pistar.uk/)      #
 #               By Andy Taylor (MW0MWZ)                 #
 #                  Enhanced by W0CHP                    #
-#                    Version 2.10.2                     #
+#                    Version 2.10.3                     #
 #                                                       #
 #   Based on the update script by Tony Corbett G0WFV    #
 #                                                       #
@@ -23,10 +23,7 @@ dashVer=$( git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git 
 psVer=$( grep Version /etc/pistar-release | awk '{print $3}' )
 # repo URI
 hostFileURL=https://repo.w0chp.net/Chipster/WPSD-HostFiles/raw/branch/master
-if [ ! -f /etc/WPSD-release ]; then
-    cat /proc/sys/kernel/random/uuid > /etc/WPSD-release
-fi
-uuidStr=$( cat /etc/WPSD-release )
+uuidStr==$(grep UUID /etc/pistar-release | awk {'print $3'})
 modelName=$(grep -m 1 'model name' /proc/cpuinfo | sed 's/.*: //')
 hardwareField=$(grep 'Model' /proc/cpuinfo | sed 's/.*: //')
 hwDeetz="${hardwareField} - ${modelName}"

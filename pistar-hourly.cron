@@ -1,17 +1,37 @@
 #!/bin/bash
 #
-# Pi-Star Hourly Job Script W0CHP v2.2.4
+# Pi-Star Hourly Job Script W0CHP v2.2.5
 #
+
+# migrate config update notice
+if grep -q ConfUpdReqd /etc/mmdvmhost ; then
+    grep ConfUpdReqd /etc/mmdvmhost | sed 's/=/ = /' >> /etc/pistar-release
+    sed -i '/^\[WPSD\]/d' /etc/mmdvmhost
+    sed -i '/^ConfUpdReqd/d' /etc/mmdvmhost
+fi
+
+# migrate UUID
+if [ -f /etc/WPSD-release ]; then
+    UUIDck=$( cat /etc/WPSD-release )
+    if [[ ${UUIDck}  == '69dee892-b82e-400e-b2bd-39e602969e94' ]] ; then
+        rm -f /etc/WPSD-release
+        GU=$( cat /proc/sys/kernel/random/uuid )
+        echo "UUID = $GU" >> /etc/pistar-release
+    else
+        echo "UUID = $UUIDck" >> /etc/pistar-release
+        rm -f /etc/WPSD-release
+    fi
+else
+    if ! grep -q UUID /etc/pistar-release ; then
+        GU=$( cat /proc/sys/kernel/random/uuid )
+        echo "UUID = $GU" >> /etc/pistar-release
+    fi
+fi
 
 W0CHP_DASH_BRANCH="$( git --git-dir=/var/www/dashboard/.git branch | grep '*' | awk {'print $2'} )"
 versionCmd=$( git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git rev-parse --short=10 HEAD )
 psVer=$( grep Version /etc/pistar-release | awk '{print $3}' ) 
-
-if [[ ! -f /etc/WPSD-release ]] || [[ $( cat /etc/WPSD-release ) == '69dee892-b82e-400e-b2bd-39e602969e94' ]] ; then
-    cat /proc/sys/kernel/random/uuid > /etc/WPSD-release
-fi
-
-uuidStr=$( cat /etc/WPSD-release )
+uuidStr==$(grep UUID /etc/pistar-release | awk {'print $3'})
 
 # used to radomize the cron mins below
 cronMins=$(shuf -i 0-59 -n 1)

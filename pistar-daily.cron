@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# W0CHP pistar-daily.cron (enhanced) v2.9
+# W0CHP pistar-daily.cron (enhanced) v3.1
 #
 
 # Make sure we are root
@@ -10,12 +10,37 @@ if [ "$(id -u)" != "0" ]; then
   exit 1
 fi
 
+# migrate config update notice
+if grep -q ConfUpdReqd /etc/mmdvmhost ; then
+    grep ConfUpdReqd /etc/mmdvmhost | sed 's/=/ = /' >> /etc/pistar-release
+    sed -i '/^\[WPSD\]/d' /etc/mmdvmhost
+    sed -i '/^ConfUpdReqd/d' /etc/mmdvmhost
+fi
+
+# migrate UUID
+if [ -f /etc/WPSD-release ]; then
+    UUIDck=$( cat /etc/WPSD-release )
+    if [[ ${UUIDck}  == '69dee892-b82e-400e-b2bd-39e602969e94' ]] ; then
+        rm -f /etc/WPSD-release
+        GU=$( cat /proc/sys/kernel/random/uuid )
+        echo "UUID = $GU" >> /etc/pistar-release
+    else
+        echo "UUID = $UUIDck" >> /etc/pistar-release
+        rm -f /etc/WPSD-release
+    fi
+else
+    if ! grep -q UUID /etc/pistar-release ; then
+        GU=$( cat /proc/sys/kernel/random/uuid )
+        echo "UUID = $GU" >> /etc/pistar-release
+    fi
+fi
+
 W0CHP_BIN_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-bin.git"
 OFFICIAL_BIN_REPO="https://github.com/AndyTaylorTweet/Pi-Star_v4_Binaries_Bin.git"
 W0CHP_DASH_BRANCH="$( git --git-dir=/var/www/dashboard/.git branch | grep '*' | awk {'print $2'} )"
 versionCmd=$( git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git rev-parse --short=10 HEAD )
-psVer=$( grep Version /etc/pistar-release | awk '{print $3}' )
-uuidStr=$( cat /etc/WPSD-release )
+psVer=$(grep Version /etc/pistar-release | awk '{print $3}')
+uuidStr==$(grep UUID /etc/pistar-release | awk {'print $3'})
 modelName=$(grep -m 1 'model name' /proc/cpuinfo | sed 's/.*: //')
 hardwareField=$(grep 'Model' /proc/cpuinfo | sed 's/.*: //')
 hwDeetz="${hardwareField} - ${modelName}"
@@ -41,10 +66,6 @@ env REMOUNT_RO="NO" pistar-services fullstop > /dev/null 2>&1
 # Add DGIdGateway timer to the APRS timer (dependency).
 if ! grep -q 'Before=mmdvmhost.timer' /lib/systemd/system/aprsgateway.service ; then
     sed -i '/After=/a Before=mmdvmhost.timer ircddbgateway.timer ysfgateway.timer nxdngateway.timer dgidgateway.timer' /lib/systemd/system/aprsgateway.service
-fi
-
-if [[ ! -f /etc/WPSD-release ]] || [[ $( cat /etc/WPSD-release ) == '69dee892-b82e-400e-b2bd-39e602969e94' ]] ; then
-    cat /proc/sys/kernel/random/uuid > /etc/WPSD-release
 fi
 
 # New CSS mappings and funcs (git master #e2d2e9d092)...have to reset :-/
