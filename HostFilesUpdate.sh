@@ -23,7 +23,7 @@ dashVer=$( git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git 
 psVer=$( grep Version /etc/pistar-release | awk '{print $3}' )
 # repo URI
 hostFileURL=https://repo.w0chp.net/Chipster/WPSD-HostFiles/raw/branch/master
-uuidStr==$(grep UUID /etc/pistar-release | awk {'print $3'})
+uuidStr=$(grep UUID /etc/pistar-release | awk {'print $3'})
 modelName=$(grep -m 1 'model name' /proc/cpuinfo | sed 's/.*: //')
 hardwareField=$(grep 'Model' /proc/cpuinfo | sed 's/.*: //')
 hwDeetz="${hardwareField} - ${modelName}"
