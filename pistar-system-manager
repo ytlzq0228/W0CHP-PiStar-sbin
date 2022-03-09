@@ -71,26 +71,6 @@ function EnableCron() {
         fi
 }
 
-function DisablePSR() {
-    systemctl stop pistar-watchdog.service > /dev/null 2<&1
-    systemctl disable pistar-watchdog.service > /dev/null 2<&1
-    systemctl stop pistar-remote.service > /dev/null 2<&1
-    systemctl disable pistar-remote.service > /dev/null 2<&1
-        if [ -t 1 ]; then
-            echo "PSR Disabled"
-        fi
-}
-
-function EnablePSR() {
-    systemctl enable pistar-remote.service > /dev/null 2<&1
-    systemctl start pistar-remote.service > /dev/null 2<&1
-    systemctl enable pistar-watchdog.service > /dev/null 2<&1
-    systemctl start pistar-watchdog.service > /dev/null 2<&1
-        if [ -t 1 ]; then
-            echo "PSR Enabled"
-        fi
-}
-
 function DisplayHelp() {
     echo "`basename $0` usage:"
     echo ""
@@ -130,16 +110,6 @@ while [[ $# -gt 0 ]]; do
 
     "-ec" | "--enable-cron")
         EnableCron
-        shift
-        ;;
-
-    "-dpsr" | "--disable-psr")
-        DisablePSR
-        shift
-        ;;
-
-    "-epsr" | "--enable-psr")
-        EnablePSR
         shift
         ;;
 
