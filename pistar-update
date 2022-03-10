@@ -4,7 +4,7 @@
 #                                                                             #
 #                        Pi-Star Auto Update Tool                             #
 #                                                                             #
-#   Version 3.10.11, Code, Design and Development by Andy Taylor (MW0MWZ)     #
+#   Version 3.10.12, Code, Design and Development by Andy Taylor (MW0MWZ)     #
 #                            Enhanced by W0CHP                                #
 #                                                                             #
 #                     Make it simple to update the OS.                        #
@@ -20,6 +20,24 @@ exec 200>/var/lock/pistar-update.lock || exit 1
 if ! flock -n 200 ; then
   echo -e "Another instance is already running...\n"
   exit 1
+fi
+
+versionCmd=$( git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git rev-parse --short=10 HEAD )
+psVer=$( grep Version /etc/pistar-release | awk '{print $3}' )
+W0CHP_DASH_BRANCH="$( git --git-dir=/var/www/dashboard/.git branch | grep '*' | awk {'print $2'} )"
+W0CHP_BIN_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-bin.git"
+OFFICIAL_BIN_REPO="https://github.com/AndyTaylorTweet/Pi-Star_v4_Binaries_Bin.git"
+uuidStr=$(grep UUID /etc/pistar-release | awk {'print $3'})
+modelName=$(grep -m 1 'model name' /proc/cpuinfo | sed 's/.*: //')
+hardwareField=$(grep 'Model' /proc/cpuinfo | sed 's/.*: //')
+hwDeetz="${hardwareField} - ${modelName}"
+uaStr="WPSD-ConnectivityCheck (Manual-Update) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]"
+
+# connectivity check
+status_code=$(curl -m 3 -A "${uaStr}" --write-out %{http_code} --silent --output /dev/null "https://repo.w0chp.net/Chipster/W0CHP-PiStar-Dash.git/info/refs?service=git-upload-pack")
+if [[ "$status_code" -ne 200 ]] ; then
+    echo "Cannot reach git repository. Try again later. Exiting...\n"
+    exit 1
 fi
 
 # migrate config update notice
@@ -45,24 +63,6 @@ else
         GU=$( cat /proc/sys/kernel/random/uuid )
         echo "UUID = $GU" >> /etc/pistar-release
     fi
-fi
-
-versionCmd=$( git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git rev-parse --short=10 HEAD )
-psVer=$( grep Version /etc/pistar-release | awk '{print $3}' )
-W0CHP_DASH_BRANCH="$( git --git-dir=/var/www/dashboard/.git branch | grep '*' | awk {'print $2'} )"
-W0CHP_BIN_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-bin.git"
-OFFICIAL_BIN_REPO="https://github.com/AndyTaylorTweet/Pi-Star_v4_Binaries_Bin.git"
-uuidStr=$(grep UUID /etc/pistar-release | awk {'print $3'})
-modelName=$(grep -m 1 'model name' /proc/cpuinfo | sed 's/.*: //')
-hardwareField=$(grep 'Model' /proc/cpuinfo | sed 's/.*: //')
-hwDeetz="${hardwareField} - ${modelName}"
-uaStr="WPSD-ConnectivityCheck (Manual-Update) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]"
-
-# connectivity check
-status_code=$(curl -m 3 -A "${uaStr}" --write-out %{http_code} --silent --output /dev/null "https://repo.w0chp.net/Chipster/W0CHP-PiStar-Dash.git/info/refs?service=git-upload-pack")
-if [[ "$status_code" -ne 200 ]] ; then
-    echo "Cannot reach git repository. Try again later. Exiting..."
-    exit 1
 fi
 
 function GetBinStatus() {
