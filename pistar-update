@@ -36,7 +36,7 @@ uaStr="WPSD-ConnectivityCheck (Manual-Update) Ver.# ${psVer} ${versionCmd} (${W0
 # connectivity check
 status_code=$(curl -m 3 -A "${uaStr}" --write-out %{http_code} --silent --output /dev/null "https://repo.w0chp.net/Chipster/W0CHP-PiStar-Dash.git/info/refs?service=git-upload-pack")
 if [[ "$status_code" -ne 200 ]] ; then
-    echo "Cannot reach git repository. Try again later. Exiting...\n"
+    echo -e "Cannot reach git repository. Try again later. Exiting...\n"
     exit 1
 fi
 
