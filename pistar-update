@@ -281,6 +281,9 @@ main_function() {
         	#sed -i '/MainFontSize=/a HeaderFontSize=34' $CSS_FILE
         #	sed -i '/HeaderFontSize=/a BodyFontSize=17' $CSS_FILE
 	#fi
+	if [ -f $CSS_FILE ] && ! [ $( grep 'TextSectionColor' $CSS_FILE) ] ; then
+        	sed -i '/\[Text\]/a TextSectionColor=#000000' $CSS_FILE
+	fi
 
 	# Pre-Fix some config in MMDVMHost for update purposes.
 	mmdvmHostVer=`MMDVMHost -v | awk '{print $3}' | cut -c 1-8`
