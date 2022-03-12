@@ -1,5 +1,8 @@
 #!/bin/bash
 
+sed -i "/ircddbgateway/c ircddbgateway = 20190621_W0CHP" /etc/pistar-release
+sed -i "/dstarrepeater/c dstarrepeater = 20180911_W0CHP" /etc/pistar-release
+
 mmdvmHostLog="/var/log/pi-star/MMDVM-*.log"
 
 # give a bit of time for MMDVMHost to generate the info in the logs before caching...
