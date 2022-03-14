@@ -64,6 +64,9 @@ pkill pistar-hourly.cron > /dev/null 2>&1
 # Make the disk RW
 mount -o remount,rw /
 
+# maint. tasks
+/usr/local/sbin/wpsd-backend-maint > /dev/null 2>&1
+
 # Stop all the services...
 env REMOUNT_RO="NO" pistar-services fullstop > /dev/null 2>&1
 

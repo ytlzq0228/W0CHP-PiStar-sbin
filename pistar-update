@@ -40,6 +40,9 @@ if [[ "$status_code" -ne 200 ]] ; then
     exit 1
 fi
 
+# maint. tasks
+/usr/local/sbin/wpsd-backend-maint > /dev/null 2>&1
+
 # migrate config update notice
 if grep -q ConfUpdReqd /etc/mmdvmhost ; then
     grep ConfUpdReqd /etc/mmdvmhost | sed 's/=/ = /' >> /etc/pistar-release
