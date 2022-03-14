@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# disable samba - perf. and sec.
+if [ -f /etc/systemd/system/multi-user.target.wants/smbd.service ] ; then
+    systemctl stop smbd > /dev/null 2<&1
+    systemctl stop nmbd > /dev/null 2<&1
+    LC_ALL=C systemctl disable smbd > /dev/null 2<&1
+    LC_ALL=C systemctl disable nmbd > /dev/null 2<&1
+    systemctl mask smbd > /dev/null 2<&1
+    systemctl mask nmbd > /dev/null 2<&1
+fi
+
+# avahi tweaks
+if grep -q 'publish-hinfo=no' /etc/avahi/avahi-daemon.conf ; then
+    cp /etc/avahi/avahi-daemon.conf /etc/avahi/avahi-daemon.conf.dist
+    sed -i 's/^publish-hinfo=.*/publish-hinfo=yes/g;s/^publish-workstation=.*/publish-workstation=yes/g' /etc/avahi/avahi-daemon.conf
+    sed -i 's/^use-ipv6=.*/use-ipv6=no/g' /etc/avahi/avahi-daemon.conf
+
+    # publish HTTP and SSH avahi services
+    cat << EOF > /etc/avahi/services/http.service
+<?xml version="1.0" standalone='no'?><!--*-nxml-*-->
+<!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+<service-group>
+<name replace-wildcards="yes">%h Pi-Star Web Interface</name>
+<service>
+<type>_http._tcp</type>
+<port>80</port>
+</service>
+</service-group>
+EOF
+    cat << EOF > /etc/avahi/services/ssh.service
+<?xml version="1.0" standalone='no'?><!--*-nxml-*-->
+<!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+<service-group>
+<name replace-wildcards="yes">%h Pi-Star SSH</name>
+<service>
+<type>_ssh._tcp</type>
+<port>22</port>
+</service>
+</service-group>
+EOF
+
+    systemctl restart avahi-daemon > /dev/null 2<&1
+    systemctl daemon-reload > /dev/null 2<&1
+fi
+
+# disable unattended-upgrades; perf.
+if [ -f /etc/systemd/system/multi-user.target.wants/unattended-upgrades.service ] ; then
+    systemctl stop unattended-upgrades > /dev/null 2<&1
+    LC_ALL=C systemctl disable unattended-upgrades > /dev/null 2<&1
+    systemctl mask unattended-upgrades > /dev/null 2<&1
+fi
+
