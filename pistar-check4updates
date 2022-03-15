@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# connectivity check
+status_code=$(curl -m 3 -A "${uaStr}" --write-out %{http_code} --silent --output /dev/null "https://repo.w0chp.net/Chipster/W0CHP-PiStar-sbin/info/refs?service=git-upload-pack")
+if [[ "$status_code" -ne 200 ]] ; then
+    exit 1
+fi
+
 gitFolder="/var/www/dashboard"
 gitRemoteVer=/etc/.W0CHP-PiStar-Dash.remote_version
 # W0CHP has more than one branch. So depending on what W0CHP branch the user has installed, check that branch.
