@@ -31,6 +31,7 @@ uaStr="WPSD-HostFileUpdater Ver.# ${psVer} ${dashVer} (${gitBranch}) UUID:${uuid
 
 # Files and locations
 APRSHOSTS=/usr/local/etc/APRSHosts.txt
+APRSSERVERS=/usr/local/etc/aprs_servers.json
 DCSHOSTS=/usr/local/etc/DCS_Hosts.txt
 DExtraHOSTS=/usr/local/etc/DExtra_Hosts.txt
 DMRIDFILE=/usr/local/etc/DMRIds.dat
@@ -121,6 +122,7 @@ done
 
 # Generate Host Files
 curl --fail -L -o ${APRSHOSTS} -s ${hostFileURL}/APRS_Hosts.txt --user-agent "${uaStr}"
+curl --fail -L -o ${APRSSERVERS} -s ${hostFileURL}/aprs_servers.json --user-agent "${uaStr}"
 curl --fail -L -o ${DCSHOSTS} -s ${hostFileURL}/DCS_Hosts.txt --user-agent "${uaStr}"
 curl --fail -L -o ${DMRHOSTS} -s ${hostFileURL}/DMR_Hosts.txt --user-agent "${uaStr}"
 if [ -f /etc/hostfiles.nodextra ]; then
