@@ -4,7 +4,6 @@
 # Firewall rules to allow all traffic, by W0CHP
 #
 
-printf "Removing IPv4 Rules...\n"
 #
 # IPv4 Firewall Rules
 #
@@ -19,10 +18,6 @@ iptables -P OUTPUT ACCEPT
 
 iptables-save > /etc/iptables.rules
 
-# Give the user some output
-iptables --list
-
-printf "\nRemoving IPv6 Rules...\n"
 #
 # IPv6 Rules
 #
@@ -39,8 +34,3 @@ ip6tables -P OUTPUT ACCEPT
 # Save settings
 ip6tables-save > /etc/ip6tables.rules
 
-# List rules
-ip6tables --list
-
-# echo a blank line
-printf "\n"
