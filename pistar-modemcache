@@ -28,9 +28,9 @@ else
     sed -i "/Firmware/c Firmware = $_FWver" /etc/pistar-release
     sed -i "/TCXO/c TCXO = $_TCXO" /etc/pistar-release
 fi
-# G4KLX MMDVM FW is 12.000 MHz:
+# G4KLX MMDVM FW is 12.0000 MHz:
 if [ ${_FWver} = "MMDVM" ] ; then
-    sed -i "/TCXO/c TCXO = 12.000MHz" /etc/pistar-release
+    sed -i "/TCXO/c TCXO = 12.0000MHz" /etc/pistar-release
 fi
 
 # cleanup last line..
