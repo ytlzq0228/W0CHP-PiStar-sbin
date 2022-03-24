@@ -23,16 +23,20 @@ _TCXO=$( grep -o '.*MHz' ${mmdvmHostLog} | tail -1 | rev | cut -d' ' -f 1 | rev 
 if ! grep -q 'Firmware' /etc/pistar-release > /dev/null; then
     sed -i "/Hardware = /a Firmware = \nTCXO = " /etc/pistar-release
     sed -i "/Firmware/c Firmware = $_FWver" /etc/pistar-release
-    sed -i "/TCXO/c TCXO = $_TCXO" /etc/pistar-release
+    # G4KLX MMDVM FW is 12.0000 MHz:
+    if [ ${_FWver} = "MMDVM" ] ; then
+	sed -i "/TCXO/c TCXO = 12.0000MHz" /etc/pistar-release
+    else
+	sed -i "/TCXO/c TCXO = $_TCXO" /etc/pistar-release
+    fi
 else
     sed -i "/Firmware/c Firmware = $_FWver" /etc/pistar-release
-    sed -i "/TCXO/c TCXO = $_TCXO" /etc/pistar-release
+    if [ ${_FWver} = "MMDVM" ] ; then
+        sed -i "/TCXO/c TCXO = 12.0000MHz" /etc/pistar-release
+    else
+        sed -i "/TCXO/c TCXO = $_TCXO" /etc/pistar-release
+    fi
 fi
-# G4KLX MMDVM FW is 12.0000 MHz:
-if [ ${_FWver} = "MMDVM" ] ; then
-    sed -i "/TCXO/c TCXO = 12.0000MHz" /etc/pistar-release
-fi
-
 # cleanup last line..
 sed -i '${/^$/d}' /etc/pistar-release
 
