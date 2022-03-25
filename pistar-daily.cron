@@ -123,8 +123,6 @@ echo ${gitStatusRemote} > /etc/.W0CHP-PiStar-Dash.remote_version
 if ! grep -q 'modemcache' /etc/rc.local ; then
     sed -i '/^\/usr\/local\/sbin\/pistar-motdgen/a \\n\n# cache modem info\n\/usr\/local\/sbin\/pistar-modemcache' /etc/rc.local 
 fi
-# and update info
-/usr/local/sbin/pistar-modemcache > /dev/null 2>&1
 
 function GetBinStatus() {
     dir="/usr/local/bin"
