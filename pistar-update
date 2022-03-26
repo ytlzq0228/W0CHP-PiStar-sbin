@@ -246,7 +246,7 @@ main_function() {
 
 	echo "Updating W0CHP-PiStar-Dash Binaries & Scripts..."
 	git_update /usr/local/sbin
-	systemctl daemon-reload > /dev/null 2>&1
+	#systemctl daemon-reload > /dev/null 2>&1
 	echo -e "Done\n"
 
 	echo "Updating W0CHP-PiStar-Dash Digital Voice Binaries..."

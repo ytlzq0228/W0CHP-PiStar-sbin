@@ -342,7 +342,7 @@ fi
 sed -i "/cron.daily/c ${cronMins} ${cronHours}	* * *	root	mount -o remount,rw / && cd / && run-parts --report /etc/cron.daily" /etc/crontab
 
 # Start all the services...
-systemctl daemon-reload &> /dev/null # Reload systemd to account for service changes
+#systemctl daemon-reload &> /dev/null # Reload systemd to account for service changes
 pistar-services start > /dev/null 2>&1
 
 exit 0
