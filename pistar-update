@@ -257,7 +257,7 @@ main_function() {
 	git_update /var/www/dashboard
 	echo -e "Done\n"
 
-	echo "Updating Hostfiles, User ID DB's & DMR Talkgroup Lists..."
+	echo "Updating Hostfiles, User ID DB's & Various Talkgroup Lists..."
 	/usr/local/sbin/HostFilesUpdate.sh > /dev/null 2>&1
 	echo -e "Done\n"
 
