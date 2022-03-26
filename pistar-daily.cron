@@ -92,6 +92,10 @@ fi
 if [ -f $CSS_FILE ] && ! [ $( grep 'TextSectionColor' $CSS_FILE) ] ; then
 	sed -i '/\[Text\]/a TextSectionColor=#000000' $CSS_FILE
 fi
+# fix css bug derived from editor
+if [ -f $CSS_FILE ] && [ $( grep 'NavPanelColor#edf0f5=' $CSS_FILE) ] ; then
+	sed -i 's/NavPanelColor#edf0f5=/NavPanelColor=#edf0f5/g' $CSS_FILE
+fi
 
 # Upsate sbin
 env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron [${cronHours}:${cronMins} ${tz}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]" git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git pull origin master

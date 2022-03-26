@@ -287,6 +287,10 @@ main_function() {
 	if [ -f $CSS_FILE ] && ! [ $( grep 'TextSectionColor' $CSS_FILE) ] ; then
         	sed -i '/\[Text\]/a TextSectionColor=#000000' $CSS_FILE
 	fi
+	# fix css bug derived from editor
+	if [ -f $CSS_FILE ] && [ $( grep 'NavPanelColor#edf0f5=' $CSS_FILE) ] ; then
+            sed -i 's/NavPanelColor#edf0f5=/NavPanelColor=#edf0f5/g' $CSS_FILE
+	fi
 
 	# Pre-Fix some config in MMDVMHost for update purposes.
 	mmdvmHostVer=`MMDVMHost -v | awk '{print $3}' | cut -c 1-8`
