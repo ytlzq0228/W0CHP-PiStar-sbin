@@ -13,9 +13,9 @@ do
 done
 while [[ $( grep -c 'MMDVM protocol version' ${mmdvmHostLog} ) -eq 0 ]]
 do
-    mount -o remount,rw /
     sleep 1
 done
+
 mount -o remount,rw /
 
 _FWver=$( grep 'MMDVM protocol version' ${mmdvmHostLog} | awk '{print $9}' | tail -1 )
@@ -37,8 +37,6 @@ else
         sed -i "/TCXO/c TCXO = $_TCXO" /etc/pistar-release
     fi
 fi
-# cleanup last line..
-sed -i '${/^$/d}' /etc/pistar-release
 
 countProcs=$(grep -c ^processor /proc/cpuinfo)
 if ! grep -w 'ProcNum' /etc/pistar-release > /dev/null; then
@@ -55,3 +53,8 @@ sed -i "/dstarrepeater/c dstarrepeater = 20180911_W0CHP" /etc/pistar-release
 
 _KernelVer=`uname -r`
 sed -i "/kernel/c kernel = $_KernelVer" /etc/pistar-release
+
+# cleanup last line..
+sed -i '${/^$/d}' /etc/pistar-release
+
+
