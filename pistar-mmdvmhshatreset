@@ -6,7 +6,7 @@
 #                                                                            #
 #     Version 1.2, Code, Design and Development by Andy Taylor (MW0MWZ).     #
 #                                                                            #
-#     Make it simple to reset an MMDVM bosard from the CLI on Pi-Star.       #
+#     Make it simple to reset an MMDVM board from the CLI on Pi-Star .       #
 #                                                                            #
 ##############################################################################
 #
@@ -16,7 +16,7 @@ if [ "$(id -u)" != "0" ]; then
 fi
 
 # Detect Pi4 Hardware
-if [ "$(/usr/local/bin/platformDetect.sh | grep "Pi 4 Model" | wc -l)" -ge 1 ]; then
+if [ "$(/usr/local/sbin/platformDetect.sh | grep "Pi 4 Model" | wc -l)" -ge 1 ]; then
   model="Pi4"
 else
   model=""
