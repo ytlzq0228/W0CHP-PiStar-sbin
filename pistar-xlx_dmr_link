@@ -1,0 +1,67 @@
+#!/bin/bash
+#
+##############################################################################
+#                                                                            #
+#                          Pi-Star XLX DMR link Tool                         #
+#                                                                            #
+#     Version 1.0, Code, Design and Development by Chip Cuccio, W0CHP.       #
+#                                                                            #
+#              Make it simple to link XLX DMR reflectors from the CLI.       #
+#                                                                            #
+##############################################################################
+#
+if [ "$(id -u)" != "0" ]; then
+  echo -e "You need to be root to run this command...\n"
+  exit 1
+fi
+
+# Make sure DMRGateway is being used/configured
+DMRgwCheck=$( grep -A 15 'DMR Network' /etc/mmdvmhost | grep Address | head -1 | sed 's/Address=//g' )
+if [ ${DMRgwCheck} != "127.0.0.1" ]; then
+  echo -e "DMRGateway not enabled/configured...\n"
+  exit 1
+fi
+
+if [ -z "$1" ] ; then
+#if [ $# -eq 0 ]; then
+      echo ""
+      echo "Example Usage:"
+      echo ""
+      echo "To unlink from any connected Module, use: pistar-xlx_dmr_link unlink"
+      echo "To link to reflector XLX-493, Module E, use: pistar-xlx_dmr_link 493 E"
+      echo ""
+      exit 1
+fi
+
+case ${1} in
+unlink)
+  $( sed -i "/Module=/c\\Module=@" /etc/dmrgateway ; systemctl restart dmrgateway.service ; touch /etc/.XLX_paused )
+  echo ""
+  echo "Unlinked from XLX Module (DMR Traffic Muted)."
+  echo ""
+  exit 0
+;;
+*)
+  if [ ${#1} -ne 3 ]; then
+    echo -e "Invalid XLX Reflector, ${1^^}"
+    exit 1
+  fi
+  if [ ! $( grep ${1} /usr/local/etc/XLXHosts.txt | sed 's/;.*//g' ) ]; then
+    echo -e "Invalid XLX Reflector, ${1^^}"
+    exit 1
+  fi
+  $( sed -i "/Module=/c\\Module=${2^^}" /etc/dmrgateway ; sed -i "/Startup=/c\\Startup=${1}" /etc/dmrgateway ; systemctl restart dmrgateway.service ; rm /etc/.XLX_paused > /dev/null 2<&1 )
+  echo ""
+  if [ -z ${2} ]; then
+    echo "Linked to reflector XLX-${1}, Module 'Default.'"
+  else
+    echo "Linked to reflector XLX-${1}, Module ${2^^}."
+  fi
+  echo ""
+
+  exit 0
+;;
+esac
+
+exit 0
+

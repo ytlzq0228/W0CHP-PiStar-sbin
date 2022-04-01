@@ -57,6 +57,8 @@ case "$1" in
 			done
                         chown -R ${GROUP}:${GROUP} $LOGDIR
                         chmod 775 $LOGDIR
+			#/usr/local/sbin/pistar-mmdvmhsreset boot > /dev/null 2<&1
+			#sleep 5
 			nice -n -10 ${DAEMON_PATH}${DAEMON} ${DAEMON_OPTS}
 			echo -e "$DAEMON started as PID "`$PGREP $DAEMON`
 			(sleep 10s; /usr/sbin/service ircddbgateway start)&
@@ -84,14 +86,21 @@ case "$1" in
 			$SLEEP 3
                         chown -R ${GROUP}:${GROUP} $LOGDIR
                         chmod 775 $LOGDIR
+			#/usr/local/sbin/pistar-mmdvmhsreset boot > /dev/null 2<&1
+			#sleep 5
 			nice -n -10 ${DAEMON_PATH}${DAEMON} ${DAEMON_OPTS}
 			echo -e "$DAEMON re-started as PID "`${PGREP} ${DAEMON}`
 			(sleep 10s; /usr/sbin/service ircddbgateway restart)&
 			exit 0;
 		else
 			echo -e "$DAEMON is not running"
+                        chown -R ${GROUP}:${GROUP} $LOGDIR
+                        chmod 775 $LOGDIR
+			#/usr/local/sbin/pistar-mmdvmhsreset boot > /dev/null 2<&1
+			#sleep 5
 			nice -n -10 ${DAEMON_PATH}${DAEMON} ${DAEMON_OPTS}
-			echo -e "$DAEMON started as PID "`${PGREP} ${DAEMON}`
+			echo -e "$DAEMON re-started as PID "`${PGREP} ${DAEMON}`
+			(sleep 10s; /usr/sbin/service ircddbgateway restart)&
 			exit 0;
 		fi
 		;;
