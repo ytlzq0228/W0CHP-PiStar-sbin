@@ -35,6 +35,7 @@ fi
 
 case ${1} in
 unlink)
+  mount -o remount,rw /
   $( sed -i "/Module=/c\\Module=@" /etc/dmrgateway ; systemctl restart dmrgateway.service ; touch /etc/.XLX_paused )
   echo ""
   echo "Unlinked from XLX Module (DMR Traffic Muted)."
@@ -50,6 +51,7 @@ unlink)
     echo -e "Invalid XLX Reflector, ${1^^}"
     exit 1
   fi
+  mount -o remount,rw /
   $( sed -i "/Module=/c\\Module=${2^^}" /etc/dmrgateway ; sed -i "/Startup=/c\\Startup=${1}" /etc/dmrgateway ; systemctl restart dmrgateway.service ; rm /etc/.XLX_paused > /dev/null 2<&1 )
   echo ""
   if [ -z ${2} ]; then
