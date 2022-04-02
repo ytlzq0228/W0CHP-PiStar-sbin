@@ -4,10 +4,8 @@
 #                                                                             #
 #                        Pi-Star Auto Update Tool                             #
 #                                                                             #
-#   Version 3.10.12, Code, Design and Development by Andy Taylor (MW0MWZ)     #
+#   Version 3.10.13, Code, Design and Development by Andy Taylor (MW0MWZ)     #
 #                            Enhanced by W0CHP                                #
-#                                                                             #
-#                     Make it simple to update the OS.                        #
 #                                                                             #
 ###############################################################################
 #
@@ -32,6 +30,8 @@ modelName=$(grep -m 1 'model name' /proc/cpuinfo | sed 's/.*: //')
 hardwareField=$(grep 'Model' /proc/cpuinfo | sed 's/.*: //')
 hwDeetz="${hardwareField} - ${modelName}"
 uaStr="WPSD-ConnectivityCheck (Manual-Update) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]"
+TICK="[✓]"
+INFO="[i]"
 
 # connectivity check
 conn_check() {
@@ -135,9 +135,9 @@ git_update() {
                 env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull -q origin ${dash_branch} &> /dev/null
                 git checkout stash@{0} -- config/config.php config/ircddblocal.php config/language.php > /dev/null 2<&1 # restore user config files from stash
                 git stash clear > /dev/null 2<&1 # housekeeping
-                echo -e "\nChangeLog:\n"
+                echo -e "\nChangeLog (last 3 changes):\n"
                 #git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --decorate=short -n1 | sed -e '1,4d'
-                git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --no-decorate --pretty=oneline -n1 | cut --complement -d' ' -f1 | fold -w 76 -s
+                git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --no-decorate --pretty=oneline -n3 | cut --complement -d' ' -f1 | fold -w 76 -s
                 echo -e "\n"
         	else
 			# If this script is updated, re-run the update with the new version.
@@ -147,9 +147,9 @@ git_update() {
                         	if [ "$(git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git diff --name-only origin/master 2>/dev/null | grep pistar-update 2>/dev/null)" = "pistar-update" ]; then
                                 	echo "Found a new version of pistar-update..."
                                 	env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull -q origin master &> /dev/null
-                                	echo -e "\nChangeLog:\n"
+                                	echo -e "\nChangeLog (last 3 changes):\n"
                                 	#git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --decorate=short -n1 | sed -e '1,4d'
-                                	git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --no-decorate --pretty=oneline -n1 | cut --complement -d' ' -f1 | fold -w 76 -s
+                                	git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --no-decorate --pretty=oneline -n3 | cut --complement -d' ' -f1 | fold -w 76 -s
                                 	if [[ $(git_checkUpdateRequired ${gitFolder}) -gt 0 ]]; then
                                         	echo "Update to new version of pistar-update was not successful, forcing update..."
 						if [ -f ${gitFolder}/pistar-upnp.service ]; then
@@ -165,9 +165,9 @@ git_update() {
                 fi
                 env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull -q origin master &> /dev/null
                 env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard origin/master
-                echo -e "\nChangeLog:\n"
+                echo -e "\nChangeLog (last 3 changes):\n"
                 #git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --decorate=short -n1 | sed -e '1,4d'
-                git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --no-decorate --pretty=oneline -n1 | cut --complement -d' ' -f1 | fold -w 76 -s
+                git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --no-decorate --pretty=oneline -n3 | cut --complement -d' ' -f1 | fold -w 76 -s
                 echo -e "\n"
 		fi
 		# Re-check that the updates are now good
@@ -188,7 +188,7 @@ git_update() {
                 	env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull -q &> /dev/null
               	fi
                	else
-                	echo "No updates for ${gitFolder} available"
+                	echo -e "${INFO} No updates for ${gitFolder} available"
 	fi
 }
 
@@ -198,8 +198,8 @@ main_function() {
     	systemctl stop cron.service > /dev/null 2<&1
     	pkill pistar-hourly.cron > /dev/null 2>&1
     	pkill pistar-daily.cron > /dev/null 2>&1
-	mount -o remount,rw /
-	mount -o remount,rw /boot
+	mount -o remount,rw / > /dev/null 2<&1
+	mount -o remount,rw /boot > /dev/null 2<&1
 
 	if [ -t 1 ]; then
 		# This is running from a terminal, so it should be safe to update the OS
@@ -207,7 +207,7 @@ main_function() {
 		apt-get update
 		apt-get upgrade --fix-missing --fix-broken -y
 		apt-get clean
-		echo -e "Done\n"
+		echo -e "${TICK} Done!\n"
 
 		echo "Checking nginx config"
 		if ! [ $(cat /lib/systemd/system/nginx.service | grep -o "mkdir") ]; then
@@ -218,7 +218,7 @@ main_function() {
 			exec "$0" "$@"
 			exit 1
 		fi
-		echo -e "Done\n"
+		echo -e "${TICK} Done!\n"
 	fi
 
         # Check for gpsd
@@ -233,36 +233,36 @@ main_function() {
 	    apt-get -qq install -y libgps-dev gpsd > /dev/null 2>&1
 	    systemctl restart gpsd > /dev/null 2>&1
 	    systemctl daemon-reload > /dev/null 2>&1
-	    echo -e "Done\n"
+	    echo -e "${TICK} Done!\n"
         fi
 
 	echo "Stopping Services..."
 	env REMOUNT_RO="NO" pistar-services fullstop > /dev/null 2>&1
-	echo -e "Done\n"
+	echo -e "${TICK} Done!\n"
 
 	if [[ $(GetBinStatus) == 1 ]]; then # "1" = bin switch needed
 	    echo "New binaries required from W0CHP"
 	    echo "Retrieving them now. This will take some time..."
 	    BinRepoSwitch
-	    echo -e "Done\n"
+	    echo -e "${TICK} Done!\n"
 	fi
 
 	echo "Updating W0CHP-PiStar-Dash Binaries & Scripts..."
 	git_update /usr/local/sbin
 	#systemctl daemon-reload > /dev/null 2>&1
-	echo -e "Done\n"
+	echo -e "${TICK} Done!\n"
 
 	echo "Updating W0CHP-PiStar-Dash Digital Voice Binaries..."
 	git_update /usr/local/bin
-	echo -e "Done\n"
+	echo -e "${TICK} Done!\n"
 
 	echo "Updating W0CHP-PiStar-Dash Web Dashboard Software..."
 	git_update /var/www/dashboard
-	echo -e "Done\n"
+	echo -e "${TICK} Done!\n"
 
 	echo "Updating Hostfiles, User ID DB's & Various Talkgroup Lists..."
 	/usr/local/sbin/HostFilesUpdate.sh > /dev/null 2>&1
-	echo -e "Done\n"
+	echo -e "${TICK} Done!\n"
 
 	echo "Updating Pi-Star-Firewall..."
 	# check if user already has firewall disabled, and if so, ensure it's kept that way.
@@ -271,7 +271,7 @@ main_function() {
     	else
         	/usr/local/sbin/pistar-system-manager -efw > /dev/null 2>&1
     	fi
-	echo -e "Done\n"
+	echo -e "${TICK} Done!\n"
 
 	# New CSS mappings and funcs (git master #e2d2e9d092)...have to reset :-/
 	CSS_FILE="/etc/pistar-css.ini"
@@ -424,7 +424,7 @@ main_function() {
 		curl --fail -o /usr/local/etc/P25_Audio/pl_PL.indx -s https://raw.githubusercontent.com/g4klx/P25Clients/master/P25Gateway/Audio/pl_PL.indx
 		curl --fail -o /usr/local/etc/P25_Audio/se_SE.imbe -s https://raw.githubusercontent.com/g4klx/P25Clients/master/P25Gateway/Audio/se_SE.imbe
 		curl --fail -o /usr/local/etc/P25_Audio/se_SE.indx -s https://raw.githubusercontent.com/g4klx/P25Clients/master/P25Gateway/Audio/se_SE.indx
-		echo -e "Done\n"
+		echo -e "${TICK} Done!\n"
 	fi
 
 	# Download M17 Audio files if missing
@@ -458,14 +458,14 @@ main_function() {
 		curl --fail -o /usr/local/etc/ircddbgateway/TIME_pt_PT.indx -s https://raw.githubusercontent.com/g4klx/ircDDBGateway/master/Data/TIME_pt_PT.indx
 		chmod 664 /usr/local/etc/ircddbgateway/*.ambe
 		chmod 664 /usr/local/etc/ircddbgateway/*.indx
-		echo -e "Done\n"
+		echo -e "${TICK} Done!\n"
 	fi
 	
 	if [[ $(grep "\[Voice\]" /etc/p25gateway | wc -l) -eq 0 ]]; then
 		echo "Updating P25Gateway config..."
 		echo "" >> /etc/p25gateway
 		sed -i '$a[Voice]\nEnabled=1\nLanguage=en_GB\nDirectory=/usr/local/etc/P25_Audio\n' /etc/p25gateway
-		echo -e "Done\n"
+		echo -e "${TICK} Done!\n"
 	fi
 
 	if [[ $(grep Version /etc/pistar-release | awk '{print $3}' | cut -c 1) -eq 4 ]]; then
@@ -557,19 +557,18 @@ main_function() {
 
 	echo "Starting Services..."
 	pistar-services start > /dev/null 2>&1
-	echo -e "Done\n"
+	echo -e "${TICK} Done!\n"
 
 	echo "Updates complete, syncing disk cache before making the disk Read-Only"
 	# Make the disk read-only
 	/bin/sync
 	/bin/sync
 	/bin/sync
-	mount -o remount,ro /
-	mount -o remount,ro /boot
+	mount -o remount,ro / > /dev/null 2<&1
+	mount -o remount,ro /boot > /dev/null 2<&1
 	systemctl start cron.service > /dev/null 2<&1
-	# Tell the user we are done
-	echo "Finished"
-	if [ ! -t 1 ]; then
+	echo -e "${TICK} Finished!"
+	if [ ! -t 1 ]; then # only output if not called from tty
 		echo -e "\n<b><a style='color:white;text-decoration:underline;'' href='/config/changelog.php'>See the extended ChangeLog of the last 20 changes...</a></b>\n"
 	fi
 }
