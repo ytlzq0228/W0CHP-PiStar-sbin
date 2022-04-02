@@ -138,7 +138,6 @@ git_update() {
                 echo -e "\nChangeLog (last 3 changes):\n"
                 #git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --decorate=short -n1 | sed -e '1,4d'
                 git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --no-decorate --pretty=oneline -n3 | cut --complement -d' ' -f1 | fold -w 76 -s
-                echo -e "\n"
         	else
 			# If this script is updated, re-run the update with the new version.
 			if [[ ${gitFolder} == "/usr/local/sbin" ]]; then
@@ -167,7 +166,6 @@ git_update() {
                 echo -e "\nChangeLog (last 3 changes):\n"
                 #git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --decorate=short -n1 | sed -e '1,4d'
                 git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --no-decorate --pretty=oneline -n3 | cut --complement -d' ' -f1 | fold -w 76 -s
-                echo -e "\n"
 		fi
 		# Re-check that the updates are now good
 		if [[ $(git_checkUpdateRequired ${gitFolder}) -gt 0 ]]; then
