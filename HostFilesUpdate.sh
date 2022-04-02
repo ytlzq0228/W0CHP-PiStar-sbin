@@ -52,6 +52,7 @@ BMTGNAMES=/usr/local/etc/BM_TGs.json
 RADIOIDDB=/tmp/user.csv
 GROUPSTXT=/usr/local/etc/groups.txt
 STRIPPED=/usr/local/etc/stripped.csv
+COUNTRIES=/usr/local/etc/country.csv
 
 # How many backups?
 FILEBACKUP=1
@@ -153,6 +154,7 @@ curl --fail -L -o ${TGLISTBM} -s ${hostFileURL}/TGList_BM.txt --user-agent "${ua
 curl --fail -L -o ${TGLISTP25} -s ${hostFileURL}/TGList_P25.txt --user-agent "${uaStr}"
 curl --fail -L -o ${TGLISTNXDN} -s ${hostFileURL}/TGList_NXDN.txt --user-agent "${uaStr}"
 curl --fail -L -o ${TGLISTYSF} -s ${hostFileURL}/TGList_YSF.txt --user-agent "${uaStr}"
+curl --fail -L -o ${COUNTRIES} -s ${hostFileURL}/country.csv --user-agent "${uaStr}"
 
 curl --fail -L -o ${BMTGNAMES} -s https://api.brandmeister.network/v1.0/groups/ # grab BM TG names for admin page
 # live caller and nextion screens:
