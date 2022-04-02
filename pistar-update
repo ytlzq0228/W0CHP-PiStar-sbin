@@ -145,7 +145,7 @@ git_update() {
                         	git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard 
                         	env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git fetch
                         	if [ "$(git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git diff --name-only origin/master 2>/dev/null | grep pistar-update 2>/dev/null)" = "pistar-update" ]; then
-                                	echo -e "\nFound a new version of pistar-update..."
+                                	echo -e "\n\nFound a new version of pistar-update..."
                                 	env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull -q origin master &> /dev/null
                                 	echo -e "\nChangeLog (last 3 changes):\n"
                                 	#git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --decorate=short -n1 | sed -e '1,4d'
@@ -157,7 +157,7 @@ git_update() {
 					fi
                                         env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard origin/master
                                 fi
-                                echo -e "${INFO} Restarting update process with the new version..."
+                                echo -e "\n${INFO} Restarting update process with the new version..."
                                 exec "$0" "$@"
                                 exit 1
                         fi
