@@ -157,7 +157,7 @@ git_update() {
 					fi
                                         env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard origin/master
                                 fi
-                                echo -e "\n${INFO} Restarting update process with the new version..."
+                                echo -e "\n\n[*] Restarting update process with the new version..."
                                 exec "$0" "$@"
                                 exit 1
                         fi
