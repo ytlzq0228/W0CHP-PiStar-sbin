@@ -23,7 +23,7 @@ else
         if [ -t 1 ]; then # running from term?
             echo -e "W0CHP-PiStar-Dash Update Available!"
         else # text for dashboard:
-            echo ' <a href="/admin/update.php"><span style="font-weight:bold;text-decoration:underline;background:#ffffff;font-size:10px;padding:1px;margin: 0 0 0 1px;">(Update Available)</span></a>'
+            echo ' <a class="lookatme" lookatme-text="Update available!" href="/admin/update.php">Update available!</a>'
         fi
 else
         if [ -t 1 ]; then # running from term?
