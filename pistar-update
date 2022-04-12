@@ -525,6 +525,11 @@ main_function() {
 	chmod 775 /var/log/pi-star > /dev/null 2>&1
 
 	echo "Starting Services..."
+	# re-sec. nginx after interrupted installation
+	sed -i '/satisfy any/d' /etc/nginx/sites-enabled/pi-star
+	sed -i '/allow 127.0.0.1/d' /etc/nginx/sites-enabled/pi-star
+	sed -i '/deny all/d' /etc/nginx/sites-enabled/pi-star
+	systemctl restart nginx > /dev/null 2<&1
 	pistar-services start > /dev/null 2>&1
 	echo -e "${TICK} Done!\n"
 

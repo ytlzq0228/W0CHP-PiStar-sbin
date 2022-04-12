@@ -318,6 +318,11 @@ if ! [ $(cat /lib/systemd/system/nginx.service | grep -o "mkdir") ]; then
 	systemctl daemon-reload
 	systemctl restart nginx.service
 fi
+# re-sec. nginx after interrupted installation
+sed -i '/satisfy any/d' /etc/nginx/sites-enabled/pi-star
+sed -i '/allow 127.0.0.1/d' /etc/nginx/sites-enabled/pi-star
+sed -i '/deny all/d' /etc/nginx/sites-enabled/pi-star
+systemctl restart nginx > /dev/null 2<&1
 
 if ! grep -q TIME_FORMAT /var/www/dashboard/config/config.php ; then # insert req'd constant if not found. WIll be stashed on next update :-)
     sed -i "/^date_default_timezone_set.*/i define('TIME_FORMAT', '24');" /var/www/dashboard/config/config.php 
