@@ -7,14 +7,15 @@ logDateUTC=$(date -u +"%Y-%m-%d")
 mmdvmHostLog="/var/log/pi-star/MMDVM-${logDateUTC}.log"
 
 # give a bit of time for MMDVMHost to generate the info in the logs before caching...
-while [ ! -f ${mmdvmHostLog} ]
-do
-    sleep 1
-done
-while [[ $( grep -c 'MMDVM protocol version' ${mmdvmHostLog} ) -eq 0 ]]
-do
-    sleep 1
-done
+if [ ! -f ${mmdvmHostLog} ] ; then
+    echo "no log"
+    exit 1
+fi
+
+if [[ $( grep -c 'MMDVM protocol version' ${mmdvmHostLog} ) -eq 0 ]]; then
+    echo "no string"
+    exit 1
+fi
 
 mount -o remount,rw /
 
