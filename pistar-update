@@ -42,9 +42,6 @@ conn_check() {
     fi
 }
 
-# maint. tasks
-/usr/local/sbin/wpsd-backend-maint > /dev/null 2>&1
-
 # migrate config update notice
 if grep -q ConfUpdReqd /etc/mmdvmhost ; then
     grep ConfUpdReqd /etc/mmdvmhost | sed 's/=/ = /' >> /etc/pistar-release
@@ -237,6 +234,8 @@ main_function() {
         fi
 
 	echo "Stopping Services..."
+	# maint. tasks
+	/usr/local/sbin/wpsd-backend-maint > /dev/null 2>&1
 	env REMOUNT_RO="NO" pistar-services fullstop > /dev/null 2>&1
 	echo -e "${TICK} Done!\n"
 
