@@ -18,18 +18,22 @@ fi
 if [ -f /etc/WPSD-release ]; then
     UUIDck=$( cat /etc/WPSD-release )
     if [[ ${UUIDck}  == '69dee892-b82e-400e-b2bd-39e602969e94' ]] ; then
-        rm -f /etc/WPSD-release
-        GU=$( cat /proc/sys/kernel/random/uuid )
-        echo "UUID = $GU" >> /etc/pistar-release
+	rm -f /etc/WPSD-release
+	GU=$( cat /proc/cpuinfo | grep Serial | cut -d ' ' -f 2 )
+	echo "UUID = $GU" >> /etc/pistar-release
     else
-        echo "UUID = $UUIDck" >> /etc/pistar-release
-        rm -f /etc/WPSD-release
+	echo "UUID = $UUIDck" >> /etc/pistar-release
+	rm -f /etc/WPSD-release
     fi
 else
     if ! grep -q UUID /etc/pistar-release ; then
-        GU=$( cat /proc/sys/kernel/random/uuid )
-        echo "UUID = $GU" >> /etc/pistar-release
+	GU=$( cat /proc/cpuinfo | grep Serial | cut -d ' ' -f 2 )
+	echo "UUID = $GU" >> /etc/pistar-release
     fi
+fi
+if grep 'UUID' /etc/pistar-release | grep '-' > /dev/null ; then
+    GU=$( cat /proc/cpuinfo | grep Serial | cut -d ' ' -f 2 )
+    sed -i "/UUID/c\\UUID = ${GU}" /etc/pistar-release
 fi
 
 W0CHP_DASH_BRANCH="$( git --git-dir=/var/www/dashboard/.git branch | grep '*' | awk {'print $2'} )"
