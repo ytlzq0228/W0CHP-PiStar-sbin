@@ -159,6 +159,7 @@ curl --fail -L -o ${COUNTRIES} -s ${hostFileURL}/country.csv --user-agent "${uaS
 curl --fail -L -o ${BMTGNAMES} -s https://api.brandmeister.network/v1.0/groups/ # grab BM TG names for admin page
 # live caller and nextion screens:
 cp ${BMTGNAMES} ${GROUPSTXT}
+sed -i '/5059742.*/i \    "3170603": "W0CHP-PiStar-Dash Chat",' /usr/local/etc/groups.txt
 
 # If there is a DMR Over-ride file, add it's contents to DMR_Hosts.txt
 if [ -f "/root/DMR_Hosts.txt" ]; then
