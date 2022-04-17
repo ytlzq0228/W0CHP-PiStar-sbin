@@ -1,12 +1,14 @@
 #!/bin/bash
 
 # disable samba - perf. and sec.
-if [ -f /etc/systemd/system/multi-user.target.wants/smbd.service ] ; then
+if ! systemctl status smbd.service | grep masked > /dev/null 2<&1 ; then
     systemctl stop smbd > /dev/null 2<&1
-    systemctl stop nmbd > /dev/null 2<&1
     LC_ALL=C systemctl disable smbd > /dev/null 2<&1
-    LC_ALL=C systemctl disable nmbd > /dev/null 2<&1
     systemctl mask smbd > /dev/null 2<&1
+fi
+if ! systemctl status nmbd.service | grep masked > /dev/null 2<&1 ; then
+    systemctl stop nmbd > /dev/null 2<&1
+    LC_ALL=C systemctl disable nmbd > /dev/null 2<&1
     systemctl mask nmbd > /dev/null 2<&1
 fi
 
@@ -45,7 +47,7 @@ EOF
 fi
 
 # disable unattended-upgrades; perf.
-if [ -f /etc/systemd/system/multi-user.target.wants/unattended-upgrades.service ] ; then
+if ! systemctl status unattended-upgrades.service | grep masked > /dev/null 2<&1 ; then
     systemctl stop unattended-upgrades > /dev/null 2<&1
     LC_ALL=C systemctl disable unattended-upgrades > /dev/null 2<&1
     systemctl mask unattended-upgrades > /dev/null 2<&1
