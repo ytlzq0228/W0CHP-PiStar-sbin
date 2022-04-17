@@ -30,7 +30,11 @@ if [ ${_FWver} = "MMDVM" ] ; then
     else # no gitid; older G4KLX FW
 	_FWver=$( grep 'MMDVM protocol version' ${mmdvmHostLog} | awk '{print $9 " "  $10}' | tail -1 )
     fi
-    _TCXO=$( grep -i -o '.*MHz' ${mmdvmHostLog} | tail -1 | rev | cut -d' ' -f 2 | rev )
+    if grep 'MMDVM protocol version' ${mmdvmHostLog} | grep 'TCXO' > /dev/null ; then  # defalts to 12.0000MHz
+	_TCXO="12.0000 MHz"
+    else
+	_TCXO=$( grep -i -o '.*MHz' ${mmdvmHostLog} | tail -1 | rev | cut -d' ' -f 2 | rev ) # newer MMDVM with actual freq. in log line
+    fi
 fi # onto non-G4LKZ FW using default vars.
 if ! grep -q 'Firmware' /etc/pistar-release > /dev/null; then
     sed -i "/Hardware = /a Firmware = \nTCXO = " /etc/pistar-release
