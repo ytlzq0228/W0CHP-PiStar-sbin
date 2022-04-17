@@ -1,7 +1,7 @@
 #!/bin/bash
 
-sed -i "/ircddbgateway/c ircddbgateway = 20190621_W0CHP" /etc/pistar-release
-sed -i "/dstarrepeater/c dstarrepeater = 20180911_W0CHP" /etc/pistar-release
+sed -i "/^ircddbgateway.*/c ircddbgateway = 20220416_W0CHP-PiStar-Dash" /etc/pistar-release
+sed -i "/^dstarrepeater.*/c dstarrepeater = 20220416_W0CHP-PiStar-Dash" /etc/pistar-release
 
 logDateUTC=$(date -u +"%Y-%m-%d")
 mmdvmHostLog="/var/log/pi-star/MMDVM-${logDateUTC}.log"
@@ -50,9 +50,6 @@ fi
 
 _MMDVMHostVer=`MMDVMHost -v | awk '{ print $3 }'`
 sed -i "/MMDVMHost/c MMDVMHost = $_MMDVMHostVer" /etc/pistar-release
-
-sed -i "/ircddbgateway/c ircddbgateway = 20190621_W0CHP" /etc/pistar-release
-sed -i "/dstarrepeater/c dstarrepeater = 20180911_W0CHP" /etc/pistar-release
 
 _KernelVer=`uname -r`
 sed -i "/kernel/c kernel = $_KernelVer" /etc/pistar-release
