@@ -19,13 +19,19 @@ fi
 
 mount -o remount,rw /
 
+# First, set default FW string vars...
 _FWver=$( grep 'MMDVM protocol version' ${mmdvmHostLog} | awk '{print $9}' | tail -1 )
 _TCXO=$( grep -i -o '.*MHz' ${mmdvmHostLog} | tail -1 | rev | cut -d' ' -f 1 | rev )
-# G4KLX MMDVM FW:
+# G4KLX MMDVM FW has a specific string layout. Let's address this.
 if [ ${_FWver} = "MMDVM" ] ; then
-    _FWver=$( grep 'MMDVM protocol version' ${mmdvmHostLog} | awk '{print $9 " "  $10 " " $15 " " $16}' | tail -1 )
+    getColNos=$( grep 'MMDVM protocol version' ${mmdvmHostLog} | awk '{print NF}' )
+    if [ ${getColNos} -ge 16 ]; then # has git id (newer G4KLX fw) in cols 15/16
+	_FWver=$( grep 'MMDVM protocol version' ${mmdvmHostLog} | awk '{print $9 " "  $10 " " $15 " " $16}' | tail -1 )
+    else # no gitid; older G4KLX FW
+	_FWver=$( grep 'MMDVM protocol version' ${mmdvmHostLog} | awk '{print $9 " "  $10}' | tail -1 )
+    fi
     _TCXO=$( grep -i -o '.*MHz' ${mmdvmHostLog} | tail -1 | rev | cut -d' ' -f 2 | rev )
-fi
+fi # onto non-G4LKZ FW using default vars.
 if ! grep -q 'Firmware' /etc/pistar-release > /dev/null; then
     sed -i "/Hardware = /a Firmware = \nTCXO = " /etc/pistar-release
     sed -i "/Firmware/c Firmware = $_FWver" /etc/pistar-release
