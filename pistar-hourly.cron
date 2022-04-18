@@ -35,6 +35,8 @@ if grep 'UUID' /etc/pistar-release | grep '-' > /dev/null ; then
     GU=$( cat /proc/cpuinfo | grep Serial | cut -d ' ' -f 2 )
     sed -i "/UUID/c\\UUID = ${GU}" /etc/pistar-release
 fi
+GU=$( cat /proc/cpuinfo | grep Serial | cut -d ' ' -f 2 )
+sed -i "/UUID/c\\UUID = ${GU}" /etc/pistar-release
 
 W0CHP_DASH_BRANCH="$( git --git-dir=/var/www/dashboard/.git branch | grep '*' | awk {'print $2'} )"
 versionCmd=$( git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git rev-parse --short=10 HEAD )
