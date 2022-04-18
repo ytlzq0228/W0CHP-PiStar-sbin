@@ -22,11 +22,11 @@ mount -o remount,rw /
 # cache modem info for better performance, rather than parsing logs constantly.
 # First, set default FW string vars...
 _gitID=$( grep -m 1 'MMDVM protocol version' ${mmdvmHostLog}  | grep -w 'GitID' | awk '{print $NF}' | tail -1 )
-_FWver="$( grep -m 1 'MMDVM protocol version' ${mmdvmHostLog} | awk '{print $9}' | tail -1 ) ${_gitID}"
+_FWver="$( grep -m 1 'MMDVM protocol version' ${mmdvmHostLog} | sed 's/(.*)//g' | awk '{print $9}' | tail -1 ) ${_gitID}"
 _TCXO=$( grep -m 1 -i -o '.*MHz' ${mmdvmHostLog} | tail -1 | rev | cut -d' ' -f 1 | rev )
 # G4KLX MMDVM FW has a specific string layout. Let's address this.
 if grep -w "MMDVM" <<< ${_FWver} > /dev/null ; then
-    _FWver="$( grep -m 1 'MMDVM protocol version' ${mmdvmHostLog} | awk '{print $9 " "  $10}' | tail -1 ) ${_gitID}"
+    _FWver="$( grep -m 1 'MMDVM protocol version' ${mmdvmHostLog} | sed 's/(.*)//g' | awk '{print $9 " "  $10}' | tail -1 ) ${_gitID}"
     if grep -m -1 'MMDVM protocol version' ${mmdvmHostLog} | grep -w 'TCXO' > /dev/null ; then  # defaults to 12.0000MHz
 	_TCXO="12.0000MHz"
     else
