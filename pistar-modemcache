@@ -19,21 +19,18 @@ fi
 
 mount -o remount,rw /
 
+# cache modem info for better performance, rather than parsing logs constantly.
 # First, set default FW string vars...
-_FWver=$( grep -m 1 'MMDVM protocol version' ${mmdvmHostLog} | awk '{print $9}' | tail -1 )
+_gitID=$( grep -m 1 'MMDVM protocol version' ${mmdvmHostLog}  | grep -w 'GitID' | awk '{print $NF}' | tail -1 )
+_FWver="$( grep -m 1 'MMDVM protocol version' ${mmdvmHostLog} | awk '{print $9}' | tail -1 ) ${_gitID}"
 _TCXO=$( grep -m 1 -i -o '.*MHz' ${mmdvmHostLog} | tail -1 | rev | cut -d' ' -f 1 | rev )
 # G4KLX MMDVM FW has a specific string layout. Let's address this.
-if [ ${_FWver} = "MMDVM" ] ; then
-    getColNos=$( grep -m 1 'MMDVM protocol version' ${mmdvmHostLog} | awk '{print NF}' )
-    if [ ${getColNos} -ge 16 ]; then # has git id (newer G4KLX fw) in cols 15/16
-	_FWver=$( grep -m 1 'MMDVM protocol version' ${mmdvmHostLog} | awk '{print $9 " "  $10 " " $15 " " $16}' | tail -1 )
-    else # no gitid; older G4KLX FW
-	_FWver=$( grep -m 1 'MMDVM protocol version' ${mmdvmHostLog} | awk '{print $9 " "  $10}' | tail -1 )
-    fi
-    if grep -m -1 'MMDVM protocol version' ${mmdvmHostLog} | grep 'TCXO' > /dev/null ; then  # defalts to 12.0000MHz
-	_TCXO="12.0000 MHz"
+if grep -w "MMDVM" <<< ${_FWver} > /dev/null ; then
+    _FWver="$( grep -m 1 'MMDVM protocol version' ${mmdvmHostLog} | awk '{print $9 " "  $10}' | tail -1 ) ${_gitID}"
+    if grep -m -1 'MMDVM protocol version' ${mmdvmHostLog} | grep -w 'TCXO' > /dev/null ; then  # defaults to 12.0000MHz
+	_TCXO="12.0000MHz"
     else
-	_TCXO=$( grep -m -1 -i -o '.*MHz' ${mmdvmHostLog} | tail -1 | rev | cut -d' ' -f 2 | rev ) # newer MMDVM with actual freq. in log line
+	_TCXO="$( grep -m -1 -i -o '.*MHz' ${mmdvmHostLog} | tail -1 | rev | cut -d' ' -f 2 | rev )MHz" # newer MMDVM with actual freq. in log line
     fi
 fi # onto non-G4LKZ FW using default vars.
 if ! grep -q 'Firmware' /etc/pistar-release > /dev/null; then
