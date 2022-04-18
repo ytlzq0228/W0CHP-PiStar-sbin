@@ -136,10 +136,9 @@ git_update() {
                 env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull -q origin ${dash_branch} &> /dev/null
                 git checkout stash@{0} -- config/config.php config/ircddblocal.php config/language.php > /dev/null 2<&1 # restore user config files from stash
                 git stash clear > /dev/null 2<&1 # housekeeping
-                echo -e "\nChangeLog (last 3 changes):"
+                echo -e "ChangeLog (last 3 changes):"
 		echo -e "---------------------------"
                 git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --no-decorate --pretty=oneline -n3 | cut --complement -d' ' -f1 | fold -w 100 -s
-                echo -e ""
         	else
 			# If this script is updated, re-run the update with the new version.
 			if [[ ${gitFolder} == "/usr/local/sbin" ]]; then
@@ -148,7 +147,7 @@ git_update() {
                         	if [ "$(git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git diff --name-only origin/master 2>/dev/null | grep pistar-update 2>/dev/null)" = "pistar-update" ]; then
                                 	echo -e "\n\nFound a new version of pistar-update..."
                                 	env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull -q origin master &> /dev/null
-                                	echo -e "\nChangeLog (last 3 changes):"
+                                	echo -e "ChangeLog (last 3 changes):"
 					echo -e "---------------------------"
                                 	git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --no-decorate --pretty=oneline -n3 | cut --complement -d' ' -f1 | fold -w 100 -s
                                 	if [[ $(git_checkUpdateRequired ${gitFolder}) -gt 0 ]]; then
@@ -165,10 +164,9 @@ git_update() {
                 fi
                 env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git pull -q origin master &> /dev/null
                 env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard origin/master
-                echo -e "\nChangeLog (last 3 changes):"
+                echo -e "ChangeLog (last 3 changes):"
 		echo -e "---------------------------"
                 git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --no-decorate --pretty=oneline -n3 | cut --complement -d' ' -f1 | fold -w 100 -s
-                echo -e ""
 		fi
 		# Re-check that the updates are now good
 		if [[ $(git_checkUpdateRequired ${gitFolder}) -gt 0 ]]; then
@@ -493,6 +491,9 @@ main_function() {
 	# add modem cache to rc.local
 	if ! grep -q 'modemcache' /etc/rc.local ; then
 	    sed -i '/^\/usr\/local\/sbin\/pistar-motdgen/a \\n\n# cache modem info\n\/usr\/local\/sbin\/pistar-modemcache' /etc/rc.local 
+	    /usr/local/sbin/pistar-modemcache
+	else
+	    /usr/local/sbin/pistar-modemcache
 	fi
 
 	# Add pistar-service bash completion
