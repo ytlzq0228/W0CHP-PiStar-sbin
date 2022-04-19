@@ -42,6 +42,10 @@ if grep 'UUID' /etc/pistar-release | grep '-' > /dev/null ; then
     GU=$( cat /proc/cpuinfo | grep Serial | cut -d ' ' -f 2 )
     sed -i "/UUID/c\\UUID = ${GU}" /etc/pistar-release
 fi
+if ! [ $( grep UUID /etc/pistar-release | awk '{print $3}' > /dev/null ) ] ; then
+    GU=$( cat /proc/cpuinfo | grep Serial | cut -d ' ' -f 2 )
+    sed -i "/UUID/c\\UUID = ${GU}" /etc/pistar-release
+fi
 
 W0CHP_BIN_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-bin.git"
 OFFICIAL_BIN_REPO="https://github.com/AndyTaylorTweet/Pi-Star_v4_Binaries_Bin.git"

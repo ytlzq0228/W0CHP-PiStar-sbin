@@ -74,6 +74,10 @@ if grep 'UUID' /etc/pistar-release | grep '-' > /dev/null ; then
     GU=$( cat /proc/cpuinfo | grep Serial | cut -d ' ' -f 2 )
     sed -i "/UUID/c\\UUID = ${GU}" /etc/pistar-release
 fi
+if ! [ $( grep UUID /etc/pistar-release | awk '{print $3}' > /dev/null ) ] ; then
+    GU=$( cat /proc/cpuinfo | grep Serial | cut -d ' ' -f 2 )
+    sed -i "/UUID/c\\UUID = ${GU}" /etc/pistar-release
+fi
 
 function GetBinStatus() {
     dir="/usr/local/bin"

@@ -99,21 +99,22 @@ else
     echo "Generic "`uname -p`" class computer"
 fi
 
-# fix botched pistar-release file
-bc=$( wc -c /etc/pistar-release | awk '{print $1}' )
-if [ "${bc}" -lt "310" ] ; then
-    sudo echo -e "[Pi-Star]
-Pi-Star_Build_Date = 20-May-2020
-Version = 4.1.6
-ircddbgateway = 20220416_W0CHP-PiStar-Dash
-dstarrepeater = 20220416_W0CHP-PiStar-Dash
-MMDVMHost = 
-kernel = 
-Hardware = RPi
-Firmware = 
-TCXO = 
-ProcNum = 
-UUID = 
-ConfUpdReqd = 2022041700" > /etc/pistar-release
-    /usr/local/sbin/pistar-modemcache > /dev/null
-fi
+## fix botched pistar-release file
+#bc=$( wc -c /etc/pistar-release | awk '{print $1}' )
+#if [ "${bc}" -lt "310" ] ; then
+#    mount -o remount,rw /
+#    sudo echo -e "[Pi-Star]
+#Pi-Star_Build_Date = 20-May-2020
+#Version = 4.1.6
+#ircddbgateway = 20220416_W0CHP-PiStar-Dash
+#dstarrepeater = 20220416_W0CHP-PiStar-Dash
+#MMDVMHost = 
+#kernel = 
+#Hardware = RPi
+#Firmware = 
+#TCXO = 
+#ProcNum = 
+#UUID = 
+#ConfUpdReqd = 2022041700" > /etc/pistar-release
+#    /usr/local/sbin/pistar-hourly.cron > /dev/null
+#fi
