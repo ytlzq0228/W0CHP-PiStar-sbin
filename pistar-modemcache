@@ -22,6 +22,9 @@ fi
 # cache modem info for better performance, rather than parsing logs constantly.
 # First, set default FW string vars...
 _gitID=$( grep -m 1 'MMDVM protocol version' ${mmdvmHostLog}  | grep -w 'GitID' | awk '{print $NF}' | tail -1 )
+if ! [ -z ${_gitID} ] ; then
+    _gitID=" - GitID ${_gitID}"
+fi
 _FWver="$( grep -m 1 'MMDVM protocol version' ${mmdvmHostLog} | sed 's/(.*)//g' | awk '{print $9}' | tail -1 ) ${_gitID}"
 _TCXO=$( grep -m 1 -i -o '.*MHz' ${mmdvmHostLog} | tail -1 | rev | cut -d' ' -f 1 | rev )
 # G4KLX MMDVM FW has a specific string layout. Let's address this.
