@@ -106,7 +106,6 @@ function start_services()
     systemctl start dgidgateway.service > /dev/null 2>&1 # this MMDVM loses link if started before MMDVMhost
     systemctl start dmrgateway.service > /dev/null 2>&1
     systemctl start dstarrepeater.service > /dev/null 2>&1
-    systemctl start ircddbgateway.service > /dev/null 2>&1
     ## Now managed by MMDVMHost service file
     ##systemctl start ircddbgateway.service > /dev/null 2>&1
     systemctl start pistar-watchdog.service > /dev/null 2>&1
