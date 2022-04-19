@@ -1,12 +1,14 @@
 #!/bin/bash
 
+mount -o remount,rw /
+
 sed -i "/^ircddbgateway.*/c ircddbgateway = 20220416_W0CHP-PiStar-Dash" /etc/pistar-release
 sed -i "/^dstarrepeater.*/c dstarrepeater = 20220416_W0CHP-PiStar-Dash" /etc/pistar-release
 
 logDateUTC=$(date -u +"%Y-%m-%d")
 mmdvmHostLog="/var/log/pi-star/MMDVM-${logDateUTC}.log"
 
-# give a bit of time for MMDVMHost to generate the info in the logs before caching...
+# bail if log or str. doesnt exist yet and use cache until cron-hourly runs this subsequently
 if [ ! -f ${mmdvmHostLog} ] ; then
     echo "no log"
     exit 1
@@ -16,8 +18,6 @@ if [[ $( grep -c 'MMDVM protocol version' ${mmdvmHostLog} ) -eq 0 ]]; then
     echo "no string"
     exit 1
 fi
-
-mount -o remount,rw /
 
 # cache modem info for better performance, rather than parsing logs constantly.
 # First, set default FW string vars...
@@ -57,5 +57,4 @@ sed -i "/kernel/c kernel = $_KernelVer" /etc/pistar-release
 
 # cleanup last line..
 sed -i '${/^$/d}' /etc/pistar-release
-
 
