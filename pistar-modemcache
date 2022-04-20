@@ -25,7 +25,7 @@ _TCXO=$( grep -m 1 -i -o '.*MHz' ${mmdvmHostLog} | tail -1 | rev | cut -d' ' -f 
 _FWver=$( grep -m 1 'MMDVM protocol version' ${mmdvmHostLog} | sed 's/(.*)//g' | awk '{print $9}' | tail -1 )
 _gitID=$( grep -m 1 'MMDVM protocol version' ${mmdvmHostLog}  | sed 's/(.*)//g'| grep -w 'GitID' | awk '{print $NF}' | tail -1 )
 if ! [ -z ${_gitID} ] ; then
-    _FWver="${_FWver} - GitID ${_gitID}"
+    _FWver="${_FWver} ${_gitID}"
 else
     _FWver="${_FWver}"
 fi
@@ -33,7 +33,7 @@ fi
 if grep -w "MMDVM" <<< ${_FWver} > /dev/null ; then
     if ! [ -z ${_gitID} ] ; then
 	_FWver="$( grep -m 1 'MMDVM protocol version' ${mmdvmHostLog} | sed 's/(.*)//g' | awk '{print $9 " "  $10}' | tail -1 )"
-	_FWver="${_FWver} - GitID ${_gitID}"
+	_FWver="${_FWver} ${_gitID}"
     else
 	_FWver="${_FWver}"
     fi
@@ -48,7 +48,7 @@ if grep -w "OpenGD77_HS" <<< ${_FWver} > /dev/null ; then
     _TCXO="14.7456 MHz"
     if ! [ -z ${_gitID} ] ; then
         _FWver="$( grep -m 1 'MMDVM protocol version' ${mmdvmHostLog} | sed 's/(.*)//g' | awk '{print $9 " "  $10}' | tail -1 )"
-        _FWver="${_FWver} - GitID ${_gitID}"
+        _FWver="${_FWver} ${_gitID}"
     else
         _FWver="${_FWver}"
     fi
