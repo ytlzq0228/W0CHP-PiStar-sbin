@@ -21,7 +21,7 @@ fi
 
 # cache modem info for better performance, rather than parsing logs constantly.
 # First, set default FW string vars...
-_TCXO=$( grep -m 1 -i -o '.*MHz' ${mmdvmHostLog} | tail -1 | rev | cut -d' ' -f 1 | rev )
+_TCXO=$( grep -m 1 'MMDVM protocol version' ${mmdvmHostLog} | grep  -oi '.*MHz' | tail -1 | rev | cut -d' ' -f 1 | rev )
 _FWver=$( grep -m 1 'MMDVM protocol version' ${mmdvmHostLog} | sed 's/(.*)//g' | awk '{print $9}' | tail -1 )
 _gitID=$( grep -m 1 'MMDVM protocol version' ${mmdvmHostLog}  | sed 's/(.*)//g'| grep -w 'GitID' | awk '{print $NF}' | tail -1 )
 if ! [ -z ${_gitID} ] ; then
