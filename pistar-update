@@ -42,6 +42,8 @@ conn_check() {
     fi
 }
 
+mount -o remount,rw / > /dev/null 2<&1
+
 # migrate config update notice
 if grep -q ConfUpdReqd /etc/mmdvmhost ; then
     grep ConfUpdReqd /etc/mmdvmhost | sed 's/=/ = /' >> /etc/pistar-release
