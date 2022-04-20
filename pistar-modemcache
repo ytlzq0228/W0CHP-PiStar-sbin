@@ -21,21 +21,38 @@ fi
 
 # cache modem info for better performance, rather than parsing logs constantly.
 # First, set default FW string vars...
-_gitID=$( grep -m 1 'MMDVM protocol version' ${mmdvmHostLog}  | grep -w 'GitID' | awk '{print $NF}' | tail -1 )
-if ! [ -z ${_gitID} ] ; then
-    _gitID=" - GitID ${_gitID}"
-fi
-_FWver="$( grep -m 1 'MMDVM protocol version' ${mmdvmHostLog} | sed 's/(.*)//g' | awk '{print $9}' | tail -1 ) ${_gitID}"
 _TCXO=$( grep -m 1 -i -o '.*MHz' ${mmdvmHostLog} | tail -1 | rev | cut -d' ' -f 1 | rev )
+_FWver=$( grep -m 1 'MMDVM protocol version' ${mmdvmHostLog} | sed 's/(.*)//g' | awk '{print $9}' | tail -1 )
+_gitID=$( grep -m 1 'MMDVM protocol version' ${mmdvmHostLog}  | sed 's/(.*)//g'| grep -w 'GitID' | awk '{print $NF}' | tail -1 )
+if ! [ -z ${_gitID} ] ; then
+    _FWver="${_FWver} - GitID ${_gitID}"
+else
+    _FWver="${_FWver}"
+fi
 # G4KLX MMDVM FW has a specific string layout. Let's address this.
 if grep -w "MMDVM" <<< ${_FWver} > /dev/null ; then
-    _FWver="$( grep -m 1 'MMDVM protocol version' ${mmdvmHostLog} | sed 's/(.*)//g' | awk '{print $9 " "  $10}' | tail -1 ) ${_gitID}"
+    if ! [ -z ${_gitID} ] ; then
+	_FWver="$( grep -m 1 'MMDVM protocol version' ${mmdvmHostLog} | sed 's/(.*)//g' | awk '{print $9 " "  $10}' | tail -1 )"
+	_FWver="${_FWver} - GitID ${_gitID}"
+    else
+	_FWver="${_FWver}"
+    fi
     if grep -m -1 'MMDVM protocol version' ${mmdvmHostLog} | grep -w 'TCXO' > /dev/null ; then  # defaults to 12.0000MHz
 	_TCXO="12.0000MHz"
     else
 	_TCXO="$( grep -m -1 -i -o '.*MHz' ${mmdvmHostLog} | tail -1 | rev | cut -d' ' -f 2 | rev )MHz" # newer MMDVM with actual freq. in log line
     fi
-fi # onto non-G4LKZ FW using default vars.
+fi
+# OpenGD77-specific strings...
+if grep -w "OpenGD77_HS" <<< ${_FWver} > /dev/null ; then
+    _TCXO="14.7456 MHz"
+    if ! [ -z ${_gitID} ] ; then
+        _FWver="$( grep -m 1 'MMDVM protocol version' ${mmdvmHostLog} | sed 's/(.*)//g' | awk '{print $9 " "  $10}' | tail -1 )"
+        _FWver="${_FWver} - GitID ${_gitID}"
+    else
+        _FWver="${_FWver}"
+    fi
+fi # onto FW using default vars.
 if ! grep -q 'Firmware' /etc/pistar-release > /dev/null; then
     sed -i "/Hardware = /a Firmware = \nTCXO = " /etc/pistar-release
     sed -i "/Firmware/c Firmware = $_FWver" /etc/pistar-release
