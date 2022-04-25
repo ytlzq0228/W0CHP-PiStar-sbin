@@ -10,12 +10,9 @@ mmdvmHostLog="/var/log/pi-star/MMDVM-${logDateUTC}.log"
 
 # bail if log or str. doesnt exist yet and use cache until cron-hourly runs this subsequently
 if [ ! -f ${mmdvmHostLog} ] ; then
-    echo "no log"
     exit 1
 fi
-
 if [[ $( grep -c 'MMDVM protocol version' ${mmdvmHostLog} ) -eq 0 ]]; then
-    echo "no string"
     exit 1
 fi
 
