@@ -4,7 +4,7 @@
 #                                                                             #
 #                        Pi-Star Auto Update Tool                             #
 #                                                                             #
-#   Version 3.10.13, Code, Design and Development by Andy Taylor (MW0MWZ)     #
+#   Version 3.10.14, Code, Design and Development by Andy Taylor (MW0MWZ)     #
 #                            Enhanced by W0CHP                                #
 #                                                                             #
 ###############################################################################
@@ -57,22 +57,23 @@ fi
 
 # migrate UUID
 if [ -f /etc/WPSD-release ]; then
-    UUIDck=$( cat /etc/WPSD-release )
-    if [[ ${UUIDck}  == '69dee892-b82e-400e-b2bd-39e602969e94' ]] ; then
-	rm -f /etc/WPSD-release
-	GU=$( cat /proc/cpuinfo | grep Serial | cut -d ' ' -f 2 )
-	echo "UUID = $GU" >> /etc/pistar-release
+    uuidLen=$( grep UUID /etc/pistar-release | awk '{print $3}' | wc -m > /dev/null )
+    if [[ "${uuidLen}"  -gt "17" ]] ; then
+        rm -f /etc/WPSD-release
+        GU=$( cat /proc/cpuinfo | grep Serial | cut -d ' ' -f 2 )
+        echo "UUID = $GU" >> /etc/pistar-release
     else
-	echo "UUID = $UUIDck" >> /etc/pistar-release
-	rm -f /etc/WPSD-release
+        echo "UUID = $UUIDck" >> /etc/pistar-release
+        rm -f /etc/WPSD-release
     fi
 else
     if ! grep -q UUID /etc/pistar-release ; then
-	GU=$( cat /proc/cpuinfo | grep Serial | cut -d ' ' -f 2 )
-	echo "UUID = $GU" >> /etc/pistar-release
+        GU=$( cat /proc/cpuinfo | grep Serial | cut -d ' ' -f 2 )
+        echo "UUID = $GU" >> /etc/pistar-release
     fi
 fi
-if grep 'UUID' /etc/pistar-release | grep '-' > /dev/null ; then
+uuidLen=$( grep UUID /etc/pistar-release | awk '{print $3}' | wc -m > /dev/null )
+if [[ "${uuidLen}"  -gt "17" ]] ; then
     GU=$( cat /proc/cpuinfo | grep Serial | cut -d ' ' -f 2 )
     sed -i "/UUID/c\\UUID = ${GU}" /etc/pistar-release
 fi
