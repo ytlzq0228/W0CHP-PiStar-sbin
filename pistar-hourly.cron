@@ -97,7 +97,7 @@ sed -i "/cron.hourly/c ${cronMins}  *   * * *   root    mount -o remount,rw / &&
 /usr/local/sbin/pistar-motdgen
 
 # Update pertinent info in /etc/pistar-release
-/usr/local/sbin/pistar-modemcache > /dev/null 2>&1
+/usr/local/sbin/pistar-hwcache > /dev/null 2>&1
 
 # Mount the disk RO
 /bin/sync

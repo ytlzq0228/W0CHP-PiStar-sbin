@@ -132,9 +132,17 @@ echo ${gitStatusRemote} > /etc/.W0CHP-PiStar-Dash.remote_version
 # Generate /etc/motd
 /usr/local/sbin/pistar-motdgen
 
-# add modem/hw cache to rc.local
-if ! grep -q 'modemcache' /etc/rc.local ; then
-    sed -i '/^\/usr\/local\/sbin\/pistar-motdgen/a \\n\n# cache modem info\n\/usr\/local\/sbin\/pistar-modemcache' /etc/rc.local 
+# cleanup legacy naming convention
+if grep -q 'modemcache' /etc/rc.local ; then
+    sed -i 's/modemcache/hwcache/g' /etc/rc.local
+    sed -i 's/# cache modem info/# cache hw info/g' /etc/rc.local 
+fi
+# add hw cache to rc.local
+if ! grep -q 'hwcache' /etc/rc.local ; then
+    sed -i '/^\/usr\/local\/sbin\/pistar-motdgen/a \\n\n# cache hw info\n\/usr\/local\/sbin\/pistar-hwcache' /etc/rc.local 
+    /usr/local/sbin/pistar-hwcache
+else
+    /usr/local/sbin/pistar-hwcache
 fi
 
 function GetBinStatus() {

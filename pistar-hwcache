@@ -1,0 +1,34 @@
+#!/bin/bash
+
+mount -o remount,rw /
+
+sed -i "/^ircddbgateway.*/c ircddbgateway = 20220416_W0CHP-PiStar-Dash" /etc/pistar-release
+sed -i "/^dstarrepeater.*/c dstarrepeater = 20220416_W0CHP-PiStar-Dash" /etc/pistar-release
+
+logDateUTC=$(date -u +"%Y-%m-%d")
+mmdvmHostLog="/var/log/pi-star/MMDVM-${logDateUTC}.log"
+
+countProcs=$(grep -c ^processor /proc/cpuinfo)
+if ! grep -w 'ProcNum' /etc/pistar-release > /dev/null; then
+    sed -i "/Hardware = /a ProcNum = ${countProcs} " /etc/pistar-release
+else
+    sed -i "/ProcNum/c ProcNum = ${countProcs}" /etc/pistar-release
+fi
+
+_MMDVMHostVer=`MMDVMHost -v | awk '{ print $3 }'`
+sed -i "/MMDVMHost/c MMDVMHost = $_MMDVMHostVer" /etc/pistar-release
+
+_KernelVer=`uname -r`
+sed -i "/kernel/c kernel = $_KernelVer" /etc/pistar-release
+
+# cleanup legacy modem info
+if grep -w 'Firmware' /etc/pistar-release > /dev/null; then
+    sed -i '/Firmware/d' /etc/pistar-release
+fi
+if grep -w 'TCXO' /etc/pistar-release > /dev/null; then
+    sed -i '/TCXO/d' /etc/pistar-release
+fi
+
+# cleanup last line..
+sed -i '${/^$/d}' /etc/pistar-release
+
