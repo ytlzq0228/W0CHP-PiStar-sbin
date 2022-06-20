@@ -427,6 +427,16 @@ main_function() {
         	curl --fail -o /usr/local/etc/M17_Audio/se_SE.indx -s https://raw.githubusercontent.com/g4klx/M17Gateway/master/Audio/se_SE.indx    
     	fi
 
+	# Add Portuguese voice files for DMRGateway
+	if [[ ! -f /usr/local/etc/DMR_Audio/pt_PT.ambe ]]; then
+		echo "Downloading Portuguese Voice Files for DMRGateway..."
+		curl --fail -o /usr/local/etc/DMR_Audio/pt_PT.ambe -s https://raw.githubusercontent.com/g4klx/DMRGateway/master/Audio/pt_PT.ambe
+		curl --fail -o /usr/local/etc/DMR_Audio/pt_PT.indx -s https://raw.githubusercontent.com/g4klx/DMRGateway/master/Audio/pt_PT.indx
+		chmod 664 /usr/local/etc/DMR_Audio/*.ambe
+		chmod 664 /usr/local/etc/DMR_Audio/*.indx
+		echo "Done"
+	fi
+
 	if [[ ! -f /usr/local/etc/ircddbgateway/pt_PT.ambe ]]; then
 		echo "Downloading Portuguese Voice Files for ircDDBGateway..."
 		curl --fail -o /usr/local/etc/ircddbgateway/pt_PT.ambe -s https://raw.githubusercontent.com/g4klx/ircDDBGateway/master/Data/pt_PT.ambe
