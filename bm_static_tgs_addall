@@ -3,14 +3,27 @@
 # re-add all previously mass-dropped static BM TGs script - W0CHP
 # expects args passed from bm_manager.php
 
-cat /etc/.bm_tgs.json.saved |  jq -r '.staticSubscriptions[]|[.talkgroup, .slot] | @tsv' | 
-while IFS=$'\t' read -r talkgroup slot; do
-    curl -s \
-        --user "$1:" \
-        --data "talkgroup=$talkgroup&timeslot=$slot" \
-        "https://api.brandmeister.network/v1.0/repeater/talkgroup/?action=ADD&id=$2" ; \
-done
-echo -e "All Previous Static Talk Groups Re-Added!\n"
+if [ ${1} -lt 200 ] ; then
+    cat /etc/.bm_tgs.json.saved |  jq -r '.staticSubscriptions[]|[.talkgroup, .slot] | @tsv' | 
+    while IFS=$'\t' read -r talkgroup slot; do
+        curl -s \
+            --user "$1:" \
+            --data "talkgroup=$talkgroup&timeslot=$slot" \
+            "https://api.brandmeister.network/v1.0/repeater/talkgroup/?action=ADD&id=$2" ; \
+    done
+    echo -e "All Previous Static Talk Groups Re-Added!\n"
+else
+    cat /etc/.bm_tgs.json.saved |  jq -r '.staticSubscriptions[]|[.talkgroup, .slot] | @tsv' | 
+    while IFS=$'\t' read -r talkgroup slot; do
+	curl -X 'POST' \
+	   "https://api.brandmeister.network/v2/device/$2/talkgroup" \
+	    -H 'accept: application/json' \
+	    -H "Authorization: Bearer $1" \
+            -H 'Content-Type: application/json' \
+            -d '{ "slot": '$slot', "group": '$talkgroup' }'
+    done
+    echo -e "All Previous Static Talk Groups Re-Added!\n"
+fi
 
 # delete unused file
 mount -o remount,rw /

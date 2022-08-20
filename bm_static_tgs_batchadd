@@ -3,14 +3,27 @@
 # batch-add static BM TGs script - W0CHP
 # expects args passed from bm_manager.php
 
-cat /var/www/dashboard/.bm_tgs.batch |
-while IFS=$'\n' read -r talkgroup; do
-    curl -s \
-        --user "$1:" \
-        --data "talkgroup=$talkgroup&timeslot=$3" \
-        "https://api.brandmeister.network/v1.0/repeater/talkgroup/?action=ADD&id=$2" ; \
-done
-echo -e "All Requested Static Talk Groups Added!\n"
+if [ ${1} -lt 200 ] ; then
+    cat /var/www/dashboard/.bm_tgs.batch |
+    while IFS=$'\n' read -r talkgroup; do
+        curl -s \
+            --user "$1:" \
+            --data "talkgroup=$talkgroup&timeslot=$3" \
+            "https://api.brandmeister.network/v1.0/repeater/talkgroup/?action=ADD&id=$2" ; \
+    done
+    echo -e "All Requested Static Talk Groups Added!\n"
+else
+    cat /var/www/dashboard/.bm_tgs.batch |
+    while IFS=$'\n' read -r talkgroup; do
+        curl -X 'POST' \
+           "https://api.brandmeister.network/v2/device/$2/talkgroup" \
+            -H 'accept: application/json' \
+            -H "Authorization: Bearer $1" \
+            -H 'Content-Type: application/json' \
+            -d '{ "slot": '$3', "group": '$talkgroup' }'
+    done 
+    echo -e "All Requested Static Talk Groups Added!\n"
+fi
 
 # delete unused file
 mount -o remount,rw /

@@ -3,20 +3,37 @@
 # drop all static BM TGs script - W0CHP
 # expects args passed from bm_manager.php
 
+if [ ${1} -lt 200 ] ; then
+    BMapiURL="https://api.brandmeister.network/v1.0/repeater/?action=profile&q=$2"
+else
+    BMapiURL="https://api.brandmeister.network/v2/device/$2/profile"
+fi
+
 # save current static tgs first...
 mount -o remount,rw /
-curl "https://api.brandmeister.network/v1.0/repeater/?action=profile&q=$2" -o /etc/.bm_tgs.json.saved
+curl "${BMapiURL}" -o /etc/.bm_tgs.json.saved
 sync
 mount -o remount,ro /
 
 # do the deed
-cat /etc/.bm_tgs.json.saved |  jq -r '.staticSubscriptions[]|[.talkgroup, .slot] | @tsv' | 
-while IFS=$'\t' read -r talkgroup slot; do
-    curl -s \
-        --user "$1:" \
-        --data "talkgroup=$talkgroup&timeslot=$slot" \
-        "https://api.brandmeister.network/v1.0/repeater/talkgroup/?action=DEL&id=$2" ; \
-done
-echo "All Static Talk Groups Dropped!\n"
+if [ ${1} -lt 200 ] ; then
+    cat /etc/.bm_tgs.json.saved |  jq -r '.staticSubscriptions[]|[.talkgroup, .slot] | @tsv' | 
+    while IFS=$'\t' read -r talkgroup slot; do
+        curl -s \
+            --user "$1:" \
+            --data "talkgroup=$talkgroup&timeslot=$slot" \
+            "https://api.brandmeister.network/v1.0/repeater/talkgroup/?action=DEL&id=$2" ; \
+    done
+    echo "All Static Talk Groups Dropped!\n"
+else
+    cat /etc/.bm_tgs.json.saved |  jq -r '.staticSubscriptions[]|[.talkgroup, .slot] | @tsv' | 
+    while IFS=$'\t' read -r talkgroup slot; do
+        curl -X 'DELETE' \
+	    "https://api.brandmeister.network/v2/device/$2/talkgroup/$slot/$talkgroup" \
+	    -H "accept: */*" \
+	    -H "Authorization: Bearer $1"
+    done
+    echo "All Static Talk Groups Dropped!\n"
+fi
 
 exit 0

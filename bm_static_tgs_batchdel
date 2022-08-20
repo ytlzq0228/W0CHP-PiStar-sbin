@@ -3,14 +3,25 @@
 # batch-delete static BM TGs script - W0CHP
 # expects args passed from bm_manager.php
 
-cat /var/www/dashboard/.bm_tgs.batch |
-while IFS=$'\n' read -r talkgroup; do
-    curl -s \
-        --user "$1:" \
-        --data "talkgroup=$talkgroup&timeslot=$3" \
-        "https://api.brandmeister.network/v1.0/repeater/talkgroup/?action=DEL&id=$2" ; \
-done
-echo -e "All Requested Static Talk Groups Deleted!\n"
+if [ ${1} -lt 200 ] ; then
+    cat /var/www/dashboard/.bm_tgs.batch |
+    while IFS=$'\n' read -r talkgroup; do
+        curl -s \
+            --user "$1:" \
+            --data "talkgroup=$talkgroup&timeslot=$3" \
+            "https://api.brandmeister.network/v1.0/repeater/talkgroup/?action=DEL&id=$2" ; \
+    done
+    echo -e "All Requested Static Talk Groups Deleted!\n"
+else
+    cat /var/www/dashboard/.bm_tgs.batch |
+    while IFS=$'\n' read -r talkgroup; do
+        curl -X 'DELETE' \
+            "https://api.brandmeister.network/v2/device/$2/talkgroup/$3/$talkgroup" \
+            -H "accept: */*" \
+            -H "Authorization: Bearer $1"
+    done 
+    echo -e "All Requested Static Talk Groups Deleted!\n"
+fi
 
 # delete unused file
 mount -o remount,rw /
