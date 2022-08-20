@@ -3,7 +3,7 @@
 # re-add all previously mass-dropped static BM TGs script - W0CHP
 # expects args passed from bm_manager.php
 
-if [ ${1} -lt 200 ] ; then
+if [ ${#1} -lt 200 ] ; then
     cat /etc/.bm_tgs.json.saved |  jq -r '.staticSubscriptions[]|[.talkgroup, .slot] | @tsv' | 
     while IFS=$'\t' read -r talkgroup slot; do
         curl -s \

@@ -3,7 +3,7 @@
 # batch-add static BM TGs script - W0CHP
 # expects args passed from bm_manager.php
 
-if [ ${1} -lt 200 ] ; then
+if [ ${#1} -lt 200 ] ; then
     cat /var/www/dashboard/.bm_tgs.batch |
     while IFS=$'\n' read -r talkgroup; do
         curl -s \
