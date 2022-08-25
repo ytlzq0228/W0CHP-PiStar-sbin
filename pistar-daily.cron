@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# W0CHP pistar-daily.cron (enhanced) v3.2
+# W0CHP pistar-daily.cron (enhanced) v3.3
 #
 
 # Make sure we are root
@@ -343,6 +343,10 @@ systemctl restart nginx > /dev/null 2<&1
 
 if ! grep -q TIME_FORMAT /var/www/dashboard/config/config.php ; then # insert req'd constant if not found. WIll be stashed on next update :-)
     sed -i "/^date_default_timezone_set.*/i define('TIME_FORMAT', '24');" /var/www/dashboard/config/config.php 
+fi
+
+if ! grep -q AUTO_UPDATE_CHECK /var/www/dashboard/config/config.php ; then # insert req'd constant if not found. WIll be stashed on next update :-)
+    sed -i "/^date_default_timezone_set.*/i define('AUTO_UPDATE_CHECK', 'true');" /var/www/dashboard/config/config.php
 fi
 
 # log file perms
