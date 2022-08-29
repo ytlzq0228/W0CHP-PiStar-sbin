@@ -267,6 +267,9 @@ main_function() {
 	git_update /var/www/dashboard
 	echo -e "${TICK} Done!\n"
 
+	if ! [ -f /root/M17Hosts.txt ]; then
+	    echo -e "# Format: Reflector Name IP Port\n# Example:\n# M17-000    81.231.241.25    17000\n\n" > /root/M17Hosts.txt
+	fi
 	echo "Updating Hostfiles, User ID DB's & Various Talkgroup Lists..."
 	/usr/local/sbin/HostFilesUpdate.sh > /dev/null 2>&1
 	echo -e "${TICK} Done!\n"

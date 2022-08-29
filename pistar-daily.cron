@@ -121,6 +121,9 @@ git checkout stash@{0} -- config/config.php config/ircddblocal.php config/langua
 git stash clear # housekeeping
 
 # Host Files Update
+if ! [ -f /root/M17Hosts.txt ]; then
+    echo -e "# Format: Reflector Name IP Port\n# Example:\n# M17-000    81.231.241.25    17000\n\n" > /root/M17Hosts.txt
+fi
 /usr/local/sbin/HostFilesUpdate.sh > /dev/null 2>&1
 
 # Get and cache latest W0CHP-PiStar-Dash version from remote Git repo:
