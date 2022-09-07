@@ -2,8 +2,8 @@
 
 mount -o remount,rw /
 
-sed -i "/^ircddbgateway.*/c ircddbgateway = 20220416_W0CHP-PiStar-Dash" /etc/pistar-release
-sed -i "/^dstarrepeater.*/c dstarrepeater = 20220416_W0CHP-PiStar-Dash" /etc/pistar-release
+sed -i "/^ircddbgateway.*/c ircddbgateway = 20220905_W0CHP-PiStar-Dash" /etc/pistar-release
+sed -i "/^dstarrepeater.*/c dstarrepeater = 20220905_W0CHP-PiStar-Dash" /etc/pistar-release
 
 logDateUTC=$(date -u +"%Y-%m-%d")
 mmdvmHostLog="/var/log/pi-star/MMDVM-${logDateUTC}.log"
