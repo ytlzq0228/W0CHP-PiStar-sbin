@@ -19,7 +19,7 @@ function status_services() {
 }
 
 # Nextion enabled?
-NextionENabled=$(grep -A3 NextionDriver /etc/mmdvmhost | grep 'Enable=1')
+NextionENabled=$(grep 'Display=Nextion' /etc/mmdvmhost)
 
 # Start/Stop all the services...
 # $1 == FULLSTOP
