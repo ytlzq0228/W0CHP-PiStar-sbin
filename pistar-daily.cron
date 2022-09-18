@@ -199,6 +199,16 @@ if [ ! -f /root/P25Hosts.txt ]; then
 	touch /root/P25Hosts.txt
 fi
 
+# fix timeouts in YSFgateway and P25Gateways (hopes to prevent "Not Linked" dash status when they are indeed linked
+ysfGwToLen=$( grep InactivityTimeout /etc/ysfgateway | awk -F "=" '{print $2}' | wc -m > /dev/null )
+if [[ "${ysfGwToLen}"  -lt "4" ]] ; then
+    sed -i "/InactivityTimeout/c\\InactivityTimeout=1440" /etc/ysfgateway
+fi
+p25GwToLen=$( grep InactivityTimeout /etc/p25gateway | awk -F "=" '{print $2}' | wc -m > /dev/null )
+if [[ "${p25GwToLen}"  -lt "4" ]] ; then
+    sed -i "/InactivityTimeout/c\\InactivityTimeout=1440" /etc/p25gateway
+fi
+
 # If we are ready to use the new DMRGateway
 if [[ $(/usr/local/bin/DMRGateway --version | awk '{print $3}' | cut -c -8) -gt "20170924" ]] && [[ $(grep -c "\[DMR Network 3\]" /etc/dmrgateway) -eq "1" ]] && [[ ! -f /usr/local/etc/DMR_Audio/no_NO.indx ]]; then
 	curl --fail -o /usr/local/etc/DMR_Audio/de_DE.ambe -s https://raw.githubusercontent.com/g4klx/DMRGateway/master/Audio/de_DE.ambe
