@@ -375,10 +375,20 @@ fi
 if ! [ -x "$(command -v gpsd)" ]; then
     echo "GPSd (required) not installed on hotspot. Installing now..."
     # Install GPSd
+    apt-get -qq update > /dev/null 2>&1
     apt-get -qq install -y libgps-dev gpsd > /dev/null 2>&1
     systemctl restart gpsd > /dev/null 2>&1
     systemctl daemon-reload > /dev/null 2>&1
     echo -e "Done\n"
+fi
+
+# check for vnstat
+if ! [ -x "$(command -v vnstat)" ]; then
+    echo "vnstat (required) not installed on hotspot. Installing now..."
+    # Install vnstat
+    apt-get -qq update > /dev/null 2>&1
+    apt-get -qq install -y vnstat > /dev/null 2>&1
+    echo -e "${TICK} Done!\n"
 fi
 
 # Randomize the time for the daily cron jobs
