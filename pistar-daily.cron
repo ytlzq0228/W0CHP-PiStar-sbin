@@ -399,8 +399,8 @@ if ! grep -q vnstat /etc/fstab ; then
     echo "tmpfs                   /var/lib/vnstat         tmpfs   nodev,noatime,nosuid,mode=0755,size=64m         0       0"  >> /etc/fstab
     mount /var/lib/vnstat > /dev/null
     chown -R vnstat:vnstat /var/lib/vnstat > /dev/null
-    systemctl restart vnstat.service > /dev/null
 fi
+    systemctl restart vnstat.service > /dev/null
 
 # Randomize the time for the daily cron jobs
 sed -i "/cron.daily/c ${cronMins} ${cronHours}	* * *	root	mount -o remount,rw / && cd / && run-parts --report /etc/cron.daily" /etc/crontab
