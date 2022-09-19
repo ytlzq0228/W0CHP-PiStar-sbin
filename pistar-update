@@ -248,6 +248,7 @@ main_function() {
 	    # Install vnstat
 	    apt-get -qq update > /dev/null 2>&1
 	    apt-get -qq install -y vnstat > /dev/null 2>&1
+	    systemctl restart vnstat.service
 	    echo -e "${TICK} Done!\n"
         fi
 

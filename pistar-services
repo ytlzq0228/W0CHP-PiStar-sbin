@@ -19,7 +19,7 @@ function status_services() {
 }
 
 # Nextion enabled?
-NextionEnabled=$(grep -q 'Display=Nextion' /etc/mmdvmhost)
+NextionEnabled=$(grep -c 'Display=Nextion' /etc/mmdvmhost)
 
 # Start/Stop all the services...
 # $1 == FULLSTOP
@@ -66,7 +66,7 @@ function stop_services()
     systemctl stop aprsgateway.service > /dev/null 2>&1
     systemctl stop gpsd.service > /dev/null 2>&1
     systemctl stop timeserver.service > /dev/null 2>&1
-    if ${NextionEnabled} ; then
+    if [[ ${NextionEnabled} -eq 1 ]]; then
 	systemctl stop nextiondriver.service > /dev/null 2>&1
     fi
     echo -e "\b\b\b: DONE.\b"
@@ -88,7 +88,7 @@ function start_services()
     echo -ne "Starting Pi-Star services..."
     
     systemctl daemon-reload > /dev/null 2>/dev/null # Restart Systemd to account for any service changes 
-    if ${NextionEnabled} ; then
+    if [[ ${NextionEnabled} -eq 1 ]]; then
 	systemctl start nextiondriver.service > /dev/null 2>&1
     fi
     systemctl start gpsd.service > /dev/null 2>&1
