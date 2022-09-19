@@ -226,32 +226,6 @@ main_function() {
 		echo -e "${TICK} Done!\n"
 	fi
 
-        # Check for gpsd
-	systemctl disable mobilegps.timer > /dev/null 2<&1
-	systemctl disable mobilegps.service > /dev/null 2<&1
-	if compgen -G "/lib/systemd/system/mobilegps*" > /dev/null; then
-	    rm -rf /lib/systemd/system/mobilegps*
-	fi
-	if ! [ -x "$(command -v gpsd)" ]; then
-	    echo "GPSd (required) not installed on hotspot. Installing now..."
-	    # Install GPSd
-	    apt-get -qq update > /dev/null 2>&1
-	    apt-get -qq install -y libgps-dev gpsd > /dev/null 2>&1
-	    systemctl restart gpsd > /dev/null 2>&1
-	    systemctl daemon-reload > /dev/null 2>&1
-	    echo -e "${TICK} Done!\n"
-        fi
-
-	# check for vnstat
-	if ! [ -x "$(command -v vnstat)" ]; then
-	    echo "vnstat (required) not installed on hotspot. Installing now..."
-	    # Install vnstat
-	    apt-get -qq update > /dev/null 2>&1
-	    apt-get -qq install -y vnstat > /dev/null 2>&1
-	    systemctl restart vnstat.service
-	    echo -e "${TICK} Done!\n"
-        fi
-
 	echo "Stopping Services..."
 	# maint. tasks
 	/usr/local/sbin/wpsd-backend-maint > /dev/null 2>&1
@@ -293,6 +267,32 @@ main_function() {
         	/usr/local/sbin/pistar-system-manager -efw > /dev/null 2>&1
     	fi
 	echo -e "${TICK} Done!\n"
+
+        # Check for gpsd
+	systemctl disable mobilegps.timer > /dev/null 2<&1
+	systemctl disable mobilegps.service > /dev/null 2<&1
+	if compgen -G "/lib/systemd/system/mobilegps*" > /dev/null; then
+	    rm -rf /lib/systemd/system/mobilegps*
+	fi
+	if ! [ -x "$(command -v gpsd)" ]; then
+	    echo "GPSd (required) not installed on hotspot. Installing now..."
+	    # Install GPSd
+	    apt-get -qq update > /dev/null 2>&1
+	    apt-get -qq install -y libgps-dev gpsd > /dev/null 2>&1
+	    systemctl restart gpsd > /dev/null 2>&1
+	    systemctl daemon-reload > /dev/null 2>&1
+	    echo -e "${TICK} Done!\n"
+        fi
+
+	# check for vnstat
+	if ! [ -x "$(command -v vnstat)" ]; then
+	    echo "vnstat (required) not installed on hotspot. Installing now..."
+	    # Install vnstat
+	    apt-get -qq update > /dev/null 2>&1
+	    apt-get -qq install -y vnstat > /dev/null 2>&1
+	    systemctl restart vnstat.service
+	    echo -e "${TICK} Done!\n"
+        fi
 
 	# New CSS mappings and funcs (git master #e2d2e9d092)...have to reset :-/
 	CSS_FILE="/etc/pistar-css.ini"
