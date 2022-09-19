@@ -82,6 +82,18 @@ if ! [ $( grep UUID /etc/pistar-release | awk '{print $3}' > /dev/null ) ] ; the
     sed -i "/UUID/c\\UUID = ${GU}" /etc/pistar-release
 fi
 
+# tmpfs for vnstat
+if ! grep -q vnstat /etc/fstab ; then
+    systemctl stop vnstat.service > /dev/null
+    rm -rf /var/lib/vnstat > /dev/null
+    mkdir -p /var/lib/vnstat > /dev/null
+    chown -R vnstat:vnstat /var/lib/vnstat > /dev/null
+    echo "tmpfs                   /var/lib/vnstat         tmpfs   nodev,noatime,nosuid,mode=0755,size=64m         0       0"  >> /etc/fstab
+    mount /var/lib/vnstat > /dev/null
+    chown -R vnstat:vnstat /var/lib/vnstat > /dev/null
+    systemctl restart vnstat.service > /dev/null
+fi
+
 function GetBinStatus() {
     dir="/usr/local/bin"
     repo=$(git --work-tree=${dir} --git-dir=${dir}/.git config --get remote.origin.url)
@@ -290,9 +302,19 @@ main_function() {
 	    # Install vnstat
 	    apt-get -qq update > /dev/null 2>&1
 	    apt-get -qq install -y vnstat > /dev/null 2>&1
-	    systemctl restart vnstat.service
 	    echo -e "${TICK} Done!\n"
         fi
+	# tmpfs for vnstat
+	if ! grep -q vnstat /etc/fstab ; then
+	    systemctl stop vnstat.service > /dev/null
+	    rm -rf /var/lib/vnstat > /dev/null
+	    mkdir -p /var/lib/vnstat > /dev/null
+	    chown -R vnstat:vnstat /var/lib/vnstat > /dev/null
+	    echo "tmpfs                   /var/lib/vnstat         tmpfs   nodev,noatime,nosuid,mode=0755,size=64m         0       0"  >> /etc/fstab
+	    mount /var/lib/vnstat > /dev/null
+	    chown -R vnstat:vnstat /var/lib/vnstat > /dev/null
+	    systemctl restart vnstat.service > /dev/null
+	fi
 
 	# New CSS mappings and funcs (git master #e2d2e9d092)...have to reset :-/
 	CSS_FILE="/etc/pistar-css.ini"

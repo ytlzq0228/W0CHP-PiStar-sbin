@@ -388,8 +388,18 @@ if ! [ -x "$(command -v vnstat)" ]; then
     # Install vnstat
     apt-get -qq update > /dev/null 2>&1
     apt-get -qq install -y vnstat > /dev/null 2>&1
-    systemctl restart vnstat.service
     echo -e "${TICK} Done!\n"
+fi
+# tmpfs for vnstat
+if ! grep -q vnstat /etc/fstab ; then
+    systemctl stop vnstat.service > /dev/null
+    rm -rf /var/lib/vnstat > /dev/null
+    mkdir -p /var/lib/vnstat > /dev/null
+    chown -R vnstat:vnstat /var/lib/vnstat > /dev/null
+    echo "tmpfs                   /var/lib/vnstat         tmpfs   nodev,noatime,nosuid,mode=0755,size=64m         0       0"  >> /etc/fstab
+    mount /var/lib/vnstat > /dev/null
+    chown -R vnstat:vnstat /var/lib/vnstat > /dev/null
+    systemctl restart vnstat.service > /dev/null
 fi
 
 # Randomize the time for the daily cron jobs
