@@ -15,6 +15,13 @@ else
     sed -i "/ProcNum/c ProcNum = ${countProcs}" /etc/pistar-release
 fi
 
+activeIface=$(route | head -3 | tail -1 | awk '{print $8}')
+if ! grep -w 'iface' /etc/pistar-release > /dev/null; then
+    sed -i "/Hardware = /a iface = ${activeIface} " /etc/pistar-release
+else
+    sed -i "/iface/c iface = ${activeIface}" /etc/pistar-release
+fi
+
 _MMDVMHostVer=`MMDVMHost -v | awk '{ print $3 }'`
 sed -i "/MMDVMHost/c MMDVMHost = $_MMDVMHostVer" /etc/pistar-release
 
