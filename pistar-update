@@ -30,6 +30,7 @@ modelName=$(grep -m 1 'model name' /proc/cpuinfo | sed 's/.*: //')
 hardwareField=$(grep 'Model' /proc/cpuinfo | sed 's/.*: //')
 hwDeetz="${hardwareField} - ${modelName}"
 uaStr="WPSD-ConnectivityCheck (Manual-Update) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]"
+uaStrCSS="WPSD-CSSinstaller (Manual-Update) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]"
 TICK="[✓]"
 INFO="[i]"
 
@@ -304,8 +305,12 @@ main_function() {
 	fi
 	systemctl restart vnstat.service > /dev/null
 
-	# New CSS mappings and funcs (git master #e2d2e9d092)...have to reset :-/
 	CSS_FILE="/etc/pistar-css.ini"
+	# if css does not exist, install default one
+	if [ ! -f $CSS_FILE ] ; then
+	    curl -Ls -A "${uaStrCSS}" https://repo.w0chp.net/Chipster/W0CHP-PiStar-Installer/raw/branch/master/supporting-files/pistar-css-dist.ini -o /etc/pistar-css.ini
+	fi
+	# New CSS mappings and funcs (git master #e2d2e9d092)...have to reset :-/
 	if [ -f $CSS_FILE ] && [ ! $( grep 'TextLinkColor' $CSS_FILE) ] ; then
         	echo -e "\n\nNOTE: Custom user CSS detected. Since W0CHP-PiStar-Dash Ver.# ${psVer} e2d2e9d092, the CSS mappings have been updated, and you must. manually edit your custom values again."
         	echo -e "You can reference the customizations you previously had by viewing the file: /etc/.pistar-css.ini.user and then manually re-mapping those values in the Expert CSS Editor Page.\n\n"

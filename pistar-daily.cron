@@ -61,6 +61,7 @@ cronMins=$(shuf -i 0-59 -n 1)
 cronHours=$(shuf -i 1-4 -n1)
 tz=$( date +%Z )
 uaStr="WPSD-ConnectivityCheck (Daily-Cron [${cronHours}:${cronMins} ${tz}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]"
+uaStrCSS="WPSD-CSSinstaller (Daily-Cron [${cronHours}:${cronMins} ${tz}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]"
 
 # connectivity check
 status_code=$(curl -m 3 -A "${uaStr}" --write-out %{http_code} --silent --output /dev/null "https://repo.w0chp.net/Chipster/W0CHP-PiStar-Dash.git/info/refs?service=git-upload-pack")
@@ -86,6 +87,10 @@ fi
 
 # New CSS mappings and funcs (git master #e2d2e9d092)...have to reset :-/
 CSS_FILE="/etc/pistar-css.ini"
+if [ ! -f $CSS_FILE ] ; then
+    curl -Ls -A "${uaStrCSS}" https://repo.w0chp.net/Chipster/W0CHP-PiStar-Installer/raw/branch/master/supporting-files/pistar-css-dist.ini -o /etc/pistar-css.ini
+fi
+# New CSS mappings and funcs (git master #e2d2e9d092)...have to reset :-/
 if [ -f $CSS_FILE ] && [ ! $( grep 'TextLinkColor' $CSS_FILE) ] ; then
 	echo -e "\n\nNOTE: Custom user CSS detected. Since W0CHP-PiStar-Dash Ver.#e2d2e9d092, the CSS mappings have been updated, and you must. manually edit your custom values again."
 	echo -e "You can reference the customizations you previously had by viewing the file: /etc/.pistar-css.ini.user and then manually re-mapping those values in the Expert CSS Editor Page.\n\n"
