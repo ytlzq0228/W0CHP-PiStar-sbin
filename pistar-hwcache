@@ -36,6 +36,13 @@ if grep -w 'TCXO' /etc/pistar-release > /dev/null; then
     sed -i '/TCXO/d' /etc/pistar-release
 fi
 
+PlatDetect=$(/usr/local/sbin/platformDetect.sh)
+if ! grep -w 'Platform' /etc/pistar-release > /dev/null; then
+    sed -i "/Hardware = /a Platform = ${PlatDetect} " /etc/pistar-release
+else
+    sed -i "/Platform/c Platform = ${PlatDetect}" /etc/pistar-release
+fi
+
 # cleanup last line..
 sed -i '${/^$/d}' /etc/pistar-release
 
