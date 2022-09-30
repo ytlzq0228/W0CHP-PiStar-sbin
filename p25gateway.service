@@ -22,6 +22,7 @@ LOGDIR=/var/log/pi-star
 USER=root
 GROUP=mmdvm
 ipVar=`hostname -I | cut -d' ' -f1`
+TGSTATIC=`grep Static= /etc/p25gateway | sed 's/Static=//'`
 
 # Pre-flight checks...
 test -x ${DAEMON_PATH}${DAEMON} || exit 0
@@ -66,6 +67,7 @@ case "$1" in
 			done
 			nice -n -5 ${DAEMON_PATH}${DAEMON} ${DAEMON_OPTS}
 			echo -e "$DAEMON started as PID "`$PGREP $DAEMON`
+			/usr/local/sbin/pistar-p25link ${TGSTATIC}
 			exit 0;
 		fi
 		;;
@@ -88,11 +90,13 @@ case "$1" in
 			$SLEEP 3
 			nice -n -5 ${DAEMON_PATH}${DAEMON} ${DAEMON_OPTS}
 			echo -e "$DAEMON re-started as PID "`${PGREP} ${DAEMON}`
+			/usr/local/sbin/pistar-p25link ${TGSTATIC}
 			exit 0;
 		else
 			echo -e "$DAEMON is not running"
 			nice -n -5 ${DAEMON_PATH}${DAEMON} ${DAEMON_OPTS}
 			echo -e "$DAEMON started as PID "`${PGREP} ${DAEMON}`
+			/usr/local/sbin/pistar-p25link ${TGSTATIC}
 			exit 0;
 		fi
 		;;
