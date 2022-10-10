@@ -4,7 +4,7 @@
 #                                                                             #
 #                        Pi-Star Auto Update Tool                             #
 #                                                                             #
-#   Version 3.10.15, Code, Design and Development by Andy Taylor (MW0MWZ)     #
+#   Version 3.10.16, Code, Design and Development by Andy Taylor (MW0MWZ)     #
 #                            Enhanced by W0CHP                                #
 #                                                                             #
 ###############################################################################
@@ -25,12 +25,14 @@ psVer=$( grep Version /etc/pistar-release | awk '{print $3}' )
 W0CHP_DASH_BRANCH="$( git --git-dir=/var/www/dashboard/.git branch | grep '*' | awk {'print $2'} )"
 W0CHP_BIN_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-bin.git"
 OFFICIAL_BIN_REPO="https://github.com/AndyTaylorTweet/Pi-Star_v4_Binaries_Bin.git"
+W0CHP_INSTALL_SCRIPT_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-Installer/raw/branch/master/WPSD-Installer"
 uuidStr=$(grep UUID /etc/pistar-release | awk {'print $3'})
 modelName=$(grep -m 1 'model name' /proc/cpuinfo | sed 's/.*: //')
 hardwareField=$(grep 'Model' /proc/cpuinfo | sed 's/.*: //')
 hwDeetz="${hardwareField} - ${modelName}"
 uaStr="WPSD-ConnectivityCheck (Manual-Update) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]"
 uaStrCSS="WPSD-CSSinstaller (Manual-Update) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]"
+uaStrWI="WPSD-InstallerUpdater (Manual-Update) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]"
 TICK="[✓]"
 INFO="[i]"
 
@@ -304,6 +306,10 @@ main_function() {
 	    chown -R vnstat:vnstat /var/lib/vnstat > /dev/null
 	fi
 	systemctl restart vnstat.service > /dev/null
+
+	# update installer
+	curl -Ls -A "${uaStrWI}" ${W0CHP_INSTALL_SCRIPT_REPO} -o /tmp/WPSD-Installer
+	chmod +x /tmp/WPSD-Installer
 
 	CSS_FILE="/etc/pistar-css.ini"
 	# if css does not exist, install default one

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# W0CHP pistar-daily.cron (enhanced) v3.3
+# W0CHP pistar-daily.cron (enhanced) v3.4
 #
 
 # Make sure we are root
@@ -50,6 +50,7 @@ fi
 
 W0CHP_BIN_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-bin.git"
 OFFICIAL_BIN_REPO="https://github.com/AndyTaylorTweet/Pi-Star_v4_Binaries_Bin.git"
+W0CHP_INSTALL_SCRIPT_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-Installer/raw/branch/master/WPSD-Installer"
 W0CHP_DASH_BRANCH="$( git --git-dir=/var/www/dashboard/.git branch | grep '*' | awk {'print $2'} )"
 versionCmd=$( git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git rev-parse --short=10 HEAD )
 psVer=$(grep Version /etc/pistar-release | awk '{print $3}')
@@ -62,6 +63,7 @@ cronHours=$(shuf -i 1-4 -n1)
 tz=$( date +%Z )
 uaStr="WPSD-ConnectivityCheck (Daily-Cron [${cronHours}:${cronMins} ${tz}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]"
 uaStrCSS="WPSD-CSSinstaller (Daily-Cron [${cronHours}:${cronMins} ${tz}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]"
+uaStrWI="WPSD-InstallerUpdater (Daily-Cron [${cronHours}:${cronMins} ${tz}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]"
 
 # connectivity check
 status_code=$(curl -m 3 -A "${uaStr}" --write-out %{http_code} --silent --output /dev/null "https://repo.w0chp.net/Chipster/W0CHP-PiStar-Dash.git/info/refs?service=git-upload-pack")
@@ -213,6 +215,10 @@ p25GwToLen=$( grep InactivityTimeout /etc/p25gateway | awk -F "=" '{print $2}' |
 if [[ "${p25GwToLen}"  -lt "4" ]] ; then
     sed -i "/InactivityTimeout/c\\InactivityTimeout=1440" /etc/p25gateway
 fi
+
+# update installer
+curl -Ls -A "${uaStrWI}" ${W0CHP_INSTALL_SCRIPT_REPO} -o /tmp/WPSD-Installer
+chmod +x /tmp/WPSD-Installer
 
 # If we are ready to use the new DMRGateway
 if [[ $(/usr/local/bin/DMRGateway --version | awk '{print $3}' | cut -c -8) -gt "20170924" ]] && [[ $(grep -c "\[DMR Network 3\]" /etc/dmrgateway) -eq "1" ]] && [[ ! -f /usr/local/etc/DMR_Audio/no_NO.indx ]]; then
