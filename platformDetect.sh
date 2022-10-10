@@ -87,10 +87,12 @@ if [[ ${modelName} == "ARM"* ]]; then
     elif [[ ${hardwareField} == *"s5p4418"* ]]; then
         echo "Samsung Artik"
     elif [[ ${raspberryModel} == "Raspberry"* ]]; then
-        raspberryModel=$(echo $raspberryModel  | sed 's/Raspberry /R/' | sed 's/Rev /r/') # Shorten to "RPi" and "Rev" to "r"
+        #raspberryModel=$(echo $raspberryModel  | sed 's/Raspberry /R/' | sed 's/Rev /r/') # Shorten to "RPi" and "Rev" to "r"
+        raspberryModel=$(echo $raspberryModel) # Shorten to "RPi" and "Rev" to "r"
         echo ${raspberryModel}
     else
-        echo "R$actualModel $raspberryVer"
+        #echo "R$actualModel $raspberryVer"
+        echo "$actualModel $raspberryVer"
     fi
     
 elif [[ ${hardwareField} == *"sun8i"* ]]; then
