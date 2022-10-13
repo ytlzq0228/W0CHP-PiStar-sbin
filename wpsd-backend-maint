@@ -1,5 +1,7 @@
 #!/bin/bash
 
+mount -o remount,rw /
+
 # disable samba - perf. and sec.
 if ! systemctl status smbd.service | grep masked > /dev/null 2<&1 ; then
     systemctl stop smbd > /dev/null 2<&1
