@@ -29,9 +29,9 @@ if [[ ${modelName} == "ARM"* ]]; then
         *0004) raspberryVer="256MB";;
         *0005) raspberryVer="256MB";;
         *0006) raspberryVer="256MB";;
-        *0007) raspberryVer="Mounting holes (256MB";;
-        *0008) raspberryVer="Mounting holes (256MB";;
-        *0009) raspberryVer="Mounting holes (256MB";;
+        *0007) raspberryVer="Mounting holes 256MB";;
+        *0008) raspberryVer="Mounting holes 256MB";;
+        *0009) raspberryVer="Mounting holes 256MB";;
         *000d) raspberryVer="512MB";;
         *000e) raspberryVer="512MB";;
         *000f) raspberryVer="512MB";;
