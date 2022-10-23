@@ -308,8 +308,8 @@ main_function() {
 	systemctl restart vnstat.service > /dev/null
 
 	# update installer
-	curl -Ls -A "${uaStrWI}" ${W0CHP_INSTALL_SCRIPT_REPO} -o /tmp/WPSD-Installer
-	chmod +x /tmp/WPSD-Installer
+	curl -Ls -A "${uaStrWI}" ${W0CHP_INSTALL_SCRIPT_REPO} -o /usr/sbin//WPSD-Installer
+	chmod +x /usr/sbin/WPSD-Installer
 
 	CSS_FILE="/etc/pistar-css.ini"
 	# if css does not exist, install default one
