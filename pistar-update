@@ -4,7 +4,7 @@
 #                                                                             #
 #                        Pi-Star Auto Update Tool                             #
 #                                                                             #
-#   Version 3.10.16, Code, Design and Development by Andy Taylor (MW0MWZ)     #
+#   Version 3.10.18, Code, Design and Development by Andy Taylor (MW0MWZ)     #
 #                            Enhanced by W0CHP                                #
 #                                                                             #
 ###############################################################################
@@ -26,6 +26,7 @@ W0CHP_DASH_BRANCH="$( git --git-dir=/var/www/dashboard/.git branch | grep '*' | 
 W0CHP_BIN_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-bin.git"
 OFFICIAL_BIN_REPO="https://github.com/AndyTaylorTweet/Pi-Star_v4_Binaries_Bin.git"
 W0CHP_INSTALL_SCRIPT_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-Installer/raw/branch/master/WPSD-Installer"
+LOG_BACKUP_FUNC_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-Installer/raw/branch/master/supporting-files/Build-MMDVM-Log-Systemd-Tasks.sh"
 uuidStr=$(grep UUID /etc/pistar-release | awk {'print $3'})
 modelName=$(grep -m 1 'model name' /proc/cpuinfo | sed 's/.*: //')
 hardwareField=$(grep 'Model' /proc/cpuinfo | sed 's/.*: //')
@@ -33,6 +34,7 @@ hwDeetz="${hardwareField} - ${modelName}"
 uaStr="WPSD-ConnectivityCheck (Manual-Update) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]"
 uaStrCSS="WPSD-CSSinstaller (Manual-Update) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]"
 uaStrWI="WPSD-InstallerUpdater (Manual-Update) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]"
+uaStrLB="WPSD-LogBackupInstaller (Manual-Update) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]"
 TICK="[✓]"
 INFO="[i]"
 
@@ -307,8 +309,15 @@ main_function() {
 	fi
 	systemctl restart vnstat.service > /dev/null
 
+	# mmdvmhost log backup services
+	if [ ! -f "/lib/systemd/system/mmdvm-log-backup.service" ] ; then
+	    curl -Ls -A "${uaStrLB}" $LOG_BACKUP_FUNC_REPO -o /tmp/Build-MMDVM-Log-Systemd-Tasks.sh
+	    bash /tmp/Build-MMDVM-Log-Systemd-Tasks.sh > /dev/null 2<&1
+	    rm /tmp/Build-MMDVM-Log-Systemd-Tasks.sh
+	fi
+
 	# update installer
-	curl -Ls -A "${uaStrWI}" ${W0CHP_INSTALL_SCRIPT_REPO} -o /usr/sbin//WPSD-Installer
+	curl -Ls -A "${uaStrWI}" ${W0CHP_INSTALL_SCRIPT_REPO} -o /usr/sbin/WPSD-Installer
 	chmod +x /usr/sbin/WPSD-Installer
 
 	CSS_FILE="/etc/pistar-css.ini"
