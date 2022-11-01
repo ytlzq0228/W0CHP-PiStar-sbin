@@ -21,33 +21,6 @@ else
     fi
 fi
 
-# migrate UUID
-if [ -f /etc/WPSD-release ]; then
-    uuidLen=$( grep UUID /etc/pistar-release | awk '{print $3}' | wc -m > /dev/null )
-    if [[ "${uuidLen}"  -gt "17" ]] ; then
-	rm -f /etc/WPSD-release
-	GU=$( cat /proc/cpuinfo | grep Serial | cut -d ' ' -f 2 )
-	echo "UUID = $GU" >> /etc/pistar-release
-    else
-	echo "UUID = $UUIDck" >> /etc/pistar-release
-	rm -f /etc/WPSD-release
-    fi
-else
-    if ! grep -q UUID /etc/pistar-release ; then
-	GU=$( cat /proc/cpuinfo | grep Serial | cut -d ' ' -f 2 )
-	echo "UUID = $GU" >> /etc/pistar-release
-    fi
-fi
-uuidLen=$( grep UUID /etc/pistar-release | awk '{print $3}' | wc -m > /dev/null )
-if [[ "${uuidLen}"  -gt "17" ]] ; then
-    GU=$( cat /proc/cpuinfo | grep Serial | cut -d ' ' -f 2 )
-    sed -i "/UUID/c\\UUID = ${GU}" /etc/pistar-release
-fi
-if ! [ $( grep UUID /etc/pistar-release | awk '{print $3}' > /dev/null ) ] ; then
-    GU=$( cat /proc/cpuinfo | grep Serial | cut -d ' ' -f 2 )
-    sed -i "/UUID/c\\UUID = ${GU}" /etc/pistar-release
-fi
-
 W0CHP_BIN_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-bin.git"
 OFFICIAL_BIN_REPO="https://github.com/AndyTaylorTweet/Pi-Star_v4_Binaries_Bin.git"
 W0CHP_INSTALL_SCRIPT_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-Installer/raw/branch/master/WPSD-Installer"
