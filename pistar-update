@@ -4,7 +4,7 @@
 #                                                                             #
 #                        Pi-Star Auto Update Tool                             #
 #                                                                             #
-#   Version 3.10.18, Code, Design and Development by Andy Taylor (MW0MWZ)     #
+#   Version 3.10.19, Code, Design and Development by Andy Taylor (MW0MWZ)     #
 #                            Enhanced by W0CHP                                #
 #                                                                             #
 ###############################################################################
@@ -48,6 +48,13 @@ conn_check() {
 }
 
 mount -o remount,rw / > /dev/null 2<&1
+
+# bullseye; change weird interface names* back to what most are accustomed to;
+# <https://wiki.debian.org/NetworkInterfaceNames#THE_.22PREDICTABLE_NAMES.22_SCHEME>
+OS_VER=$( cat /etc/debian_version | sed 's/\..*//')
+if [ "${OS_VER}" -gt "10" ] ; then
+    sed -i 's/$/ net.ifnames=0 biosdevname=0/' /boot/cmdline.txt
+fi
 
 # migrate config update notice
 if grep -q ConfUpdReqd /etc/mmdvmhost ; then

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# W0CHP pistar-daily.cron (enhanced) v3.4.3
+# W0CHP pistar-daily.cron (enhanced) v3.4.4
 #
 
 # Make sure we are root
@@ -77,6 +77,13 @@ pkill pistar-hourly.cron > /dev/null 2>&1
 
 # Make the disk RW
 mount -o remount,rw /
+
+# bullseye; change weird interface names* back to what most are accustomed to;
+# <https://wiki.debian.org/NetworkInterfaceNames#THE_.22PREDICTABLE_NAMES.22_SCHEME>
+OS_VER=$( cat /etc/debian_version | sed 's/\..*//')
+if [ "${OS_VER}" -gt "10" ] ; then
+    sed -i 's/$/ net.ifnames=0 biosdevname=0/' /boot/cmdline.txt
+fi
 
 # maint. tasks
 /usr/local/sbin/wpsd-backend-maint > /dev/null 2>&1
