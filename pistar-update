@@ -200,12 +200,12 @@ main_function() {
 		apt-get clean
 		echo -e "${TICK} Done!\n"
 
-		echo "Checking nginx config"
+		echo "Checking nginx web server config"
 		if ! [ $(cat /lib/systemd/system/nginx.service | grep -o "mkdir") ]; then
 			sed -i '\/PIDFile=\/run\/nginx.pid/a ExecStartPre=\/bin\/mkdir -p \/var\/log\/nginx' /lib/systemd/system/nginx.service
 			systemctl daemon-reload
 			systemctl restart nginx.service
-			echo "nginx config has been repaired - re-running pistar-update"
+			echo "nginx config has been updated by operating system; re-running pistar-update..."
 			exec "$0" "$@"
 			exit 1
 		fi
