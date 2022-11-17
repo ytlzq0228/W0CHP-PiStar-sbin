@@ -310,7 +310,11 @@ main_function() {
                 apt-get install -y php-zip > /dev/null 2>&1
                 apt-get clean > /dev/null 2<&1
                 apt-get autoclean > /dev/null 2<&1
+	    else
+		echo "Yay"  > /dev/null
 	    fi
+	else
+	    echo "Blah, buster :(" > /dev/null
 	fi
 
 	# update installer
