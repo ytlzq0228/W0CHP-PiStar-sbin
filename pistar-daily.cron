@@ -218,9 +218,6 @@ fi
 # ensure bullseye has proper php extensions
 dpkg --configure -a > /dev/null 2>&1
 if [ ! -f "/usr/share/php7.4-zip/zip/zip.ini" ] ; then
-    if [ $( lsb_release -cs) = "bullseye"  ] ; then
-	echo "php-zip (required) not installed on hotspot. Installing now..."
-    fi
     apt-get update > /dev/null
     apt-get install -y php-zip > /dev/null 2>&1
     apt-get clean > /dev/null 2<&1
