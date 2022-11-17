@@ -210,6 +210,11 @@ if [ ! -f "/lib/systemd/system/mmdvm-log-backup.service" ] ; then
     rm /tmp/Build-MMDVM-Log-Systemd-Tasks.sh
 fi
 
+# m17 service installer bugfix:
+if [ ! -f "/etc/systemd/system/m17gateway.service" ] ; then
+    /usr/local/sbin/m17gateway.service install
+fi
+
 # If we are ready to use the new DMRGateway
 if [[ $(/usr/local/bin/DMRGateway --version | awk '{print $3}' | cut -c -8) -gt "20170924" ]] && [[ $(grep -c "\[DMR Network 3\]" /etc/dmrgateway) -eq "1" ]] && [[ ! -f /usr/local/etc/DMR_Audio/no_NO.indx ]]; then
 	curl --fail -o /usr/local/etc/DMR_Audio/de_DE.ambe -s https://raw.githubusercontent.com/g4klx/DMRGateway/master/Audio/de_DE.ambe

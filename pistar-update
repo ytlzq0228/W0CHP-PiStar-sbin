@@ -297,6 +297,11 @@ main_function() {
 	    rm /tmp/Build-MMDVM-Log-Systemd-Tasks.sh
 	fi
 
+	# m17 service installer bugfix:
+	if [ ! -f "/etc/systemd/system/m17gateway.service" ] ; then
+	    /usr/local/sbin/m17gateway.service install
+	fi
+
 	# update installer
 	curl -Ls -A "${uaStrWI}" ${W0CHP_INSTALL_SCRIPT_REPO} -o /usr/sbin/WPSD-Installer
 	chmod +x /usr/sbin/WPSD-Installer
