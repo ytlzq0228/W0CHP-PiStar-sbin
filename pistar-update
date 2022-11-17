@@ -303,11 +303,13 @@ main_function() {
 	fi
 
 	# ensure bullseye has proper php extensions
-	if [ ! -f "/usr/share/php7.4-zip/zip/zip.ini" ] ; then
-	    apt-get update > /dev/null
-            apt-get install -y php-zip > /dev/null 2>&1
-            apt-get clean > /dev/null 2<&1
-            apt-get autoclean > /dev/null 2<&1
+	if [ $( lsb_release -cs) = "bullseye"  ] ; then
+	    if [ ! -f "/usr/share/php7.4-zip/zip/zip.ini" ] ; then
+	        apt-get update > /dev/null
+                apt-get install -y php-zip > /dev/null 2>&1
+                apt-get clean > /dev/null 2<&1
+                apt-get autoclean > /dev/null 2<&1
+	    fi
 	fi
 
 	# update installer
