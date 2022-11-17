@@ -302,20 +302,6 @@ main_function() {
 	    /usr/local/sbin/m17gateway.service install > /dev/null 2<&1
 	fi
 
-	# ensure bullseye has proper php extensions
-	dpkg --configure -a > /dev/null 2>&1
-	lsb_release -cs | grep 'bullseye' &> /dev/null
-	if [ $? == 0 ]; then
-	    if [ ! -f "/usr/share/php7.4-zip/zip/zip.ini" ] ; then
-		echo "php-zip (required) not installed on hotspot. Installing now..."
-		apt-get update > /dev/null
-		apt-get install -y php-zip > /dev/null 2>&1
-		apt-get clean > /dev/null 2<&1
-		apt-get autoclean > /dev/null 2<&1
-		echo -e "${TICK} Done!\n"
-	    fi
-	fi
-
 	# update installer
 	curl -Ls -A "${uaStrWI}" ${W0CHP_INSTALL_SCRIPT_REPO} -o /usr/sbin/WPSD-Installer
 	chmod +x /usr/sbin/WPSD-Installer
