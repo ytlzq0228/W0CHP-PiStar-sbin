@@ -56,20 +56,24 @@ function EnableFirewall() {
 }
 
 function DisableCron() {
+    _rw
     systemctl stop cron.service > /dev/null 2<&1
     systemctl disable cron.service > /dev/null 2<&1
     systemctl mask cron.service > /dev/null 2<&1
         if [ -t 1 ]; then
             echo "Cron Disabled"
+	    _ro
         fi
 }
 
 function EnableCron() {
+    _rw
     systemctl unmask cron.service > /dev/null 2<&1
     systemctl enable cron.service > /dev/null 2<&1
     systemctl start cron.service > /dev/null 2<&1
         if [ -t 1 ]; then
             echo "Cron Enabled"
+	    _ro
         fi
 }
 
