@@ -110,7 +110,7 @@ case "$1" in
 				ipVar=`hostname -I`
 			done
 			chown -R ${USER}:${GROUP} $LOGDIR
-			chmod -R 775 $LOGDIR
+			chmod 775 $LOGDIR
 			nice -n -5 ${DAEMON_PATH}${DAEMON} ${DAEMON_OPTS}
 			echo -e "$DAEMON started as PID "`$PGREP $DAEMON`
 			exit 0;
@@ -134,7 +134,7 @@ case "$1" in
 			$KILL `${PGREP} ${DAEMON}`
 			$SLEEP 3
                         chown -R ${USER}:${GROUP} $LOGDIR
-                        chmod -R 775 $LOGDIR
+                        chmod 775 $LOGDIR
 			nice -n -5 ${DAEMON_PATH}${DAEMON} ${DAEMON_OPTS}
 			echo -e "$DAEMON re-started as PID "`${PGREP} ${DAEMON}`
 			exit 0;
