@@ -525,18 +525,6 @@ main_function() {
         	fi
 	fi
 
-	# reinstall/init
-	if [[ ! -f /etc/m17gateway ]] ; then
-		bash /usr/local/sbin/m17gateway.service install
-		touch /etc/m17gateway
-	fi
-
-	# reinstall/init
-	if [[ ! -f /etc/dgidgateway ]] ; then
-		bash /usr/local/sbin/dgidgateway.service install
-		touch /etc/dgidgateway
-	fi
-
         if [ -f /usr/local/bin/platformDetect.sh ]; then # remove platformDetect.sh since we have a custom version in /usr/local/sbin
 		rm -f /usr/local/bin/platformDetect.sh
         fi
