@@ -59,6 +59,14 @@ if [ "${OS_VER}" -gt "10" ] && [[ ! $(grep "net.ifnames" /boot/cmdline.txt) ]] ;
     sed -i 's/$/ net.ifnames=0 biosdevname=0/' /boot/cmdline.txt
 fi
 
+# ensure pistar-remote config has key-value pairs for new funcs (12/2/22)
+if ! grep -q 'hostfiles=8999995' /etc/pistar-remote ; then
+    sed -i "/^# TG commands.*/a hostfiles=8999995" /etc/pistar-remote
+fi
+if ! grep -q 'reconnect=8999994' /etc/pistar-remote ; then
+    sed -i "/^# TG commands.*/a reconnect=8999994" /etc/pistar-remote
+fi
+
 # maint. tasks
 /usr/local/sbin/wpsd-backend-maint > /dev/null 2>&1
 

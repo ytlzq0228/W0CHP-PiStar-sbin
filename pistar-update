@@ -68,6 +68,14 @@ else
     fi
 fi
 
+# ensure pistar-remote config has key-value pairs for new funcs (12/2/22)
+if ! grep -q 'hostfiles=8999995' /etc/pistar-remote ; then 
+    sed -i "/^# TG commands.*/a hostfiles=8999995" /etc/pistar-remote
+fi
+if ! grep -q 'reconnect=8999994' /etc/pistar-remote ; then 
+    sed -i "/^# TG commands.*/a reconnect=8999994" /etc/pistar-remote
+fi
+
 function GetBinStatus() {
     dir="/usr/local/bin"
     repo=$(git --work-tree=${dir} --git-dir=${dir}/.git config --get remote.origin.url)
