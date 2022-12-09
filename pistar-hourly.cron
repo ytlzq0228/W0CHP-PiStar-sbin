@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Pi-Star Hourly Job Script W0CHP v2.2.6
+# Pi-Star Hourly Job Script W0CHP v2.2.7
 #
 
 # migrate config update notice
@@ -17,7 +17,7 @@ fi
 W0CHP_DASH_BRANCH="$( git --git-dir=/var/www/dashboard/.git branch | grep '*' | awk {'print $2'} )"
 versionCmd=$( git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git rev-parse --short=10 HEAD )
 psVer=$( grep Version /etc/pistar-release | awk '{print $3}' ) 
-uuidStr=$(grep UUID /etc/pistar-release | awk {'print $3'})
+uuidStr=$(egrep 'UUID|ModemType|ModemMode|ControllerType' /etc/pistar-release | awk {'print $3'} | tac | xargs| sed 's/ /_/g')
 
 # used to radomize the cron mins below
 cronMins=$(shuf -i 0-59 -n 1)
