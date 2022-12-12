@@ -76,6 +76,16 @@ if ! grep -q 'reconnect=8999994' /etc/pistar-remote ; then
     sed -i "/^# TG commands.*/a reconnect=8999994" /etc/pistar-remote
 fi
 
+# kill off the lecacy watchdog service
+if ! [ $(systemctl status pistar-watchdog.service | grep -q masked) ]; then
+    systemctl stop pistar-watchdog.timer > /dev/null 2<&1
+    systemctl disable pistar-watchdog.timer > /dev/null 2<&1
+    systemctl mask pistar-watchdog.timer > /dev/null 2<&1
+    systemctl stop pistar-watchdog.service > /dev/null 2<&1
+    systemctl disable pistar-watchdog.service > /dev/null 2<&1
+    systemctl mask pistar-watchdog.service > /dev/null 2<&1
+fi
+
 function GetBinStatus() {
     dir="/usr/local/bin"
     repo=$(git --work-tree=${dir} --git-dir=${dir}/.git config --get remote.origin.url)
