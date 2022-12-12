@@ -2,6 +2,12 @@
 
 mount -o remount,rw /
 
+# cleanup
+if [ $(grep -c 'MMDVMHost' /etc/pistar-release) -gt 2 ]; then
+    sed -i '/MMDVM/d' /etc/pistar-release
+    sed -i "/Version = /a MMDVMHost = " /etc/pistar-release
+fi
+
 # bins are always build in a batch...use MMDVMHost ver as Dstar bin vers...
 getVer=$( MMDVMHost -v | cut -d' ' -f 3- )
 sed -i "/^ircddbgateway.*/c ircddbgateway = ${getVer}" /etc/pistar-release
@@ -86,7 +92,7 @@ fi
 
 # Cache modem and controller types
 if [ -f '/etc/dstar-radio.mmdvmhost' ]; then
-    ControllerType="MMDVMHost"
+    ControllerType="MMDVM"
     ModemType=$( grep Hardware /etc/dstar-radio.mmdvmhost | sed 's/Hardware=//' )
     if ! grep -w 'ModemType' /etc/pistar-release > /dev/null; then
 	sed -i "/ModemMode = /a ModemType = ${ModemType}" /etc/pistar-release

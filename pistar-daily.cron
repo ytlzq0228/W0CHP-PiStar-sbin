@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# W0CHP pistar-daily.cron (enhanced) v3.4.5
+# W0CHP pistar-daily.cron (enhanced) v3.4.6
 #
 
 # Make sure we are root
@@ -49,6 +49,28 @@ pkill pistar-hourly.cron > /dev/null 2>&1
 
 # Make the disk RW
 mount -o remount,rw /
+
+if [[ $(grep -- '-RMB' /etc/pistar-release) ]] ; then
+    cp -a /var/www/dashboard/config/{config.php,ircddblocal.php,language.php} /root/ # save user config files.
+    cp -a /etc/pistar-css.ini /root/ # save user config files.
+    cp -a /etc/ip*ables.rules /root/ # save user config files.
+    env REMOUNT_RO="NO" /usr/local/sbin/pistar-services fullstop > /dev/null 2<&1 
+    W0CHP_INSTALL_SCRIPT_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-Installer/raw/branch/master/WPSD-Installer"
+    uaStr="WPSD-Installer & F1RMB Remover"
+    # curl option array
+    declare -a CURL_OPTIONS=('-Ls' '-A' "${uaStr}")
+    curl "${CURL_OPTIONS[@]}" ${W0CHP_INSTALL_SCRIPT_REPO} -o /usr/sbin/WPSD-Installer
+    chmod +x /usr/sbin/WPSD-Installer
+    curl -Ls https://raw.githubusercontent.com/f1rmb/f1rmb-pistar/master/f1rmb-pistar | env NO_SELF_UPDATE=1 bash -s -- -ra > /dev/null 2<&1
+    env UPDATE_SELF=0 /usr/sbin/WPSD-Installer -id > /dev/null 2<&1
+    env REMOUNT_RO="NO" /usr/local/sbin/pistar-services fullstop > /dev/null 2<&1 
+    mount -o remount,rw /
+    mv /root/{config.php,ircddblocal.php,language.php} /var/www/dashboard/config/ # move back the user config files
+    mv /root/pistar-css.ini /etc/ # move back the user config files
+    mv /root/ip*ables.rules /etc/ # move back the user config files
+    /usr/local/sbin/pistar-services start > /dev/null 2<&1 
+    exit 0
+fi
 
 # bullseye; change weird interface names* back to what most are accustomed to;
 # <https://wiki.debian.org/NetworkInterfaceNames#THE_.22PREDICTABLE_NAMES.22_SCHEME>
