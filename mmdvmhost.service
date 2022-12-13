@@ -61,7 +61,7 @@ case "$1" in
 			#sleep 5
 			nice -n -10 ${DAEMON_PATH}${DAEMON} ${DAEMON_OPTS}
 			echo -e "$DAEMON started as PID "`$PGREP $DAEMON`
-			(sleep 10s; /usr/sbin/service ircddbgateway start)&
+			(sleep 3s; /usr/sbin/service ircddbgateway start)&
 			exit 0;
 		fi
 		;;
@@ -90,7 +90,7 @@ case "$1" in
 			#sleep 5
 			nice -n -10 ${DAEMON_PATH}${DAEMON} ${DAEMON_OPTS}
 			echo -e "$DAEMON re-started as PID "`${PGREP} ${DAEMON}`
-			(sleep 10s; /usr/sbin/service ircddbgateway restart)&
+			(sleep 3s; /usr/sbin/service ircddbgateway restart)&
 			exit 0;
 		else
 			echo -e "$DAEMON is not running"
@@ -100,7 +100,7 @@ case "$1" in
 			#sleep 5
 			nice -n -10 ${DAEMON_PATH}${DAEMON} ${DAEMON_OPTS}
 			echo -e "$DAEMON re-started as PID "`${PGREP} ${DAEMON}`
-			(sleep 10s; /usr/sbin/service ircddbgateway restart)&
+			(sleep 3s; /usr/sbin/service ircddbgateway restart)&
 			exit 0;
 		fi
 		;;
