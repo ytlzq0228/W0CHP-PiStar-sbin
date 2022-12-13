@@ -569,6 +569,9 @@ main_function() {
 	    /usr/local/sbin/pistar-hwcache
 	fi
 
+	# MOTD
+	bash /usr/local/sbin/pistar-motdgen
+
 	# Add pistar-service bash completion
 	DEST="/usr/share/bash-completion/completions/pistar-services"
 	if [ ! -f $DEST ] ; then

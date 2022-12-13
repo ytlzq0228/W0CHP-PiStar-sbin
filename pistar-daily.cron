@@ -162,7 +162,7 @@ gitStatusRemote=$(env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPS
 echo ${gitStatusRemote} > /etc/.W0CHP-PiStar-Dash.remote_version
 
 # Generate /etc/motd
-/usr/local/sbin/pistar-motdgen
+bash /usr/local/sbin/pistar-motdgen
 
 # cleanup legacy naming convention
 if grep -q 'modemcache' /etc/rc.local ; then
