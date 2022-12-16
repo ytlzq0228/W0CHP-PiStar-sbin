@@ -6,7 +6,7 @@
 #      Written for Pi-Star (http://www.pistar.uk/)      #
 #               By Andy Taylor (MW0MWZ)                 #
 #                  Enhanced by W0CHP                    #
-#                    Version 2.10.5                     #
+#                    Version 2.10.6                     #
 #                                                       #
 #   Based on the update script by Tony Corbett G0WFV    #
 #                                                       #
@@ -44,6 +44,7 @@ XLXHOSTS=/usr/local/etc/XLXHosts.txt
 NXDNIDFILE=/usr/local/etc/NXDN.csv
 NXDNHOSTS=/usr/local/etc/NXDNHosts.txt
 TGLISTBM=/usr/local/etc/TGList_BM.txt
+TGLISTTGIF=/usr/local/etc/TGList_TGIF.txt
 TGLISTP25=/usr/local/etc/TGList_P25.txt
 TGLISTNXDN=/usr/local/etc/TGList_NXDN.txt
 TGLISTYSF=/usr/local/etc/TGList_YSF.txt
@@ -78,6 +79,7 @@ if [ ${FILEBACKUP} -ne 0 ]; then
 	cp  ${NXDNIDFILE} ${NXDNIDFILE}.$(date +%Y%m%d)
 	cp  ${NXDNHOSTS} ${NXDNHOSTS}.$(date +%Y%m%d)
 	cp  ${TGLISTBM} ${TGLISTBM}.$(date +%Y%m%d)
+	cp  ${TGLISTTGIF} ${TGLISTBM}.$(date +%Y%m%d)
 	cp  ${TGLISTP25} ${TGLISTP25}.$(date +%Y%m%d)
 	cp  ${TGLISTNXDN} ${TGLISTNXDN}.$(date +%Y%m%d)
 	cp  ${TGLISTYSF} ${TGLISTYSF}.$(date +%Y%m%d)
@@ -101,6 +103,7 @@ ${XLXHOSTS}
 ${NXDNIDFILE}
 ${NXDNHOSTS}
 ${TGLISTBM}
+${TGLISTTGIF}
 ${TGLISTP25}
 ${TGLISTNXDN}
 ${TGLISTYSF}
@@ -150,6 +153,7 @@ curl --fail -L -o ${XLXHOSTS} -s ${hostFileURL}/XLXHosts.txt --user-agent "${uaS
 curl --fail -L -o ${NXDNIDFILE} -s ${hostFileURL}/NXDN.csv --user-agent "${uaStr}"
 curl --fail -L -o ${NXDNHOSTS} -s ${hostFileURL}/NXDN_Hosts.txt --user-agent "${uaStr}"
 curl --fail -L -o ${TGLISTBM} -s ${hostFileURL}/TGList_BM.txt --user-agent "${uaStr}"
+curl --fail -L -o ${TGLISTTGIF} -s ${hostFileURL}/TGList_TGIF.txt --user-agent "${uaStr}"
 curl --fail -L -o ${TGLISTP25} -s ${hostFileURL}/TGList_P25.txt --user-agent "${uaStr}"
 curl --fail -L -o ${TGLISTNXDN} -s ${hostFileURL}/TGList_NXDN.txt --user-agent "${uaStr}"
 curl --fail -L -o ${TGLISTYSF} -s ${hostFileURL}/TGList_YSF.txt --user-agent "${uaStr}"
