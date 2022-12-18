@@ -10,6 +10,11 @@ if [ "$(id -u)" != "0" ]; then
   exit 1
 fi
 
+# ensure repos can be updated
+git config --global --add safe.directory /var/www/dashboard > /dev/null 2<&1
+git config --global --add safe.directory /usr/local/bin > /dev/null 2<&1
+git config --global --add safe.directory /usr/local/sbin > /dev/null 2<&1
+
 # migrate config update notice
 if grep -q ConfUpdReqd /etc/mmdvmhost ; then
     grep ConfUpdReqd /etc/mmdvmhost | sed 's/=/ = /' >> /etc/pistar-release
