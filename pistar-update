@@ -50,9 +50,11 @@ conn_check() {
 mount -o remount,rw / > /dev/null 2<&1
 
 # ensure repos can be updated
-git config --global --add safe.directory /var/www/dashboard > /dev/null 2<&1
-git config --global --add safe.directory /usr/local/bin > /dev/null 2<&1
-git config --global --add safe.directory /usr/local/sbin > /dev/null 2<&1
+if ! grep -q 'safe' /root/.gitconfig > /dev/null 2<&1 ; then
+    git config --global --add safe.directory /var/www/dashboard > /dev/null 2<&1
+    git config --global --add safe.directory /usr/local/bin > /dev/null 2<&1
+    git config --global --add safe.directory /usr/local/sbin > /dev/null 2<&1
+fi
 
 # bullseye; change weird interface names* back to what most are accustomed to;
 # <https://wiki.debian.org/NetworkInterfaceNames#THE_.22PREDICTABLE_NAMES.22_SCHEME>

@@ -15,9 +15,11 @@ else
 fi
 
 # ensure repos can be updated
-git config --global --add safe.directory /var/www/dashboard > /dev/null 2<&1
-git config --global --add safe.directory /usr/local/bin > /dev/null 2<&1
-git config --global --add safe.directory /usr/local/sbin > /dev/null 2<&1
+if ! grep -q 'safe' /root/.gitconfig > /dev/null 2<&1 ; then
+    git config --global --add safe.directory /var/www/dashboard > /dev/null 2<&1
+    git config --global --add safe.directory /usr/local/bin > /dev/null 2<&1
+    git config --global --add safe.directory /usr/local/sbin > /dev/null 2<&1
+fi
 
 W0CHP_DASH_BRANCH="$( git --git-dir=/var/www/dashboard/.git branch | grep '*' | awk {'print $2'} )"
 versionCmd=$( git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git rev-parse --short=10 HEAD )
