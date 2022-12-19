@@ -3,7 +3,7 @@
 #                                                                             #
 #                        Pi-Star Partition Expander                           #
 #                                                                             #
-#    Version 1.1, Code, Design and Development by Andy Taylor (MW0MWZ).       #
+#    Version 1.2, Code, Design and Development by Andy Taylor (MW0MWZ).       #
 #                                                                             #
 #    This script will expand your root file system to fill the SD Card        #
 #                                                                             #
@@ -100,6 +100,7 @@ esac
 EOF
 chmod +x /etc/init.d/resize2fs_once &&
 update-rc.d resize2fs_once defaults &&
+touch /boot/.expanded
 
 # Remount read-only
 mount -o remount,ro /boot
