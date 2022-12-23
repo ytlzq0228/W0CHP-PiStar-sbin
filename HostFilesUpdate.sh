@@ -48,6 +48,7 @@ TGLISTTGIF=/usr/local/etc/TGList_TGIF.txt
 TGLISTFREESTARIPSC2=/usr/local/etc/TGList_FreeStarIPSC.txt
 TGLISTSYSTEMX=/usr/local/etc/TGList_SystemX.txt
 TGLISTFREEDMR=/usr/local/etc/TGList_FreeDMR.txt
+TGLISTDMRPLUS=/usr/local/etc/TGList_DMRp.txt
 TGLISTP25=/usr/local/etc/TGList_P25.txt
 TGLISTNXDN=/usr/local/etc/TGList_NXDN.txt
 TGLISTYSF=/usr/local/etc/TGList_YSF.txt
@@ -86,6 +87,7 @@ if [ ${FILEBACKUP} -ne 0 ]; then
 	cp  ${TGLISTFREESTARIPSC2} ${TGLISTFREESTARIPSC2}.$(date +%Y%m%d)
 	cp  ${TGLISTSYSTEMX} ${TGLISTSYSTEMX}.$(date +%Y%m%d)
 	cp  ${TGLISTFREEDMR} ${TGLISTFREEDMR}.$(date +%Y%m%d)
+	cp  ${TGLISTDMRPLUS} ${TGLISTDMRPLUS}.$(date +%Y%m%d)
 	cp  ${TGLISTP25} ${TGLISTP25}.$(date +%Y%m%d)
 	cp  ${TGLISTNXDN} ${TGLISTNXDN}.$(date +%Y%m%d)
 	cp  ${TGLISTYSF} ${TGLISTYSF}.$(date +%Y%m%d)
@@ -113,6 +115,7 @@ ${TGLISTTGIF}
 ${TGLISTFREESTARIPSC2}
 ${TGLISTSYSTEMX}
 ${TGLISTFREEDMR}
+${TGLISTDMRPLUS}
 ${TGLISTP25}
 ${TGLISTNXDN}
 ${TGLISTYSF}
@@ -166,6 +169,7 @@ curl --fail -L -o ${TGLISTTGIF} -s ${hostFileURL}/TGList_TGIF.txt --user-agent "
 curl --fail -L -o ${TGLISTFREESTARIPSC2} -s ${hostFileURL}/TGList_FreeStarIPSC.txt --user-agent "${uaStr}"
 curl --fail -L -o ${TGLISTSYSTEMX} -s ${hostFileURL}/TGList_SystemX.txt --user-agent "${uaStr}"
 curl --fail -L -o ${TGLISTFREEDMR} -s ${hostFileURL}/TGList_FreeDMR.txt --user-agent "${uaStr}"
+curl --fail -L -o ${TGLISTDMRPLUS} -s ${hostFileURL}/TGList_DMRp.txt --user-agent "${uaStr}"
 curl --fail -L -o ${TGLISTP25} -s ${hostFileURL}/TGList_P25.txt --user-agent "${uaStr}"
 curl --fail -L -o ${TGLISTNXDN} -s ${hostFileURL}/TGList_NXDN.txt --user-agent "${uaStr}"
 curl --fail -L -o ${TGLISTYSF} -s ${hostFileURL}/TGList_YSF.txt --user-agent "${uaStr}"
