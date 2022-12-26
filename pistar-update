@@ -4,7 +4,7 @@
 #                                                                             #
 #                        Pi-Star Auto Update Tool                             #
 #                                                                             #
-#   Version 3.10.20, Code, Design and Development by Andy Taylor (MW0MWZ)     #
+#   Version 3.10.21, Code, Design and Development by Andy Taylor (MW0MWZ)     #
 #                            Enhanced by W0CHP                                #
 #                                                                             #
 ###############################################################################
@@ -83,14 +83,14 @@ if ! grep -q 'reconnect=8999994' /etc/pistar-remote ; then
     sed -i "/^# TG commands.*/a reconnect=8999994" /etc/pistar-remote
 fi
 
-# kill off the lecacy watchdog service
-if ! [ $(systemctl status pistar-watchdog.service | grep -q masked) ]; then
-    systemctl stop pistar-watchdog.timer > /dev/null 2<&1
-    systemctl disable pistar-watchdog.timer > /dev/null 2<&1
-    systemctl mask pistar-watchdog.timer > /dev/null 2<&1
-    systemctl stop pistar-watchdog.service > /dev/null 2<&1
-    systemctl disable pistar-watchdog.service > /dev/null 2<&1
-    systemctl mask pistar-watchdog.service > /dev/null 2<&1
+# watchdog servicee re-init
+if systemctl status pistar-watchdog.service | grep -q masked ; then
+    systemctl unmask pistar-watchdog.service > /dev/null 2<&1
+    systemctl enable pistar-watchdog.service > /dev/null 2<&1
+    systemctl start pistar-watchdog.service > /dev/null 2<&1
+    systemctl unmask pistar-watchdog.timer > /dev/null 2<&1
+    systemctl enable pistar-watchdog.timer > /dev/null 2<&1
+    systemctl start pistar-watchdog.timer > /dev/null 2<&1
 fi
 
 function GetBinStatus() {
