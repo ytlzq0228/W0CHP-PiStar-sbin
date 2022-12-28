@@ -243,6 +243,17 @@ main_function() {
 	env REMOUNT_RO="NO" pistar-services fullstop > /dev/null 2>&1
 	echo -e "${TICK} Done!\n"
 
+	# ensure FS is RW
+	touch /root/.WPSD-updating > /dev/null 2>&1
+	if [ ! -f /root/.WPSD-updating ] ; then
+	    mount -o remount,rw / > /dev/null 2<&1
+	    touch /root/.WPSD-updating > /dev/null 2>&1
+	    if [ ! -f /root/.WPSD-updating ] ; then
+		echo -e "Filesystem could not enter R/W mode...please try updating again.\n"
+		exit 1
+	    fi
+	fi
+
 	if [[ $(GetBinStatus) == 1 ]]; then # "1" = bin switch needed
 	    echo "New binaries required from W0CHP"
 	    echo "Retrieving them now. This will take some time..."
@@ -617,11 +628,12 @@ main_function() {
 	sed -i '/allow 127.0.0.1/d' /etc/nginx/sites-enabled/pi-star
 	sed -i '/deny all/d' /etc/nginx/sites-enabled/pi-star
 	systemctl restart nginx > /dev/null 2<&1
-	pistar-services start > /dev/null 2>&1
+	env REMOUNT_RO="NO" pistar-services start > /dev/null 2>&1
 	echo -e "${TICK} Done!\n"
 
 	echo "Updates complete, syncing disk cache before making the disk Read-Only"
 	# Make the disk read-only
+	rm /root/.WPSD-updating > /dev/null 2>&1
 	/bin/sync
 	/bin/sync
 	/bin/sync
