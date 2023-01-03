@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Pi-Star Hourly Job Script W0CHP v2.2.7
+# Pi-Star Hourly Cron Job Script W0CHP v2.2.8
 #
 
 # migrate config update notice
