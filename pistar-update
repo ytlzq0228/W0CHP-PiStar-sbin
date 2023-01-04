@@ -4,7 +4,7 @@
 #                                                                             #
 #                        Pi-Star Auto Update Tool                             #
 #                                                                             #
-#   Version 3.10.21, Code, Design and Development by Andy Taylor (MW0MWZ)     #
+#   Version 3.10.22, Code, Design and Development by Andy Taylor (MW0MWZ)     #
 #                            Enhanced by W0CHP                                #
 #                                                                             #
 ###############################################################################
@@ -40,10 +40,13 @@ INFO="[i]"
 
 # connectivity check
 conn_check() {
-    status_code=$(curl -m 3 -A "${uaStr}" --write-out %{http_code} --silent --output /dev/null "https://repo.w0chp.net/Chipster/W0CHP-PiStar-Dash.git/info/refs?service=git-upload-pack")
+    echo -e "\n${INFO} Checking for connectivity to the git repository (can take up to 30 seconds; please wait...)"
+    status_code=$(curl -m 30 -A "${uaStr}" --write-out %{http_code} --silent --output /dev/null "https://repo.w0chp.net/Chipster/W0CHP-PiStar-Dash.git/info/refs?service=git-upload-pack")
     if [[ "$status_code" -ne 200 ]] ; then
-	echo -e "Cannot reach git repository. Try again later. Exiting...\n"
+	echo -e "[X] Cannot reach git repository. Try again later. Exiting...\n"
 	exit 1
+    else
+	echo -e "${TICK} Connection established!\n"
     fi
 }
 
