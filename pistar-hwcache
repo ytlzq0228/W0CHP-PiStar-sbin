@@ -125,7 +125,7 @@ DMRnet2=$( grep -A15 'DMR Network 2' /etc/dmrgateway | grep Name | sed 's/Name=/
 if ! grep -w 'DMRGWnet2' /etc/pistar-release > /dev/null; then
     sed -i "/ControllerType /a DMRGWnet2 = ${DMRnet2}" /etc/pistar-release
 else
-    sed -i "/DMRGWnet2/c DMRGWnet2 = ${DMRnet2}" /etc/pistar-release
+    sed -i "/DMRGWnet2/c DMRGWnet2 = Net2:${DMRnet2}" /etc/pistar-release
 fi
 
 # cleanup last line..
