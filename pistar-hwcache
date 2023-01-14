@@ -8,7 +8,7 @@ if [ $(grep -c 'MMDVMHost' /etc/pistar-release) -gt 2 ]; then
     sed -i "/Version = /a MMDVMHost = " /etc/pistar-release
 fi
 
-# bins are always build in a batch...use MMDVMHost ver as Dstar bin vers...
+# bins are sometimes built in a batch...use MMDVMHost ver as Dstar bin git/date vers...
 getVer=$( MMDVMHost -v | cut -d' ' -f 3- )
 sed -i "/^ircddbgateway.*/c ircddbgateway = ${getVer}" /etc/pistar-release
 sed -i "/^dstarrepeater.*/c dstarrepeater = ${getVer}" /etc/pistar-release
@@ -118,6 +118,14 @@ if [ -f '/etc/dstar-radio.dstarrepeater' ]; then
     else
         sed -i "/ControllerType/c ControllerType = ${ControllerType}" /etc/pistar-release
     fi
+fi
+
+# DMR Network 2 has lots of options...
+DMRnet2=$( grep -A15 'DMR Network 2' /etc/dmrgateway | grep Name | sed 's/Name=//g' )
+if ! grep -w 'DMRGWnet2' /etc/pistar-release > /dev/null; then
+    sed -i "/ControllerType /a DMRGWnet2 = ${DMRnet2}" /etc/pistar-release
+else
+    sed -i "/DMRGWnet2/c DMRGWnet2 = ${DMRnet2}" /etc/pistar-release
 fi
 
 # cleanup last line..
