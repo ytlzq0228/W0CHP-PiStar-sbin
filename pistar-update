@@ -40,10 +40,10 @@ INFO="[i]"
 
 # connectivity check
 conn_check() {
-    echo -e "\n${INFO} Checking for connectivity to the git repository (can take up to 30 seconds; please wait...)"
+    echo -e "\nChecking for connectivity to the git repository (can take up to 30 seconds; please wait...)"
     status_code=$(curl -m 30 -A "${uaStr}" --write-out %{http_code} --silent --output /dev/null "https://repo.w0chp.net/Chipster/W0CHP-PiStar-Dash.git/info/refs?service=git-upload-pack")
     if [[ "$status_code" -ne 200 ]] ; then
-	echo -e "[X] Cannot reach git repository. Try again later. Exiting...\n"
+	echo -e "[X] Cannot connect to git repository. Try again later. Exiting...\n"
 	exit 1
     else
 	echo -e "${TICK} Connection established!\n"
@@ -212,7 +212,6 @@ git_update() {
 }
 
 main_function() {
-	conn_check
 	# Make the disk writable and stop cron to prevent it from making it R/O
     	systemctl stop cron.service > /dev/null 2<&1
     	pkill pistar-hourly.cron > /dev/null 2>&1
@@ -222,35 +221,43 @@ main_function() {
 
 	if [ -t 1 ]; then
 		# This is running from a terminal, so it should be safe to update the OS
-		echo -e "Updating OS...\n"
-		apt-get update
-		apt-get upgrade --fix-missing --fix-broken -y
-		apt-get clean
+		echo -e "Checking for, and applying any available operating system updates..."
+		apt-get -q=2 update
+		if apt-get upgrade --dry-run | grep -qo "0 upgraded" ; then
+		    echo -e "${INFO} Operating system updates available; installing now..."
+		    apt-get upgrade --fix-missing --fix-broken -y
+		    apt-get -q=2 autoremove -y
+		    apt-get -q=2 clean
+		    apt-get -q=2 autoclean
+		else
+		    echo -e "${INFO} No operating system updates required."
+		fi
 		# ensure bullseye has proper php extensions
 		dpkg --configure -a > /dev/null 2>&1
 		lsb_release -cs | grep 'bullseye' &> /dev/null
 		if [ $? == 0 ]; then
 		    if [ ! -f "/usr/share/php7.4-zip/zip/zip.ini" ] ; then
-			echo -e "Installing missing php-zip package..."
-		        apt-get install -y php-zip > /dev/null 2>&1
-		        apt-get clean > /dev/null 2<&1
-		        apt-get autoclean > /dev/null 2<&1
+			echo -e "Installing required 'php-zip' package..."
+		        apt-get -q=2 install -y php-zip > /dev/null 2>&1
+		        apt-get -q=2 clean > /dev/null 2<&1
+		        apt-get -q=2 autoclean > /dev/null 2<&1
 		    fi
 		fi
 		echo -e "${TICK} Done!\n"
 
-		echo "Checking nginx web server config"
+		echo "Checking nginx web server configuration"
 		if ! [ $(cat /lib/systemd/system/nginx.service | grep -o "mkdir") ]; then
 			sed -i '\/PIDFile=\/run\/nginx.pid/a ExecStartPre=\/bin\/mkdir -p \/var\/log\/nginx' /lib/systemd/system/nginx.service
 			systemctl daemon-reload
 			systemctl restart nginx.service
-			echo "nginx config has been updated by operating system; re-running pistar-update..."
+			echo "nginx configuration has been updated by operating system; restarting update..."
 			exec "$0" "$@"
 			exit 1
 		fi
-		echo -e "${TICK} Done!\n"
+		echo -e "${TICK} Done!"
 	fi
 
+	conn_check
 	echo "Stopping Services..."
 	# maint. tasks
 	/usr/local/sbin/wpsd-backend-maint > /dev/null 2>&1
@@ -331,6 +338,7 @@ main_function() {
 	# tmpfs for vnstat
 	if ! grep -q vnstat /etc/fstab ; then
 	    systemctl stop vnstat.service > /dev/null
+	    umount /var/lib/vnstat > /dev/null
 	    rm -rf /var/lib/vnstat > /dev/null
 	    mkdir -p /var/lib/vnstat > /dev/null
 	    chown -R vnstat:vnstat /var/lib/vnstat > /dev/null
