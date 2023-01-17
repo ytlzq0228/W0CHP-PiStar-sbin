@@ -221,9 +221,9 @@ main_function() {
 
 	if [ -t 1 ]; then
 		# This is running from a terminal, so it should be safe to update the OS
-		echo -e "Checking for, and applying any available operating system updates..."
+		echo -e "\nChecking for, and applying any available operating system updates..."
 		apt-get -q=2 update
-		if apt-get upgrade --dry-run | grep -qo "0 upgraded" ; then
+		if ! apt-get upgrade --dry-run | grep -qo "0 upgraded" ; then
 		    echo -e "${INFO} Operating system updates available; installing now..."
 		    apt-get upgrade --fix-missing --fix-broken -y
 		    apt-get -q=2 autoremove -y
