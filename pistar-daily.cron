@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# W0CHP pistar-daily.cron (enhanced) v3.4.8
+# W0CHP pistar-daily.cron (enhanced) v3.4.9
 #
 
 # Make sure we are root
@@ -262,10 +262,11 @@ if [ ! -f "/etc/systemd/system/m17gateway.service" ] ; then
     systemctl daemon-reload > /dev/null 2<&1
 fi
 
-# ensure bullseye has proper php extensions
+# ensure bullseye has proper php extensions and use ff-only for newer git strategy
 dpkg --configure -a > /dev/null 2>&1
 lsb_release -cs | grep 'bullseye' &> /dev/null
 if [ $? == 0 ]; then
+    git config --global pull.ff only
     if [ ! -f "/usr/share/php7.4-zip/zip/zip.ini" ] ; then
 	apt-get update > /dev/null
 	apt-get install -y php-zip > /dev/null 2>&1

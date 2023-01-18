@@ -4,7 +4,7 @@
 #                                                                             #
 #                        Pi-Star Auto Update Tool                             #
 #                                                                             #
-#   Version 3.10.22, Code, Design and Development by Andy Taylor (MW0MWZ)     #
+#   Version 3.10.23, Code, Design and Development by Andy Taylor (MW0MWZ)     #
 #                            Enhanced by W0CHP                                #
 #                                                                             #
 ###############################################################################
@@ -57,6 +57,11 @@ if ! grep -q 'safe' /root/.gitconfig > /dev/null 2<&1 ; then
     git config --global --add safe.directory /var/www/dashboard > /dev/null 2<&1
     git config --global --add safe.directory /usr/local/bin > /dev/null 2<&1
     git config --global --add safe.directory /usr/local/sbin > /dev/null 2<&1
+fi
+# ensure bullseye uses ff-only for newer git strategy
+lsb_release -cs | grep 'bullseye' &> /dev/null
+if [ $? == 0 ]; then
+    git config --global pull.ff only
 fi
 
 # bullseye; change weird interface names* back to what most are accustomed to;
