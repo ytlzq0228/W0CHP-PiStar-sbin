@@ -6,7 +6,7 @@
 #      Written for Pi-Star (http://www.pistar.uk/)      #
 #               By Andy Taylor (MW0MWZ)                 #
 #                  Enhanced by W0CHP                    #
-#                    Version 2.10.8                     #
+#                     Version 2.11                      #
 #                                                       #
 #   Based on the update script by Tony Corbett G0WFV    #
 #                                                       #
@@ -183,7 +183,7 @@ curl --fail -L -o ${TGLISTYSF} -s ${hostFileURL}/TGList_YSF.txt --user-agent "${
 curl --fail -L -o ${COUNTRIES} -s ${hostFileURL}/country.csv --user-agent "${uaStr}"
 curl --fail -L -o ${BMTGNAMES} -s ${hostFileURL}/BM_TGs.json --user-agent "${uaStr}"
 
-# live caller and nextion screens:
+# BM TG List for live caller and nextion screens:
 cp ${BMTGNAMES} ${GROUPSTXT}
 
 # If there is a DMR Over-ride file, add it's contents to DMR_Hosts.txt
@@ -273,11 +273,13 @@ if [ -d "/usr/local/etc/ircddbgateway" ]; then
 	fi
 fi
 
-# Nextion and LiveCaller DB's
+# Nextion and LiveCaller DMR ID DB's
 curl --fail -L -o ${RADIOIDDB}.bz2 -s ${hostFileURL}/user.csv.bz2 --user-agent "${uaStr}"
 bunzip2 -f ${RADIOIDDB}.bz2
-# strip first line of DMRdb and cleanup
-sed -e '1d' < /tmp/user.csv > ${STRIPPED}
+# sort
+cat /tmp/user.csv /tmp/stripped.csv 2>/dev/null | sort -un -k1n -o ${STRIPPED}
+# remove header
+sed -ie '1d' ${STRIPPED}
 mv ${RADIOIDDB} /usr/local/etc
 
 exit 0

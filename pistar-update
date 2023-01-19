@@ -4,7 +4,7 @@
 #                                                                             #
 #                        Pi-Star Auto Update Tool                             #
 #                                                                             #
-#   Version 3.10.23, Code, Design and Development by Andy Taylor (MW0MWZ)     #
+#      Version 3.11, Code, Design and Development by Andy Taylor (MW0MWZ)     #
 #                            Enhanced by W0CHP                                #
 #                                                                             #
 ###############################################################################
@@ -359,6 +359,45 @@ main_function() {
 	    bash /tmp/Build-MMDVM-Log-Systemd-Tasks.sh > /dev/null 2<&1
 	    rm /tmp/Build-MMDVM-Log-Systemd-Tasks.sh
 	fi
+
+	# Setup systemd unit files for Nextion Driver
+	echo '[Unit]' > /lib/systemd/system/nextiondriver.service
+	echo 'Description=NextionDriver service' >> /lib/systemd/system/nextiondriver.service
+	echo 'DefaultDependencies=no' >> /lib/systemd/system/nextiondriver.service
+	echo 'After=local-fs.target wifi-country.service network-online.target' >> /lib/systemd/system/nextiondriver.service
+	echo 'Before=timers.target' >> /lib/systemd/system/nextiondriver.service
+	echo '' >> /lib/systemd/system/nextiondriver.service
+	echo '[Service]' >> /lib/systemd/system/nextiondriver.service
+	echo 'User=root' >> /lib/systemd/system/nextiondriver.service
+	echo 'Type=forking' >> /lib/systemd/system/nextiondriver.service
+	echo 'WorkingDirectory=/usr/local/etc/' >> /lib/systemd/system/nextiondriver.service
+	echo 'ExecStart=/usr/local/bin/NextionDriver -c /etc/mmdvmhost -i' >> /lib/systemd/system/nextiondriver.service
+	echo 'ExecStop=/usr/bin/killall NextionDriver' >> /lib/systemd/system/nextiondriver.service
+	echo '' >> /lib/systemd/system/nextiondriver.service
+	echo '[Install]' >> /lib/systemd/system/nextiondriver.service
+	echo 'WantedBy=multi-user.target' >> /lib/systemd/system/nextiondriver.service
+	echo 'WantedBy=network-online.target' >> /lib/systemd/system/nextiondriver.service
+	echo 'RequiredBy=mmdvmhost.service' >> /lib/systemd/system/nextiondriver.service
+	echo '[Unit]' > /lib/systemd/system/mmdvmhost.service
+	echo 'Description=MMDVMHost Radio Service' >> /lib/systemd/system/mmdvmhost.service
+	echo 'After=syslog.target network.target' >> /lib/systemd/system/mmdvmhost.service
+	echo 'Requires=nextiondriver.service' >> /lib/systemd/system/mmdvmhost.service
+	echo '' >> /lib/systemd/system/mmdvmhost.service
+	echo '[Service]' >> /lib/systemd/system/mmdvmhost.service
+	echo 'Type=forking' >> /lib/systemd/system/mmdvmhost.service
+	echo 'ExecStart=/usr/local/sbin/mmdvmhost.service start' >> /lib/systemd/system/mmdvmhost.service
+	echo 'ExecStop=/usr/local/sbin/mmdvmhost.service stop' >> /lib/systemd/system/mmdvmhost.service
+	echo 'ExecReload=/usr/local/sbin/mmdvmhost.service restart' >> /lib/systemd/system/mmdvmhost.service
+	echo '' >> /lib/systemd/system/mmdvmhost.service
+	echo '[Install]' >> /lib/systemd/system/mmdvmhost.service
+	echo 'WantedBy=multi-user.target' >> /lib/systemd/system/mmdvmhost.service
+	# Enable the NextionDriver service
+	systemctl daemon-reload > /dev/null 2<&1
+	systemctl stop nextiondriver.service > /dev/null 2<&1
+	/usr/bin/killall NextionDriver > /dev/null 2<&1
+	systemctl enable nextiondriver.service > /dev/null 2<&1
+	systemctl restart nextiondriver.service > /dev/null 2<&1
+	systemctl restart mmdvmhost.service > /dev/null 2<&1
 
 	# m17 service installer bugfix:
 	if [ ! -f "/etc/systemd/system/m17gateway.service" ] ; then

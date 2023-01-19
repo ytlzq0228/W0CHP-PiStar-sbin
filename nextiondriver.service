@@ -9,7 +9,7 @@
 #                                                       #
 #         based on work of Andy Taylor (MW0MWZ)         #
 #                                                       #
-#                     Version 1.0                       #
+#                     Version 1.1                       #
 #                                                       #
 #########################################################
 
@@ -36,6 +36,11 @@ if [ ! -d $LOGDIR ]; then
   mkdir -p $LOGDIR
   chown ${USER}:${GROUP} $LOGDIR
   chmod 775 $LOGDIR
+fi
+
+# Only start if NextionDriver is enabled in MMDVMHost config...
+if [ "`sed -nr "/^\[NextionDriver\]/,/^\[/{ :l /^\s*[^#].*/ p; n; /^\[/ q; b l; }" /etc/mmdvmhost | grep "Enable" | cut -d= -f 2`" != "1" ]; then
+	exit 0;
 fi
 
 case "$1" in
