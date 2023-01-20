@@ -411,6 +411,11 @@ main_function() {
 	curl -Ls -A "${uaStrWI}" ${W0CHP_INSTALL_SCRIPT_REPO} -o /usr/sbin/WPSD-Installer
 	chmod +x /usr/sbin/WPSD-Installer
 
+	# add CallLookupProvider to /etc/pistar-release if not there...
+	if ! grep -q 'CallLookupProvider =' /etc/pistar-release ; then
+	   sed -i '/ConfUpdReqd/a CallLookupProvider = QRZ' /etc/pistar-release
+	fi
+
 	CSS_FILE="/etc/pistar-css.ini"
 	# if css does not exist, install default one
 	if [ ! -f $CSS_FILE ] ; then
