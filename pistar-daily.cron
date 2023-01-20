@@ -116,6 +116,11 @@ if ! grep -q 'Before=mmdvmhost.timer' /lib/systemd/system/aprsgateway.service ; 
     sed -i '/After=/a Before=mmdvmhost.timer ircddbgateway.timer ysfgateway.timer nxdngateway.timer dgidgateway.timer' /lib/systemd/system/aprsgateway.service
 fi
 
+# add CallLookupProvider to /etc/pistar-release if not there...
+if ! grep -q 'CallLookupProvider =' /etc/pistar-release ; then
+   sed -i '/ConfUpdReqd/a CallLookupProvider = QRZ' /etc/pistar-release
+fi
+
 # New CSS mappings and funcs (git master #e2d2e9d092)...have to reset :-/
 CSS_FILE="/etc/pistar-css.ini"
 if [ ! -f $CSS_FILE ] ; then
