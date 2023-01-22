@@ -227,6 +227,22 @@ main_function() {
 	if [ -t 1 ]; then
 		# This is running from a terminal, so it should be safe to update the OS
 		echo -e "\nChecking for, and applying any available operating system updates..."
+		# ensure all proper sec/update repos are defined for bullseye
+		lsb_release -cs | grep 'bullseye' &> /dev/null
+		if [ $? == 0 ]; then
+		    if ! grep -q 'bullseye-security' /etc/apt/sources.list ; then
+		        if ! apt-key list | grep -q "Debian Security Archive Automatic Signing Key (11/bullseye)" > /dev/null 2<&1; then
+		            apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 54404762BBB6E853 > /dev/null 2<&1
+		        fi
+		        echo "deb http://security.debian.org/debian-security bullseye-security main contrib non-free" >> /etc/apt/sources.list
+		    fi
+		    if ! grep -q 'bullseye-updates' /etc/apt/sources.list  ; then
+		        if ! apt-key list | grep -q "Debian Archive Automatic Signing Key (11/bullseye)" > /dev/null 2<&1 ; then
+		            apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 0E98404D386FA1D9 > /dev/null 2<&1
+		        fi
+		        echo "deb http://deb.debian.org/debian bullseye-updates main contrib non-free" >> /etc/apt/sources.list
+		    fi
+		fi
 		apt-get -q=2 update
 		if ! apt-get upgrade --dry-run | grep -qo "0 upgraded" ; then
 		    echo -e "${INFO} Operating system updates available; installing now..."
