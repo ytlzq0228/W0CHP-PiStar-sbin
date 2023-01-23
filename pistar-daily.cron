@@ -272,13 +272,13 @@ lsb_release -cs | grep 'bullseye' &> /dev/null
 if [ $? == 0 ]; then
     if ! grep -q 'bullseye-security' /etc/apt/sources.list ; then
 	if ! apt-key list | grep -q "Debian Security Archive Automatic Signing Key (11/bullseye)" > /dev/null 2<&1; then
-	    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 54404762BBB6E853 > /dev/null 2<&1
+	    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 54404762BBB6E853 > /dev/null 2<&1
 	fi
 	echo "deb http://security.debian.org/debian-security bullseye-security main contrib non-free" >> /etc/apt/sources.list
     fi
     if ! grep -q 'bullseye-updates' /etc/apt/sources.list  ; then
 	if ! apt-key list | grep -q "Debian Archive Automatic Signing Key (11/bullseye)" > /dev/null 2<&1 ; then
-	    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 0E98404D386FA1D9 > /dev/null 2<&1
+	    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0E98404D386FA1D9 > /dev/null 2<&1
 	fi
 	echo "deb http://deb.debian.org/debian bullseye-updates main contrib non-free" >> /etc/apt/sources.list
     fi
