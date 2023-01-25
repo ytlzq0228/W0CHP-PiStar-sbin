@@ -388,8 +388,8 @@ main_function() {
 	    echo 'User=root' >> /lib/systemd/system/nextiondriver.service
 	    echo 'Type=forking' >> /lib/systemd/system/nextiondriver.service
 	    echo 'WorkingDirectory=/usr/local/etc/' >> /lib/systemd/system/nextiondriver.service
-	    echo 'ExecStart=/usr/local/bin/NextionDriver -c /etc/mmdvmhost -i' >> /lib/systemd/system/nextiondriver.service
-	    echo 'ExecStop=/usr/bin/killall NextionDriver' >> /lib/systemd/system/nextiondriver.service
+	    echo 'ExecStart=/usr/local/sbin/nextiondriver.service start' >> /lib/systemd/system/nextiondriver.service
+	    echo 'ExecStop=/usr/local/sbin/nextiondriver.service stop' >> /lib/systemd/system/nextiondriver.service
 	    echo '' >> /lib/systemd/system/nextiondriver.service
 	    echo '[Install]' >> /lib/systemd/system/nextiondriver.service
 	    echo 'WantedBy=multi-user.target' >> /lib/systemd/system/nextiondriver.service
@@ -415,6 +415,13 @@ main_function() {
 	    systemctl enable nextiondriver.service > /dev/null 2<&1
 	    systemctl restart nextiondriver.service > /dev/null 2<&1
 	    systemctl restart mmdvmhost.service > /dev/null 2<&1
+	fi
+	if [ -f '/etc/systemd/system/mmdvmhost.service.requires/nextiondriver.service' ] ; then # fix bug calling binary directly vs. services script...
+	    if grep -qo 'NextionDriver -c' /lib/systemd/system/nextiondriver.service ; then
+		sed -i '/ExecStart=/c ExecStart=/usr/local/sbin/nextiondriver.service start' /lib/systemd/system/nextiondriver.service
+		sed -i '/ExecStop=/c ExecStop=/usr/local/sbin/nextiondriver.service stop' /lib/systemd/system/nextiondriver.service
+		systemctl daemon-reload > /dev/null 2<&1
+	    fi
 	fi
 
 	# m17 service installer bugfix:
