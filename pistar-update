@@ -42,11 +42,11 @@ INFO="[i]"
 conn_check() {
     echo -e "\nChecking for connectivity to the git repository (can take up to 30 seconds; please wait...)"
     status_code=$(curl -m 30 -A "${uaStr}" --write-out %{http_code} --silent --output /dev/null "https://repo.w0chp.net/Chipster/W0CHP-PiStar-Dash.git/info/refs?service=git-upload-pack")
-    if [[ "$status_code" -ne 200 ]] ; then
+    if [[ $status_code == 20* ]] || [[ $status_code == 30* ]] ; then
+	echo -e "${TICK} Connection established!\n"
+    else
 	echo -e "[X] Cannot connect to git repository. Try again later. Exiting...\n"
 	exit 1
-    else
-	echo -e "${TICK} Connection established!\n"
     fi
 }
 
