@@ -64,7 +64,7 @@ function stop_services()
     systemctl stop aprsgateway.service > /dev/null 2>&1
     systemctl stop gpsd.service > /dev/null 2>&1
     systemctl stop timeserver.service > /dev/null 2>&1
-    systemctl stop nextiondriver.service > /dev/null 2>&1
+    #systemctl stop nextiondriver.service > /dev/null 2>&1
     echo -e "\b\b\b: DONE.\b"
     # Mount the disk RO
     if [ x"$REMOUNT_RO" != "xNO" ]; then
@@ -84,7 +84,7 @@ function start_services()
     echo -ne "Starting Pi-Star services..."
     
     systemctl daemon-reload > /dev/null 2>/dev/null # Restart Systemd to account for any service changes 
-    systemctl start nextiondriver.service > /dev/null 2>&1
+    #systemctl start nextiondriver.service > /dev/null 2>&1
     systemctl start gpsd.service > /dev/null 2>&1
     systemctl start aprsgateway.service > /dev/null 2>&1
     systemctl start dapnetgateway.service > /dev/null 2>&1
