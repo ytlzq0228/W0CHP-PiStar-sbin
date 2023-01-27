@@ -284,6 +284,18 @@ if [ -f '/etc/systemd/system/mmdvmhost.service.requires/nextiondriver.service' ]
         systemctl restart mmdvmhost.service > /dev/null 2<&1
     fi
 fi
+# now, disable nextion driver stuff if it's not config'd in mmdvmhost...
+if [ "`sed -nr "/^\[General\]/,/^\[/{ :l /^\s*[^#].*/ p; n; /^\[/ q; b l; }" /etc/mmdvmhost | grep "Display" | cut -d= -f 2`" != "Nextion" ]; then
+    if grep -qo 'nextiondriver' /lib/systemd/system/mmdvmhost.service ; then
+        sed -i '/nextiondriver/d' /lib/systemd/system/mmdvmhost.service
+        systemctl daemon-reload > /dev/null 2<&1
+    fi
+    systemctl stop nextiondriver.service > /dev/null 2<&1
+    /usr/bin/killall NextionDriver > /dev/null 2<&1
+    systemctl disable nextiondriver.service > /dev/null 2<&1
+    systemctl mask nextiondriver.service > /dev/null 2<&1
+    systemctl daemon-reload > /dev/null 2<&1
+fi
 
 # m17 service installer bugfix:
 if [ ! -f "/etc/systemd/system/m17gateway.service" ] ; then
