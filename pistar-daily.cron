@@ -32,6 +32,7 @@ W0CHP_BIN_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-bin.git"
 OFFICIAL_BIN_REPO="https://github.com/AndyTaylorTweet/Pi-Star_v4_Binaries_Bin.git"
 W0CHP_INSTALL_SCRIPT_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-Installer/raw/branch/master/WPSD-Installer"
 LOG_BACKUP_FUNC_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-Installer/raw/branch/master/supporting-files/Build-MMDVM-Log-Systemd-Tasks.sh"
+NEXTION_UNIT_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-Installer/raw/branch/master/supporting-files/nextiondriver.service"
 W0CHP_DASH_BRANCH="$( git --git-dir=/var/www/dashboard/.git branch | grep '*' | awk {'print $2'} )"
 versionCmd=$( git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git rev-parse --short=10 HEAD )
 uuidStr=$(egrep 'UUID|ModemType|ModemMode|ControllerType' /etc/pistar-release | awk {'print $3'} | tac | xargs| sed 's/ /_/g')
@@ -263,49 +264,24 @@ fi
 
 # Setup systemd unit files for Nextion Driver
 if  [ ! -f "/etc/systemd/system/mmdvmhost.service.requires/nextiondriver.service" ] ; then
-    echo '[Unit]' > /lib/systemd/system/nextiondriver.service
-    echo 'Description=NextionDriver service' >> /lib/systemd/system/nextiondriver.service
-    echo 'DefaultDependencies=no' >> /lib/systemd/system/nextiondriver.service
-    echo 'After=local-fs.target wifi-country.service network-online.target' >> /lib/systemd/system/nextiondriver.service
-    echo 'Before=timers.target' >> /lib/systemd/system/nextiondriver.service
-    echo '' >> /lib/systemd/system/nextiondriver.service
-    echo '[Service]' >> /lib/systemd/system/nextiondriver.service
-    echo 'User=root' >> /lib/systemd/system/nextiondriver.service
-    echo 'Type=forking' >> /lib/systemd/system/nextiondriver.service
-    echo 'WorkingDirectory=/usr/local/etc/' >> /lib/systemd/system/nextiondriver.service
-    echo 'ExecStart=/usr/local/sbin/nextiondriver.service start' >> /lib/systemd/system/nextiondriver.service
-    echo 'ExecStop=/usr/local/sbin/nextiondriver.service stop' >> /lib/systemd/system/nextiondriver.service
-    echo '' >> /lib/systemd/system/nextiondriver.service
-    echo '[Install]' >> /lib/systemd/system/nextiondriver.service
-    echo 'WantedBy=multi-user.target' >> /lib/systemd/system/nextiondriver.service
-    echo 'WantedBy=network-online.target' >> /lib/systemd/system/nextiondriver.service
-    echo 'RequiredBy=mmdvmhost.service' >> /lib/systemd/system/nextiondriver.service
-    echo '[Unit]' > /lib/systemd/system/mmdvmhost.service
-    echo 'Description=MMDVMHost Radio Service' >> /lib/systemd/system/mmdvmhost.service
-    echo 'After=syslog.target network.target' >> /lib/systemd/system/mmdvmhost.service
-    echo 'Requires=nextiondriver.service' >> /lib/systemd/system/mmdvmhost.service
-    echo '' >> /lib/systemd/system/mmdvmhost.service
-    echo '[Service]' >> /lib/systemd/system/mmdvmhost.service
-    echo 'Type=forking' >> /lib/systemd/system/mmdvmhost.service
-    echo 'ExecStart=/usr/local/sbin/mmdvmhost.service start' >> /lib/systemd/system/mmdvmhost.service
-    echo 'ExecStop=/usr/local/sbin/mmdvmhost.service stop' >> /lib/systemd/system/mmdvmhost.service
-    echo 'ExecReload=/usr/local/sbin/mmdvmhost.service restart' >> /lib/systemd/system/mmdvmhost.service
-    echo '' >> /lib/systemd/system/mmdvmhost.service
-    echo '[Install]' >> /lib/systemd/system/mmdvmhost.service
-    echo 'WantedBy=multi-user.target' >> /lib/systemd/system/mmdvmhost.service
+    curl -Ls $NEXTION_UNIT_REPO -o /lib/systemd/system/nextiondriver.service
     # Enable the NextionDriver service
-    systemctl daemon-reload
-    systemctl stop nextiondriver.service
-    /usr/bin/killall NextionDriver
-    systemctl enable nextiondriver.service
-    systemctl restart nextiondriver.service
-    systemctl restart mmdvmhost.service
+    systemctl daemon-reload > /dev/null 2<&1
+    systemctl stop nextiondriver.service > /dev/null 2<&1
+    /usr/bin/killall NextionDriver > /dev/null 2<&1
+    systemctl enable nextiondriver.service > /dev/null 2<&1
+    systemctl restart nextiondriver.service > /dev/null 2<&1
+    systemctl restart mmdvmhost.service > /dev/null 2<&1
 fi
-if [ -f '/etc/systemd/system/mmdvmhost.service.requires/nextiondriver.service' ] ; then # fix bug calling binary directly vs. services script...
-    if grep -qo 'NextionDriver -c' /lib/systemd/system/nextiondriver.service ; then
-        sed -i '/ExecStart=/c ExecStart=/usr/local/sbin/nextiondriver.service start' /lib/systemd/system/nextiondriver.service
-        sed -i '/ExecStop=/c ExecStop=/usr/local/sbin/nextiondriver.service stop' /lib/systemd/system/nextiondriver.service
+if [ -f '/etc/systemd/system/mmdvmhost.service.requires/nextiondriver.service' ] ; then
+    if ! grep -qo 'killall' /lib/systemd/system/nextiondriver.service ; then
+        curl -Ls $NEXTION_UNIT_REPO -o /lib/systemd/system/nextiondriver.service
         systemctl daemon-reload > /dev/null 2<&1
+        systemctl stop nextiondriver.service > /dev/null 2<&1
+        /usr/bin/killall NextionDriver > /dev/null 2<&1
+        systemctl enable nextiondriver.service > /dev/null 2<&1
+        systemctl restart nextiondriver.service > /dev/null 2<&1
+        systemctl restart mmdvmhost.service > /dev/null 2<&1
     fi
 fi
 
