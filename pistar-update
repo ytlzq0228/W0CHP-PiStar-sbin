@@ -32,6 +32,7 @@ modelName=$(grep -m 1 'model name' /proc/cpuinfo | sed 's/.*: //')
 hardwareField=$(grep 'Model' /proc/cpuinfo | sed 's/.*: //')
 hwDeetz="${hardwareField} - ${modelName}"
 uaStr="WPSD-Update (Manual-Update) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]"
+uaStrSF="WPSD-SuppFiles (Manual Update) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]"
 TICK="[✓]"
 INFO="[i]"
 
