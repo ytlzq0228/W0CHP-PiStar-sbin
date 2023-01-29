@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# W0CHP pistar-daily.cron (enhanced) v3.5
+# W0CHP pistar-daily.cron (enhanced) v3.6
 #
 
 # Make sure we are root
@@ -31,8 +31,7 @@ fi
 W0CHP_BIN_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-bin.git"
 OFFICIAL_BIN_REPO="https://github.com/AndyTaylorTweet/Pi-Star_v4_Binaries_Bin.git"
 W0CHP_INSTALL_SCRIPT_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-Installer/raw/branch/master/WPSD-Installer"
-LOG_BACKUP_FUNC_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-Installer/raw/branch/master/supporting-files/Build-MMDVM-Log-Systemd-Tasks.sh"
-NEXTION_UNIT_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-Installer/raw/branch/master/supporting-files/nextiondriver.service"
+SUPPORTING_FILES_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-Installer/raw/branch/master/supporting-files"
 W0CHP_DASH_BRANCH="$( git --git-dir=/var/www/dashboard/.git branch | grep '*' | awk {'print $2'} )"
 versionCmd=$( git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git rev-parse --short=10 HEAD )
 uuidStr=$(egrep 'UUID|ModemType|ModemMode|ControllerType' /etc/pistar-release | awk {'print $3'} | tac | xargs| sed 's/ /_/g')
@@ -42,14 +41,14 @@ hwDeetz="${hardwareField} - ${modelName}"
 cronMins=$(shuf -i 0-59 -n 1)
 cronHours=$(shuf -i 1-4 -n1)
 tz=$( date +%Z )
-uaStr="WPSD-ConnectivityCheck (Daily-Cron [${cronHours}:${cronMins} ${tz}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]"
-uaStrCSS="WPSD-CSSinstaller (Daily-Cron [${cronHours}:${cronMins} ${tz}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]"
-uaStrWI="WPSD-InstallerUpdater (Daily-Cron [${cronHours}:${cronMins} ${tz}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]"
-uaStrLB="WPSD-LogBackupInstaller (Daily-Cron [${cronHours}:${cronMins} ${tz}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]"
+uaStr="WPSD-Daily-Cron [${cronHours}:${cronMins} ${tz}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]"
+uaStrSF="WPSD-SuppFiles (Daily-Cron [${cronHours}:${cronMins} ${tz}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]"
  
 # connectivity check
 status_code=$(curl -m 3 -A "${uaStr}" --write-out %{http_code} --silent --output /dev/null "https://repo.w0chp.net/Chipster/W0CHP-PiStar-Dash.git/info/refs?service=git-upload-pack")
-if [[ "$status_code" -ne 200 ]] ; then
+if [[ $status_code == 20* ]] || [[ $status_code == 30* ]] ; then
+    echo -e "Connection established!\n"
+else
     exit 1
 fi
 
@@ -63,7 +62,6 @@ if [[ $(grep -- '-RMB' /etc/pistar-release) ]] ; then
     cp -a /etc/pistar-css.ini /root/ # save user config files.
     cp -a /etc/ip*ables.rules /root/ # save user config files.
     env REMOUNT_RO="NO" /usr/local/sbin/pistar-services fullstop > /dev/null 2<&1 
-    W0CHP_INSTALL_SCRIPT_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-Installer/raw/branch/master/WPSD-Installer"
     uaStr="WPSD-Installer & F1RMB Remover"
     # curl option array
     declare -a CURL_OPTIONS=('-Ls' '-A' "${uaStr}")
@@ -125,7 +123,7 @@ fi
 # New CSS mappings and funcs (git master #e2d2e9d092)...have to reset :-/
 CSS_FILE="/etc/pistar-css.ini"
 if [ ! -f $CSS_FILE ] ; then
-    curl -Ls -A "${uaStrCSS}" https://repo.w0chp.net/Chipster/W0CHP-PiStar-Installer/raw/branch/master/supporting-files/pistar-css-dist.ini -o /etc/pistar-css.ini
+    curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/pistar-css-dist.ini -o /etc/pistar-css.ini
 fi
 # New CSS mappings and funcs (git master #e2d2e9d092)...have to reset :-/
 if [ -f $CSS_FILE ] && [ ! $( grep 'TextLinkColor' $CSS_FILE) ] ; then
@@ -221,10 +219,10 @@ GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-C
 rm -f $(find /var/log/pi-star/*.log -type f -mtime +1 -print)
 rm -f $(find /var/log/ -type f -mtime +0 -print | grep .gz)
 
-# Shrink NxinX error log to stop it getting out of hand
+# Shrink nginx error log to stop it getting out of hand
 echo "$(tail -500 /var/log/nginx/error.log)" > /var/log/nginx/error.log
 
-# Pre-Fix some config in MMDVMHost for update purposes.
+# Pre-Fix some configs in MMDVMHost for update purposes.
 mmdvmHostVer=`MMDVMHost -v | awk '{print $3}' | cut -c 1-8`
 needsUpdate=`grep -c Gwy /etc/mmdvmhost`
 if [ ${mmdvmHostVer} \> 20171031 ] && [ ${needsUpdate} \> 0 ]; then
@@ -252,19 +250,19 @@ if [[ "${p25GwToLen}"  -lt "4" ]] ; then
 fi
 
 # update installer
-curl -Ls -A "${uaStrWI}" ${W0CHP_INSTALL_SCRIPT_REPO} -o /usr/sbin/WPSD-Installer
+curl -Ls -A "${uaStrSF}" ${W0CHP_INSTALL_SCRIPT_REPO} -o /usr/sbin/WPSD-Installer
 chmod +x /usr/sbin/WPSD-Installer
 
 # mmdvmhost log backup services
 if [ ! -f "/lib/systemd/system/mmdvm-log-backup.service" ] ; then
-    curl -Ls -A "${uaStrLB}" $LOG_BACKUP_FUNC_REPO -o /tmp/Build-MMDVM-Log-Systemd-Tasks.sh
+    curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/Build-MMDVM-Log-Systemd-Tasks.sh -o /tmp/Build-MMDVM-Log-Systemd-Tasks.sh
     bash /tmp/Build-MMDVM-Log-Systemd-Tasks.sh > /dev/null 2<&1
     rm /tmp/Build-MMDVM-Log-Systemd-Tasks.sh
 fi
 
 # Setup systemd unit files for Nextion Driver
 if  [ ! -f "/etc/systemd/system/mmdvmhost.service.requires/nextiondriver.service" ] ; then
-    curl -Ls $NEXTION_UNIT_REPO -o /lib/systemd/system/nextiondriver.service
+    curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/nextiondriver.service -o /lib/systemd/system/nextiondriver.service
     # Enable the NextionDriver service
     systemctl daemon-reload > /dev/null 2<&1
     systemctl stop nextiondriver.service > /dev/null 2<&1
@@ -275,7 +273,7 @@ if  [ ! -f "/etc/systemd/system/mmdvmhost.service.requires/nextiondriver.service
 fi
 if [ -f '/etc/systemd/system/mmdvmhost.service.requires/nextiondriver.service' ] ; then
     if ! grep -qo 'killall' /lib/systemd/system/nextiondriver.service ; then
-        curl -Ls $NEXTION_UNIT_REPO -o /lib/systemd/system/nextiondriver.service
+        curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/nextiondriver.service -o /lib/systemd/system/nextiondriver.service
         systemctl daemon-reload > /dev/null 2<&1
         systemctl stop nextiondriver.service > /dev/null 2<&1
         /usr/bin/killall NextionDriver > /dev/null 2<&1

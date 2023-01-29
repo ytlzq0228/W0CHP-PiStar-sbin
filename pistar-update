@@ -4,7 +4,7 @@
 #                                                                             #
 #                        Pi-Star Auto Update Tool                             #
 #                                                                             #
-#      Version 3.11, Code, Design and Development by Andy Taylor (MW0MWZ)     #
+#      Version 3.12, Code, Design and Development by Andy Taylor (MW0MWZ)     #
 #                            Enhanced by W0CHP                                #
 #                                                                             #
 ###############################################################################
@@ -25,28 +25,24 @@ psVer=$( grep Version /etc/pistar-release | awk '{print $3}' )
 W0CHP_DASH_BRANCH="$( git --git-dir=/var/www/dashboard/.git branch | grep '*' | awk {'print $2'} )"
 W0CHP_BIN_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-bin.git"
 OFFICIAL_BIN_REPO="https://github.com/AndyTaylorTweet/Pi-Star_v4_Binaries_Bin.git"
+SUPPORTING_FILES_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-Installer/raw/branch/master/supporting-files"
 W0CHP_INSTALL_SCRIPT_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-Installer/raw/branch/master/WPSD-Installer"
-LOG_BACKUP_FUNC_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-Installer/raw/branch/master/supporting-files/Build-MMDVM-Log-Systemd-Tasks.sh"
-NEXTION_UNIT_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-Installer/raw/branch/master/supporting-files/nextiondriver.service"
 uuidStr=$(egrep 'UUID|ModemType|ModemMode|ControllerType' /etc/pistar-release | awk {'print $3'} | tac | xargs| sed 's/ /_/g')
 modelName=$(grep -m 1 'model name' /proc/cpuinfo | sed 's/.*: //')
 hardwareField=$(grep 'Model' /proc/cpuinfo | sed 's/.*: //')
 hwDeetz="${hardwareField} - ${modelName}"
-uaStr="WPSD-ConnectivityCheck (Manual-Update) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]"
-uaStrCSS="WPSD-CSSinstaller (Manual-Update) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]"
-uaStrWI="WPSD-InstallerUpdater (Manual-Update) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]"
-uaStrLB="WPSD-LogBackupInstaller (Manual-Update) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]"
+uaStr="WPSD-Update (Manual-Update) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]"
 TICK="[✓]"
 INFO="[i]"
 
 # connectivity check
 conn_check() {
-    echo -e "\nChecking for connectivity to the git repository (can take up to 30 seconds; please wait...)"
+    echo -e "\nChecking for connectivity to the W0CHP Update Server (can take up to 30 seconds; please wait...)"
     status_code=$(curl -m 30 -A "${uaStr}" --write-out %{http_code} --silent --output /dev/null "https://repo.w0chp.net/Chipster/W0CHP-PiStar-Dash.git/info/refs?service=git-upload-pack")
     if [[ $status_code == 20* ]] || [[ $status_code == 30* ]] ; then
 	echo -e "${TICK} Connection established!\n"
     else
-	echo -e "[X] Cannot connect to git repository. Try again later. Exiting...\n"
+	echo -e "[X] Cannot connect to the W0CHP Update Server. Try again later. Exiting...\n"
 	exit 1
     fi
 }
@@ -333,6 +329,8 @@ main_function() {
     	fi
 	echo -e "${TICK} Done!\n"
 
+	echo "Performing maintenance tasks..."
+
         # Check for gpsd
 	systemctl disable mobilegps.timer > /dev/null 2<&1
 	systemctl disable mobilegps.service > /dev/null 2<&1
@@ -372,14 +370,14 @@ main_function() {
 
 	# mmdvmhost log backup services
 	if [ ! -f "/lib/systemd/system/mmdvm-log-backup.service" ] ; then
-	    curl -Ls -A "${uaStrLB}" $LOG_BACKUP_FUNC_REPO -o /tmp/Build-MMDVM-Log-Systemd-Tasks.sh
+	    curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/Build-MMDVM-Log-Systemd-Tasks.sh -o /tmp/Build-MMDVM-Log-Systemd-Tasks.sh
 	    bash /tmp/Build-MMDVM-Log-Systemd-Tasks.sh > /dev/null 2<&1
 	    rm /tmp/Build-MMDVM-Log-Systemd-Tasks.sh
 	fi
 
 	# Setup systemd unit files for Nextion Driver
 	if  [ ! -f "/etc/systemd/system/mmdvmhost.service.requires/nextiondriver.service" ] ; then
-	    curl -Ls $NEXTION_UNIT_REPO -o /lib/systemd/system/nextiondriver.service
+	    curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/nextiondriver.service  -o /lib/systemd/system/nextiondriver.service
 	    # Enable the NextionDriver service
 	    systemctl daemon-reload > /dev/null 2<&1
 	    systemctl stop nextiondriver.service > /dev/null 2<&1
@@ -390,7 +388,7 @@ main_function() {
 	fi
 	if [ -f '/etc/systemd/system/mmdvmhost.service.requires/nextiondriver.service' ] ; then
 	    if ! grep -qo 'killall' /lib/systemd/system/nextiondriver.service ; then
-		curl -Ls $NEXTION_UNIT_REPO -o /lib/systemd/system/nextiondriver.service
+		curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/nextiondriver.service  -o /lib/systemd/system/nextiondriver.service
 		systemctl daemon-reload > /dev/null 2<&1
 		systemctl stop nextiondriver.service > /dev/null 2<&1
 		/usr/bin/killall NextionDriver > /dev/null 2<&1
@@ -419,7 +417,7 @@ main_function() {
 	fi
 
 	# update installer
-	curl -Ls -A "${uaStrWI}" ${W0CHP_INSTALL_SCRIPT_REPO} -o /usr/sbin/WPSD-Installer
+	curl -Ls -A "${uaStrSF}" ${W0CHP_INSTALL_SCRIPT_REPO} -o /usr/sbin/WPSD-Installer
 	chmod +x /usr/sbin/WPSD-Installer
 
 	# add CallLookupProvider to /etc/pistar-release if not there...
@@ -430,7 +428,7 @@ main_function() {
 	CSS_FILE="/etc/pistar-css.ini"
 	# if css does not exist, install default one
 	if [ ! -f $CSS_FILE ] ; then
-	    curl -Ls -A "${uaStrCSS}" https://repo.w0chp.net/Chipster/W0CHP-PiStar-Installer/raw/branch/master/supporting-files/pistar-css-dist.ini -o /etc/pistar-css.ini
+	    curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/pistar-css-dist.ini -o /etc/pistar-css.ini
 	fi
 	# New CSS mappings and funcs (git master #e2d2e9d092)...have to reset :-/
 	if [ -f $CSS_FILE ] && [ ! $( grep 'TextLinkColor' $CSS_FILE) ] ; then
@@ -705,6 +703,8 @@ main_function() {
 	# log file perms
 	chown -R mmdvm:mmdvm /var/log/pi-star > /dev/null 2>&1
 	chmod 775 /var/log/pi-star > /dev/null 2>&1
+
+	echo -e "${TICK} Done!\n"
 
 	echo "Starting Services..."
 	# re-sec. nginx after interrupted installation
