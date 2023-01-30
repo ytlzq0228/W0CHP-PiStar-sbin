@@ -141,7 +141,7 @@ else
   if [ "${2}" == "Disable" ] && [ ! -f "/etc/${1}_paused" ]; then
     touch /etc/${1}_paused
   fi
-  sleep 1
+  sync && sync && sync
   mount -o remount,ro /
   systemctl start cron.service > /dev/null 2>/dev/null &
 fi
