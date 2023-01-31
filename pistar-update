@@ -4,7 +4,7 @@
 #                                                                             #
 #                        Pi-Star Auto Update Tool                             #
 #                                                                             #
-#      Version 3.12, Code, Design and Development by Andy Taylor (MW0MWZ)     #
+#      Version 3.13, Code, Design and Development by Andy Taylor (MW0MWZ)     #
 #                            Enhanced by W0CHP                                #
 #                                                                             #
 ###############################################################################
@@ -276,7 +276,7 @@ main_function() {
 	echo "Stopping Services..."
 	# maint. tasks
 	/usr/local/sbin/wpsd-backend-maint > /dev/null 2>&1
-	env REMOUNT_RO="NO" pistar-services fullstop > /dev/null 2>&1
+	pistar-services fullstop > /dev/null 2>&1
 	echo -e "${TICK} Done!\n"
 
 	# ensure FS is RW
@@ -708,11 +708,10 @@ main_function() {
 	sed -i '/allow 127.0.0.1/d' /etc/nginx/sites-enabled/pi-star
 	sed -i '/deny all/d' /etc/nginx/sites-enabled/pi-star
 	systemctl restart nginx > /dev/null 2<&1
-	env REMOUNT_RO="NO" pistar-services start > /dev/null 2>&1
+	pistar-services start > /dev/null 2>&1
 	echo -e "${TICK} Done!\n"
 
 	echo "Updates complete, syncing disk cache before making the disk Read-Only"
-	# Make the disk read-only
 	rm /root/.WPSD-updating > /dev/null 2>&1
 	/bin/sync
 	/bin/sync
