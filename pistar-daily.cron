@@ -54,7 +54,6 @@ fi
 
 pkill pistar-hourly.cron > /dev/null 2>&1
 
-mount -o remount,rw /
 
 if [[ $(grep -- '-RMB' /etc/pistar-release) ]] ; then
     cp -a /var/www/dashboard/config/{config.php,ircddblocal.php,language.php} /root/ # save user config files.
@@ -69,7 +68,6 @@ if [[ $(grep -- '-RMB' /etc/pistar-release) ]] ; then
     curl -Ls https://raw.githubusercontent.com/f1rmb/f1rmb-pistar/master/f1rmb-pistar | env NO_SELF_UPDATE=1 bash -s -- -ra > /dev/null 2<&1
     env UPDATE_SELF=0 /usr/sbin/WPSD-Installer -id > /dev/null 2<&1
     env REMOUNT_RO="NO" /usr/local/sbin/pistar-services fullstop > /dev/null 2<&1 
-    mount -o remount,rw /
     mv /root/{config.php,ircddblocal.php,language.php} /var/www/dashboard/config/ # move back the user config files
     mv /root/pistar-css.ini /etc/ # move back the user config files
     mv /root/ip*ables.rules /etc/ # move back the user config files
@@ -81,7 +79,6 @@ fi
 # <https://wiki.debian.org/NetworkInterfaceNames#THE_.22PREDICTABLE_NAMES.22_SCHEME>
 OS_VER=$( cat /etc/debian_version | sed 's/\..*//')
 if [ "${OS_VER}" -gt "10" ] && [[ ! $(grep "net.ifnames" /boot/cmdline.txt) ]] ; then
-    mount -o remount,rw /boot > /dev/null 2<&1
     sed -i 's/$/ net.ifnames=0 biosdevname=0/' /boot/cmdline.txt
 fi
 

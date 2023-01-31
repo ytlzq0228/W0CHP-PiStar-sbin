@@ -11,7 +11,6 @@ if grep -q W0CHP /var/www/dashboard/config/version.php ; then
 fi
 
 function _rw() {
-    mount -o remount,rw /
 }
 
 function _ro() {

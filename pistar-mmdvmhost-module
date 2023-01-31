@@ -127,7 +127,6 @@ else
   # Change required, so lets change it...
   echo "Setting ${MODULE} to ${NEW_STATUS} and reloading..."
   systemctl stop cron.service > /dev/null 2>/dev/null &
-  mount -o remount,rw /
   if [ "${MODULE}" == "APRS" ]; then
       sed -i "/\[Enabled\]/{n;s/${CUR_STATUS}/${NEW_STATUS}/}" ${APRSGWCONFIG}
       systemctl restart ${SYSCTL_APRSGW}

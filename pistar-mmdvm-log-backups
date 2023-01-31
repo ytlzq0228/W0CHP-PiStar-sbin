@@ -9,7 +9,6 @@ if [ ! -d /var/log/pi-star ]; then
 fi
 xro=$(grep "/dev/root" /proc/mounts | sed -n "s/.*\(r[ow]\).*/\1/p")
 if [ "$xro" == "ro" ]; then
-  sudo mount -o remount,rw / ; sudo mount -o remount,rw /boot
 fi
 
 rbt=0

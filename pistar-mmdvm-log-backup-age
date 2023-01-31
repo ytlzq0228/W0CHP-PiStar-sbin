@@ -6,7 +6,6 @@
 
 xro=$(grep "/dev/root" /proc/mounts | sed -n "s/.*\(r[ow]\).*/\1/p")
 if [ "$xro" == "ro" ]; then
-  sudo mount -o remount,rw /
 fi
 
 file=/home/pi-star/.backup-mmdvmhost-logs

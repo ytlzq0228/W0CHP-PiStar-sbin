@@ -10,7 +10,6 @@ else
 fi
 
 # save current static tgs first...
-mount -o remount,rw /
 curl "${BMapiURL}" -o /etc/.bm_tgs.json.saved
 sync
 

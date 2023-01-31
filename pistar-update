@@ -48,7 +48,6 @@ conn_check() {
     fi
 }
 
-mount -o remount,rw / > /dev/null 2<&1
 
 # ensure repos can be updated
 if ! grep -q 'safe' /root/.gitconfig > /dev/null 2<&1 ; then
@@ -66,7 +65,6 @@ fi
 # <https://wiki.debian.org/NetworkInterfaceNames#THE_.22PREDICTABLE_NAMES.22_SCHEME>
 OS_VER=$( cat /etc/debian_version | sed 's/\..*//')
 if [ "${OS_VER}" -gt "10" ] && [[ ! $(grep "net.ifnames" /boot/cmdline.txt) ]] ; then
-    mount -o remount,rw /boot > /dev/null 2<&1
     sed -i 's/$/ net.ifnames=0 biosdevname=0/' /boot/cmdline.txt
 fi
 
@@ -219,8 +217,6 @@ main_function() {
     	systemctl stop cron.service > /dev/null 2<&1
     	pkill pistar-hourly.cron > /dev/null 2>&1
     	pkill pistar-daily.cron > /dev/null 2>&1
-	mount -o remount,rw / > /dev/null 2<&1
-	mount -o remount,rw /boot > /dev/null 2<&1
 
 	if [ -t 1 ]; then
 		# This is running from a terminal, so it should be safe to update the OS
@@ -286,7 +282,6 @@ main_function() {
 	# ensure FS is RW
 	touch /root/.WPSD-updating > /dev/null 2>&1
 	if [ ! -f /root/.WPSD-updating ] ; then
-	    mount -o remount,rw / > /dev/null 2<&1
 	    touch /root/.WPSD-updating > /dev/null 2>&1
 	    if [ ! -f /root/.WPSD-updating ] ; then
 		echo -e "Filesystem could not enter R/W mode...please try updating again.\n"

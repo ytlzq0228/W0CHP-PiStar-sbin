@@ -24,7 +24,6 @@ modemSpeed=$(grep -m 1 'UARTSpeed=' /etc/mmdvmhost | awk -F "=" '/UARTSpeed/ {pr
 echo "Stopping Pi-Star Services..."
 
 # Make the disk RW
-mount -o remount,rw /
 
 # Stop the services
 systemctl stop pistar-watchdog.timer >/dev/null 2>&1

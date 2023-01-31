@@ -36,8 +36,6 @@ main_function() {
 	# Get the hardware type, this may be important later (RPi | NanoPi | OdroidXU4)
 	pistarHardware=$(awk -F "= " '/Hardware/ {print $2}' /etc/pistar-release)
 
-	mount -o remount,rw /
-	mount -o remount,rw /boot
 
 	echo "Detected Pi-Star ${pistarCurVersion} running on ${pistarHardware} hardware, attached to ${pistarModem} modem..."
 
@@ -779,8 +777,6 @@ main_function() {
 		echo '' >> /etc/systemd/system/apt-daily.service
 		echo '[Service]' >> /etc/systemd/system/apt-daily.service
 		echo 'Type=oneshot' >> /etc/systemd/system/apt-daily.service
-		echo 'ExecStartPre=/bin/mount -o remount,rw /' >> /etc/systemd/system/apt-daily.service
-		echo 'ExecStartPre=/bin/mount -o remount,rw /boot' >> /etc/systemd/system/apt-daily.service
 		echo 'ExecStart=/usr/lib/apt/apt.systemd.daily update' >> /etc/systemd/system/apt-daily.service
 
 		#apt-daily-upgrade.service 
@@ -792,8 +788,6 @@ main_function() {
 		echo '' >> /etc/systemd/system/apt-daily-upgrade.service
 		echo '[Service]' >> /etc/systemd/system/apt-daily-upgrade.service
 		echo 'Type=oneshot' >> /etc/systemd/system/apt-daily-upgrade.service
-		echo 'ExecStartPre=/bin/mount -o remount,rw /' >> /etc/systemd/system/apt-daily-upgrade.service
-		echo 'ExecStartPre=/bin/mount -o remount,rw /boot' >> /etc/systemd/system/apt-daily-upgrade.service
 		echo 'ExecStart=/usr/lib/apt/apt.systemd.daily install' >> /etc/systemd/system/apt-daily-upgrade.service
 		echo 'KillMode=process' >> /etc/systemd/system/apt-daily-upgrade.service
 		echo 'TimeoutStopSec=900' >> /etc/systemd/system/apt-daily-upgrade.service
@@ -954,7 +948,6 @@ main_function() {
 
 		# Fix up random seed
 		cp /lib/systemd/system/systemd-random-seed.service /etc/systemd/system/systemd-random-seed.service
-		sed -i '/ExecStart=\/lib\/systemd\/systemd-random-seed load/a ExecStop=\/bin\/mount -o remount,rw \/' /etc/systemd/system/systemd-random-seed.service
 		rm -rf /var/lib/systemd/random-seed
 
 		# Update systemd and enable new services
@@ -1151,7 +1144,6 @@ main_function() {
 		sed -i '/^\/usr\/local\/sbin\/pistar-motdgen/a \\n# Shuffle the time for the daily crontab jobs' /etc/rc.local
 		sed -i '/^# Shuffle the time for the daily crontab jobs/a cronMins=$(shuf -i 0-59 -n 1)' /etc/rc.local
 		sed -i '/^cronMins=*/a cronHours=$(shuf -i 3-4 -n1)' /etc/rc.local
-		sed -i '/^cronHours=*/a mount -o remount,rw \/\nsed -i "/cron.daily/c ${cronMins} ${cronHours}\t* * *\troot\tcd / && run-parts --report /etc/cron.daily" /etc/crontab' /etc/rc.local
 
 		# OK we are done
 		Message="Upgraded from ${pistarCurVersion} to 4.1.3..."

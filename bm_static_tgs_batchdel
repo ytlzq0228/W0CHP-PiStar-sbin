@@ -24,7 +24,6 @@ else
 fi
 
 # delete unused file
-mount -o remount,rw /
 rm -f /var/www/dashboard/.bm_tgs.batch
 sync
 

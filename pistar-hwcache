@@ -1,6 +1,5 @@
 #!/bin/bash
 
-mount -o remount,rw /
 
 # cleanup
 if [ $(grep -c 'MMDVMHost' /etc/pistar-release) -gt 2 ]; then

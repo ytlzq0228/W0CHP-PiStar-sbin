@@ -40,8 +40,6 @@ systemctl stop ysfgateway.service 2>&1
 systemctl stop p25gateway.service 2>&1
 
 # Make the disk writable
-mount -o remount,rw / 2>&1
-mount -o remount,rw /boot 2>&1
 
 # Overwrite the configs
 rm -f /etc/dstar-radio.* 2>&1
