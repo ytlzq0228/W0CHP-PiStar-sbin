@@ -23,7 +23,6 @@ function status_services() {
 function stop_services()
 {
     [[ $SHLVL -gt 2 ]] && 
-        # Mount the disk RW only if NOT called from installer (or another) script
     
     echo -ne "Stopping Pi-Star services..."
 
@@ -65,12 +64,9 @@ function stop_services()
     systemctl stop timeserver.service > /dev/null 2>&1
     #systemctl stop nextiondriver.service > /dev/null 2>&1
     echo -e "\b\b\b: DONE.\b"
-    # Mount the disk RO
-    if [ x"$REMOUNT_RO" != "xNO" ]; then
-	/bin/sync
-	/bin/sync
-	/bin/sync
-    fi
+    /bin/sync
+    /bin/sync
+    /bin/sync
 }
 
 function start_services()
@@ -116,12 +112,9 @@ function start_services()
     systemctl is-active --quiet cron.service || systemctl start cron.service
 
     echo -e "\b\b\b: DONE.\b"
-    # Mount the disk RO
-    if [ x"$REMOUNT_RO" != "xNO" ]; then
-	/bin/sync
-	/bin/sync
-	/bin/sync
-    fi
+    /bin/sync
+    /bin/sync
+    /bin/sync
 }
 
 case "$1" in
