@@ -722,8 +722,6 @@ main_function() {
 	/bin/sync
 	/bin/sync
 	/bin/sync
-	mount -o remount,ro / > /dev/null 2<&1
-	mount -o remount,ro /boot > /dev/null 2<&1
 	systemctl start cron.service > /dev/null 2<&1
 	echo -e "${TICK} Finished!"
 	if [ ! -t 1 ]; then # only output if not called from tty

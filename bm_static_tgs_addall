@@ -29,6 +29,5 @@ fi
 mount -o remount,rw /
 rm -f /etc/.bm_tgs.json.saved
 sync
-mount -o remount,ro /
 
 exit 0

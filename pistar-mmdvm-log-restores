@@ -53,6 +53,5 @@ if [ -d /home/pi-star/.backup-mmdvmhost-logs ]; then
        sudo systemctl start mmdvmhost.service
     fi
     if [ "$xro" == "ro" ]; then
-       sudo mount -o remount,ro / ; sudo mount -o remount,ro /boot
     fi
 fi

@@ -52,7 +52,6 @@ killall MMDVMCal >/dev/null 2>&1
 echo "Starting Pi-Star Services..."
 
 # Set the disk back to RO on MMDVMCal exit
-mount -o remount,ro /
 
 # Start the services
 systemctl start pistar-watchdog.timer >/dev/null 2>&1

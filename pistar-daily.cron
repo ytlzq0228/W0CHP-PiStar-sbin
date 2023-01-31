@@ -54,7 +54,6 @@ fi
 
 pkill pistar-hourly.cron > /dev/null 2>&1
 
-# Make the disk RW
 mount -o remount,rw /
 
 if [[ $(grep -- '-RMB' /etc/pistar-release) ]] ; then
@@ -524,7 +523,7 @@ else
 fi
 
 # Randomize the time for the daily cron jobs
-sed -i "/cron.daily/c ${cronMins} ${cronHours}	* * *	root	mount -o remount,rw / && cd / && run-parts --report /etc/cron.daily" /etc/crontab
+sed -i "/cron.daily/c ${cronMins} ${cronHours}	* * *	root	cd / && run-parts --report /etc/cron.daily" /etc/crontab
 
 # Start all the services...
 #systemctl daemon-reload &> /dev/null # Reload systemd to account for service changes

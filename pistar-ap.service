@@ -109,7 +109,6 @@ case "$1" in
 			systemctl start dnsmasq
 			echo -e "$DNSMASQDAEMON started as PID "`$PGREP $DNSMASQDAEMON`
 		fi
-		mount -o remount,ro /
 		exit 0
 		;;
 	stop)
@@ -130,7 +129,6 @@ case "$1" in
 		fi
 		ifdown wlan0_ap
 		iw dev wlan0_ap del
-		mount -o remount,ro /
 		exit 0
 		;;
 	restart)
@@ -169,7 +167,6 @@ case "$1" in
 			systemctl start dnsmasq
 			echo -e "$DNSMASQDAEMON started as PID "`$PGREP $DNSMASQDAEMON`
 		fi
-		mount -o remount,ro /
 		exit 0
 		;;
 	status)

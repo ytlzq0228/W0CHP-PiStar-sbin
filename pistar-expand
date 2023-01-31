@@ -103,8 +103,6 @@ update-rc.d resize2fs_once defaults &&
 touch /boot/.expanded
 
 # Remount read-only
-mount -o remount,ro /boot
-mount -o remount,ro /
 
 # Finished, so tell the user
 echo "Partition expansion has been completed, please reboot to expand the filesystem to fill it"

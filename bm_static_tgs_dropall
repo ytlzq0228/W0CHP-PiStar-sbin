@@ -13,7 +13,6 @@ fi
 mount -o remount,rw /
 curl "${BMapiURL}" -o /etc/.bm_tgs.json.saved
 sync
-mount -o remount,ro /
 
 # do the deed
 if [ ${#1} -lt 200 ] ; then

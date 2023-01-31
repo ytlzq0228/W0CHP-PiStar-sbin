@@ -31,5 +31,4 @@ fi
 logger -t "[$$]" "Pi-Star --> MMDVM log backups aged: $m2 files <--"
 
 if [ "$xro" == "ro" ]; then
-  sudo mount -o remount,ro /
 fi

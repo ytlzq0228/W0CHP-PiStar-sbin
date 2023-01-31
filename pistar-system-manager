@@ -18,7 +18,6 @@ function _ro() {
     sync
     sync
     sync
-    mount -o remount,ro /
 }
 
 function DisableFirewall() {

@@ -142,6 +142,5 @@ else
     touch /etc/${1}_paused
   fi
   sync && sync && sync
-  mount -o remount,ro /
   systemctl start cron.service > /dev/null 2>/dev/null &
 fi

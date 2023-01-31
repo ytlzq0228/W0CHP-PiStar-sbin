@@ -38,5 +38,4 @@ if [ $rbt == 1 ]; then
 fi
 
 if [ "$xro" == "ro" ]; then
-  sudo mount -o remount,ro / ; sudo mount -o remount,ro /boot
 fi
