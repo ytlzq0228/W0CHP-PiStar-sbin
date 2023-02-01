@@ -19,6 +19,7 @@ shift $(($OPTIND - 1))
 
 if [ -d /home/pi-star/.backup-mmdvmhost-logs ]; then
     if [ "$xro" == "ro" ]; then
+	echo $xro
     fi
     if [ "$xmv" == "active" ]; then
        sudo systemctl stop mmdvmhost.service
@@ -52,5 +53,6 @@ if [ -d /home/pi-star/.backup-mmdvmhost-logs ]; then
        sudo systemctl start mmdvmhost.service
     fi
     if [ "$xro" == "ro" ]; then
+	echo $xro
     fi
 fi

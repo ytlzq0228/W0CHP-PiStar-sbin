@@ -9,6 +9,7 @@ if [ ! -d /var/log/pi-star ]; then
 fi
 xro=$(grep "/dev/root" /proc/mounts | sed -n "s/.*\(r[ow]\).*/\1/p")
 if [ "$xro" == "ro" ]; then
+    echo $xro
 fi
 
 rbt=0
@@ -37,4 +38,5 @@ if [ $rbt == 1 ]; then
 fi
 
 if [ "$xro" == "ro" ]; then
+    echo $xro
 fi
