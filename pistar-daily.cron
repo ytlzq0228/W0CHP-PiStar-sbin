@@ -521,6 +521,9 @@ else
     /usr/local/sbin/pistar-system-manager -efw > /dev/null 2>&1
 fi
 
+# run any slipstream tasks
+bash /usr/local/sbin/slipstream-tasks.sh > /dev/null 2>&1
+
 # Randomize the time for the daily cron jobs
 sed -i "/cron.daily/c ${cronMins} ${cronHours}	* * *	root	cd / && run-parts --report /etc/cron.daily" /etc/crontab
 

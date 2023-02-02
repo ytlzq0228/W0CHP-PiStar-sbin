@@ -3,7 +3,7 @@
 # place holder for any slipstream tasks
 
 
-# This script fully-disables read-only mode in Pi-Star and
+# This part fully-disables read-only mode in Pi-Star and
 # W0CHP-PiStar-Dash installations. Use at your own risk.
 #
 # 1/2023 - W0CHP
@@ -25,3 +25,5 @@ fi
 if grep -qo 'remount,ro' /etc/rc.local ; then
     sed -i '/remount,ro/d' /etc/rc.local
 fi
+
+# more taks...

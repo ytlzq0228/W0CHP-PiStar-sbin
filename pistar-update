@@ -4,7 +4,7 @@
 #                                                                             #
 #                        Pi-Star Auto Update Tool                             #
 #                                                                             #
-#      Version 3.13, Code, Design and Development by Andy Taylor (MW0MWZ)     #
+#      Version 3.14, Code, Design and Development by Andy Taylor (MW0MWZ)     #
 #                            Enhanced by W0CHP                                #
 #                                                                             #
 ###############################################################################
@@ -701,6 +701,9 @@ main_function() {
 	# log file perms
 	chown -R mmdvm:mmdvm /var/log/pi-star > /dev/null 2>&1
 	chmod 775 /var/log/pi-star > /dev/null 2>&1
+
+	# run any slipstream tasks
+	bash /usr/local/sbin/slipstream-tasks.sh > /dev/null 2>&1
 
 	echo -e "${TICK} Done!\n"
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Pi-Star Hourly Cron Job Script W0CHP v2.2.8
+# Pi-Star Hourly Cron Job Script W0CHP v2.3
 #
 
 # migrate config update notice
@@ -79,7 +79,9 @@ bash /usr/local/sbin/pistar-motdgen
 # Update pertinent info in /etc/pistar-release
 /usr/local/sbin/pistar-hwcache > /dev/null 2>&1
 
-# Mount the disk RO
+# run any slipstream tasks
+bash /usr/local/sbin/slipstream-tasks.sh > /dev/null 2>&1
+
 /bin/sync
 /bin/sync
 /bin/sync
