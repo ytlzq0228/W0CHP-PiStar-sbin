@@ -713,7 +713,7 @@ main_function() {
 	pistar-services start > /dev/null 2>&1
 	echo -e "${TICK} Done!\n"
 
-	echo "Updates complete, syncing disk cache before making the disk Read-Only"
+	echo "Updates complete, syncing disk cache..."
 	rm /root/.WPSD-updating > /dev/null 2>&1
 	/bin/sync
 	/bin/sync
