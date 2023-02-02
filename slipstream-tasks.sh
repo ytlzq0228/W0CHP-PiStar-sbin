@@ -14,8 +14,8 @@ fi
 if grep -qo 'remount,ro' /etc/bash.bash_logout ; then
     sed -i '/remount,ro/d' /etc/bash.bash_logout
 fi
-if grep -qo 'fs_mode:' /etc/bash.bashrc ; then
-    sed -i 's/${fs_mode:($fs_mode)}//g' /etc/bash.bashrc
+if grep -qo 'fs_mode:+' /etc/bash.bashrc ; then
+    sed -i 's/${fs_mode:+($fs_mode)}//g' /etc/bash.bashrc
 fi
 if grep -qo 'remount,ro' /usr/local/sbin/pistar-hourly.cron ; then
     sed -i '/# Mount the disk RO/d' /usr/local/sbin/pistar-hourly.cron
@@ -46,3 +46,4 @@ gitURIupdate "/usr/local/sbin"
 #
 
 # more taks...
+
