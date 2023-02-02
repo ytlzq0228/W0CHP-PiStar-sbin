@@ -28,10 +28,10 @@ else
     fi
 fi
 
-W0CHP_BIN_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-bin.git"
+W0CHP_BIN_REPO="https://repo.w0chp.net/WPSD-Dev/W0CHP-PiStar-bin.git"
 OFFICIAL_BIN_REPO="https://github.com/AndyTaylorTweet/Pi-Star_v4_Binaries_Bin.git"
-W0CHP_INSTALL_SCRIPT_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-Installer/raw/branch/master/WPSD-Installer"
-SUPPORTING_FILES_REPO="https://repo.w0chp.net/Chipster/W0CHP-PiStar-Installer/raw/branch/master/supporting-files"
+W0CHP_INSTALL_SCRIPT_REPO="https://repo.w0chp.net/WPSD-Dev/W0CHP-PiStar-Installer/raw/branch/master/WPSD-Installer"
+SUPPORTING_FILES_REPO="https://repo.w0chp.net/WPSD-Dev/W0CHP-PiStar-Installer/raw/branch/master/supporting-files"
 W0CHP_DASH_BRANCH="$( git --git-dir=/var/www/dashboard/.git branch | grep '*' | awk {'print $2'} )"
 versionCmd=$( git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git rev-parse --short=10 HEAD )
 uuidStr=$(egrep 'UUID|ModemType|ModemMode|ControllerType' /etc/pistar-release | awk {'print $3'} | tac | xargs| sed 's/ /_/g')
@@ -45,7 +45,7 @@ uaStr="WPSD-Daily-Cron [${cronHours}:${cronMins} ${tz}]) Ver.# ${psVer} ${versio
 uaStrSF="WPSD-SuppFiles (Daily-Cron [${cronHours}:${cronMins} ${tz}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]"
  
 # connectivity check
-status_code=$(curl -m 3 -A "${uaStr}" --write-out %{http_code} --silent --output /dev/null "https://repo.w0chp.net/Chipster/W0CHP-PiStar-Dash.git/info/refs?service=git-upload-pack")
+status_code=$(curl -m 3 -A "${uaStr}" --write-out %{http_code} --silent --output /dev/null "https://repo.w0chp.net/WPSD-Dev/W0CHP-PiStar-Dash.git/info/refs?service=git-upload-pack")
 if [[ $status_code == 20* ]] || [[ $status_code == 30* ]] ; then
     echo -e "Connection established!\n"
 else
