@@ -372,7 +372,8 @@ main_function() {
 	fi
 
 	# Setup systemd unit files for Nextion Driver
-	if  [ ! -f "/etc/systemd/system/mmdvmhost.service.requires/nextiondriver.service" ] ; then
+	#if  [ ! -f "/etc/systemd/system/mmdvmhost.service.requires/nextiondriver.service" ] ; then ## we will use this when line 288 "=1" when we're ready to merge the native nextion support
+	if [ ! -f '/lib/systemd/system/nextiondriver.service' ] ; then
 	    curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/nextiondriver.service  -o /lib/systemd/system/nextiondriver.service
 	    # Enable the NextionDriver service
 	    systemctl daemon-reload > /dev/null 2<&1
@@ -382,7 +383,8 @@ main_function() {
 	    systemctl restart nextiondriver.service > /dev/null 2<&1
 	    systemctl restart mmdvmhost.service > /dev/null 2<&1
 	fi
-	if [ -f '/etc/systemd/system/mmdvmhost.service.requires/nextiondriver.service' ] ; then
+	#if  [ ! -f "/etc/systemd/system/mmdvmhost.service.requires/nextiondriver.service" ] ; then ## we will use this when line 288 "=1" when we're ready to merge the native nextion support
+	if [ -f '/lib/systemd/system/nextiondriver.service' ] ; then
 	    if ! grep -qo 'killall' /lib/systemd/system/nextiondriver.service ; then
 		curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/nextiondriver.service  -o /lib/systemd/system/nextiondriver.service
 		systemctl daemon-reload > /dev/null 2<&1
