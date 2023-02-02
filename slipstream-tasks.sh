@@ -1,10 +1,9 @@
 #!/bin/bash
 
-# place holder for any slipstream tasks
-
+# placeholder for any slipstream tasks
 
 # This part fully-disables read-only mode in Pi-Star and
-# W0CHP-PiStar-Dash installations. Use at your own risk.
+# W0CHP-PiStar-Dash installations.
 #
 # 1/2023 - W0CHP
 #
