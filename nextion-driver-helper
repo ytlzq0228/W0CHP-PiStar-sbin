@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# user has Nextion defined in mmdvmhost, so let's natively support it:
+if [ "`sed -nr "/^\[General\]/,/^\[/{ :l /^\s*[^#].*/ p; n; /^\[/ q; b l; }" /etc/mmdvmhost | grep "Display" | cut -d= -f 2`" = "Nextion" ]; then
+    systemctl stop nextiondriver.service > /dev/null 2<&1
+    /usr/bin/killall NextionDriver > /dev/null 2<&1
+    systemctl daemon-reload > /dev/null 2<&1
+    systemctl enable nextiondriver.service > /dev/null 2<&1
+    #systemctl restart nextiondriver.service > /dev/null 2<&1
+    #systemctl restart mmdvmhost.service > /dev/null 2<&1
+else
+    if grep -qo 'Requires=nextiondriver.service' /lib/systemd/system/mmdvmhost.service ; then # if nextion is re'q, get rid of it
+        sed -i '/Requires=nextiondriver.service/d' /lib/systemd/system/mmdvmhost.service
+        systemctl daemon-reload > /dev/null 2<&1
+    fi
+    if grep -qo 'RequiredBy=mmdvmhost.service' /lib/systemd/system/nextiondriver.service ; then # if mmdvmhost is re'q, get rid of it
+        sed -i '/RequiredBy=mmdvmhost.service/d' /lib/systemd/system/nextiondriver.service
+        systemctl daemon-reload > /dev/null 2<&1
+    fi
+    # stop and disable
+    if ! systemctl status nextiondriver.service | grep 'disabled;' > /dev/null 2<&1 ; then
+        systemctl stop nextiondriver.service > /dev/null 2<&1
+        /usr/bin/killall NextionDriver > /dev/null 2<&1
+        systemctl disable nextiondriver.service > /dev/null 2<&1
+        systemctl daemon-reload > /dev/null 2<&1
+    fi
+fi
