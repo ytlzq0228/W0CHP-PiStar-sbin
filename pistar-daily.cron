@@ -90,16 +90,6 @@ if ! grep -q 'reconnect=8999994' /etc/pistar-remote ; then
     sed -i "/^# TG commands.*/a reconnect=8999994" /etc/pistar-remote
 fi
 
-# watchdog servicee re-init
-if systemctl status pistar-watchdog.service | grep -q masked ; then
-    systemctl unmask pistar-watchdog.service > /dev/null 2<&1
-    systemctl enable pistar-watchdog.service > /dev/null 2<&1
-    systemctl start pistar-watchdog.service > /dev/null 2<&1
-    systemctl unmask pistar-watchdog.timer > /dev/null 2<&1
-    systemctl enable pistar-watchdog.timer > /dev/null 2<&1
-    systemctl start pistar-watchdog.timer > /dev/null 2<&1
-fi
-
 # maint. tasks
 /usr/local/sbin/wpsd-backend-maint > /dev/null 2>&1
 
