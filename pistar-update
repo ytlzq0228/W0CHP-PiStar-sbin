@@ -48,6 +48,7 @@ conn_check() {
     fi
 }
 
+mount -o remount,rw / # for shits and giggles
 
 # ensure repos can be updated
 if ! grep -q 'safe' /root/.gitconfig > /dev/null 2<&1 ; then

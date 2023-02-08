@@ -10,6 +10,8 @@ if [ "$(id -u)" != "0" ]; then
   exit 1
 fi
 
+mount -o remount,rw / # for shits and giggles
+
 # ensure repos can be updated
 if ! grep -q 'safe' /root/.gitconfig > /dev/null 2<&1 ; then
     git config --global --add safe.directory /var/www/dashboard > /dev/null 2<&1

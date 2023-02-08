@@ -3,6 +3,8 @@
 # Pi-Star Hourly Cron Job Script W0CHP v2.3
 #
 
+mount -o remount,rw / # for shits and giggles
+
 # migrate config update notice
 if grep -q ConfUpdReqd /etc/mmdvmhost ; then
     grep ConfUpdReqd /etc/mmdvmhost | sed 's/=/ = /' >> /etc/pistar-release
