@@ -63,7 +63,7 @@ case "$1" in
 			# Wait for an IP address
 			until [ "$ipVar" != " " ]; do
 				sleep 10
-				ipVar=`hostname -I`
+				ipVar=`hostname -I | cut -d' ' -f1`
 			done
 			# Dump the logs
 			/bin/rm -rf /var/log/pi-star/Links.log
