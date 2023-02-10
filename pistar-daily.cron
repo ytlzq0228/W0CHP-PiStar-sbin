@@ -510,7 +510,7 @@ if ! [ -x "$(command -v vnstat)" ]; then
     # Install vnstat
     apt-get -qq update > /dev/null 2>&1
     apt-get -qq install -y vnstat > /dev/null 2>&1
-    echo -e "${TICK} Done!\n"
+    echo -e "Done!\n"
 fi
 # tmpfs for vnstat
 if ! grep -q vnstat /etc/fstab ; then
@@ -523,6 +523,18 @@ if ! grep -q vnstat /etc/fstab ; then
     chown -R vnstat:vnstat /var/lib/vnstat > /dev/null
 fi
     systemctl restart vnstat.service > /dev/null
+
+# swap ntpd for systemd-timesyncd on bullseye
+lsb_release -cs | grep 'bullseye' &> /dev/null
+if [ $? == 0 ]; then
+    if [ ! -f "/lib/systemd/system/systemd-timesyncd.service" ] ; then
+	echo "Updating time synchronization service..."
+	apt-get -qq remove -y --purge ntp > /dev/null 2>&1
+	apt-get -qq autoremove -y > /dev/null 2>&1
+	apt-get -qq install -y systemd-timesyncd > /dev/null 2>&1
+	echo -e "Done!\n"
+    fi
+fi
 
 # age mmdvmhost log backups:
 /usr/local/sbin/pistar-mmdvm-log-backup-age > /dev/null

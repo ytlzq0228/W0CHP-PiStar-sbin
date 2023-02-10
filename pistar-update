@@ -355,6 +355,18 @@ main_function() {
 	fi
 	systemctl restart vnstat.service > /dev/null
 
+	# swap ntpd for systemd-timesyncd on bullseye
+	lsb_release -cs | grep 'bullseye' &> /dev/null
+	if [ $? == 0 ]; then
+	    if [ ! -f "/lib/systemd/system/systemd-timesyncd.service" ] ; then
+		echo "Updating time synchronization service..."
+		apt-get -qq remove -y --purge ntp > /dev/null 2>&1
+		apt-get -qq autoremove -y > /dev/null 2>&1
+		apt-get -qq install -y systemd-timesyncd > /dev/null 2>&1
+		echo -e "${TICK} Done!\n"
+	    fi
+	fi
+
 	# mmdvmhost log backup services
 	if [ ! -f "/lib/systemd/system/mmdvm-log-backup.service" ] ; then
 	    curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/Build-MMDVM-Log-Systemd-Tasks.sh -o /tmp/Build-MMDVM-Log-Systemd-Tasks.sh
@@ -717,7 +729,7 @@ main_function() {
 	# run any slipstream tasks
 	bash /usr/local/sbin/slipstream-tasks.sh > /dev/null 2>&1
 
-	echo -e "${TICK} Done!\n"
+	echo -e "${TICK} Maintenance tasks complete!\n"
 
 	echo "Starting Services..."
 	# re-sec. nginx after interrupted installation
@@ -734,7 +746,7 @@ main_function() {
 	/bin/sync
 	/bin/sync
 	systemctl start cron.service > /dev/null 2<&1
-	echo -e "${TICK} Finished!"
+	echo -e "${TICK} Update Process Finished!"
 	if [ ! -t 1 ]; then # only output if not called from tty
 		echo -e "\n<b><a style='color:white;text-decoration:underline;'' href='/config/changelog.php'>See the extended ChangeLog of the last 20 changes...</a></b>\n"
 	fi
