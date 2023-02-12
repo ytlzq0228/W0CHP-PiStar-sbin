@@ -524,16 +524,13 @@ if ! grep -q vnstat /etc/fstab ; then
 fi
     systemctl restart vnstat.service > /dev/null
 
-# swap ntpd for systemd-timesyncd on bullseye
-lsb_release -cs | grep 'bullseye' &> /dev/null
-if [ $? == 0 ]; then
-    if [ ! -f "/lib/systemd/system/systemd-timesyncd.service" ] ; then
-	echo "Updating time synchronization service..."
-	apt-get -qq remove -y --purge ntp > /dev/null 2>&1
-	apt-get -qq autoremove -y > /dev/null 2>&1
-	apt-get -qq install -y systemd-timesyncd > /dev/null 2>&1
-	echo -e "Done!\n"
-    fi
+# swap ntpd for systemd-timesyncd
+if [ ! -f "/lib/systemd/system/systemd-timesyncd.service" ] ; then
+    echo "Updating time synchronization service..."
+    apt-get -qq remove -y --purge ntp > /dev/null 2>&1
+    apt-get -qq autoremove -y > /dev/null 2>&1
+    apt-get -qq install -y systemd-timesyncd > /dev/null 2>&1
+    echo -e "Done!\n"
 fi
 
 # age mmdvmhost log backups:
