@@ -134,7 +134,7 @@ git_update() {
 	# get proper W0CHP dash branch user is running...
 	dash_branch="$( git --git-dir=${gitFolder}/.git branch | grep '*' | awk {'print $2'} )"
 
-	# Handle the special case for /usr/loca/sbin
+	# Handle the special case for /usr/local/sbin
 	if [[ ${gitFolder} == "/usr/local/sbin" ]]; then
 		# Assume unchanged for pistar-upnp.service
 		git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git update-index --assume-unchanged pistar-upnp.service
@@ -164,7 +164,7 @@ git_update() {
 					echo -e "---------------------------"
                                 	git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git --no-pager log --no-decorate --pretty=oneline -n3 | cut --complement -d' ' -f1 | fold -w 100 -s
                                 	if [[ $(git_checkUpdateRequired ${gitFolder}) -gt 0 ]]; then
-                                        	echo "Update to new version of pistar-update was not successful, forcing update..."
+                                        	echo "Update to new version of update script was not successful, forcing update..."
 						if [ -f ${gitFolder}/pistar-upnp.service ]; then
 						rm -f ${gitFolder}/pistar-upnp.service
 					fi
@@ -186,7 +186,7 @@ git_update() {
 			if [[ ${gitFolder} == "/usr/local/sbin" ]]; then
 				rm -rf ${gitFolder}/pistar-upnp.service
 			fi
-			#echo "Updates were not successful, reverting to Pi-Star original files..."
+			#echo "Updates were not successful, reverting to original files..."
            		# W0CHP has more than one branch. So depending on what W0CHP branch the user has installed, pull that branch.
            		if [[ ${gitFolder} == "/var/www/dashboard" ]]; then
                			env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]" git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git reset --hard origin/${dash_branch}
