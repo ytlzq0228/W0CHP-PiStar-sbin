@@ -6,27 +6,38 @@
 #      Written for Pi-Star (http://www.pistar.uk/)      #
 #               By Andy Taylor (MW0MWZ)                 #
 #                  Enhanced by W0CHP                    #
-#                     Version 2.11                      #
+#                     Version 3.0                       #
 #                                                       #
 #   Based on the update script by Tony Corbett G0WFV    #
 #                                                       #
 #########################################################
 
-# Check that the network is UP and die if its not
-if [ "$(expr length `hostname -I | cut -d' ' -f1`x)" == "1" ]; then
-	exit 1
+# Check if we are root
+if [ "$(id -u)" != "0" ];then
+    echo "This script must be run as root" 1>&2
+    exit 1
 fi
 
 # Get the W0CHP-PiStar-Dash Version
 gitBranch=$(git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git branch | grep '*' | cut -f2 -d ' ')
 dashVer=$( git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git rev-parse --short=10 ${gitBranch} )
 psVer=$( grep Version /etc/pistar-release | awk '{print $3}' )
-hostFileURL=https://hostfiles.w0chp.net
+# main vars
+hostFileURL="https://hostfiles.w0chp.net"
 uuidStr=$(egrep 'UUID|ModemType|ModemMode|ControllerType' /etc/pistar-release | awk {'print $3'} | tac | xargs| sed 's/ /_/g')
 modelName=$(grep -m 1 'model name' /proc/cpuinfo | sed 's/.*: //')
 hardwareField=$(grep 'Model' /proc/cpuinfo | sed 's/.*: //')
 hwDeetz="${hardwareField} - ${modelName}"
 uaStr="WPSD-HostFileUpdater Ver.# ${psVer} ${dashVer} (${gitBranch}) UUID:${uuidStr} [${hwDeetz}]"
+
+# connectivity check
+status_code=$(curl -m 3 -A "${uaStr}" --write-out %{http_code} --silent --output /dev/null ${hostFileURL})
+if [[ $status_code == 20* ]] || [[ $status_code == 30* ]] ; then
+    echo "W0CHP Hostfile Update Server connection OK...updating hostfiles."
+else
+    echo "W0CHP Hostfile Update Server connection failed."
+    exit 1
+fi
 
 # Files and locations
 APRSHOSTS=/usr/local/etc/APRSHosts.txt
@@ -60,12 +71,6 @@ COUNTRIES=/usr/local/etc/country.csv
 
 # How many backups?
 FILEBACKUP=1
-
-# Check we are root
-if [ "$(id -u)" != "0" ];then
-	echo "This script must be run as root" 1>&2
-	exit 1
-fi
 
 # Create backup of old files
 if [ ${FILEBACKUP} -ne 0 ]; then
@@ -167,7 +172,6 @@ curl --fail -L -o ${P25HOSTS} -s ${hostFileURL}/P25_Hosts.txt --user-agent "${ua
 curl --fail -L -o ${M17HOSTS} -s ${hostFileURL}/M17_Hosts.txt --user-agent "${uaStr}"
 curl --fail -L -o ${YSFHOSTS} -s ${hostFileURL}/YSF_Hosts.txt --user-agent "${uaStr}"
 curl --fail -L -o ${FCSHOSTS} -s ${hostFileURL}/FCS_Hosts.txt --user-agent "${uaStr}"
-#curl --fail -L -s ${hostFileURL}/USTrust_Hosts.txt --user-agent "${uaStr}" >> ${DExtraHOSTS}
 curl --fail -L -o ${XLXHOSTS} -s ${hostFileURL}/XLXHosts.txt --user-agent "${uaStr}"
 curl --fail -L -o ${NXDNIDFILE} -s ${hostFileURL}/NXDN.csv --user-agent "${uaStr}"
 curl --fail -L -o ${NXDNHOSTS} -s ${hostFileURL}/NXDN_Hosts.txt --user-agent "${uaStr}"
@@ -186,7 +190,7 @@ curl --fail -L -o ${BMTGNAMES} -s ${hostFileURL}/BM_TGs.json --user-agent "${uaS
 # BM TG List for live caller and nextion screens:
 cp ${BMTGNAMES} ${GROUPSTXT}
 
-# If there is a DMR Over-ride file, add it's contents to DMR_Hosts.txt
+# If there is a DMR override file, add its contents to DMR_Hosts.txt
 if [ -f "/root/DMR_Hosts.txt" ]; then
 	cat /root/DMR_Hosts.txt >> ${DMRHOSTS}
 fi
@@ -202,24 +206,17 @@ if [ -f "/etc/dmrgateway" ]; then
 	sed -i '/Name=.*)/d' /etc/dmrgateway
 fi
 
-# Add some fixes for P25Gateway
-if [[ $(/usr/local/bin/P25Gateway --version | awk '{print $3}' | cut -c -8) -gt "20180108" ]]; then
-	sed -i 's/Hosts=\/usr\/local\/etc\/P25Hosts.txt/HostsFile1=\/usr\/local\/etc\/P25Hosts.txt\nHostsFile2=\/usr\/local\/etc\/P25HostsLocal.txt/g' /etc/p25gateway
-	sed -i 's/HostsFile2=\/root\/P25Hosts.txt/HostsFile2=\/usr\/local\/etc\/P25HostsLocal.txt/g' /etc/p25gateway
-fi
+# Add custom P25 Hosts
 if [ -f "/root/P25Hosts.txt" ]; then
 	cat /root/P25Hosts.txt > /usr/local/etc/P25HostsLocal.txt
 fi
 
-# Add local over-ride for M17Hosts
+# Add local override for M17Hosts
 if [ -f "/root/M17Hosts.txt" ]; then
 	cat /root/M17Hosts.txt >> ${M17HOSTS}
 fi
 
 # Fix up new NXDNGateway Config HostFile setup
-if [[ $(/usr/local/bin/NXDNGateway --version | awk '{print $3}' | cut -c -8) -gt "20180801" ]]; then
-	sed -i 's/HostsFile=\/usr\/local\/etc\/NXDNHosts.txt/HostsFile1=\/usr\/local\/etc\/NXDNHosts.txt\nHostsFile2=\/usr\/local\/etc\/NXDNHostsLocal.txt/g' /etc/nxdngateway
-fi
 if [ ! -f "/root/NXDNHosts.txt" ]; then
 	touch /root/NXDNHosts.txt
 fi
@@ -245,32 +242,6 @@ if [ -f "/root/XLXHosts.txt" ]; then
                         /bin/sed -i "/^$xlxid\;/c\\$xlxNewLine" /usr/local/etc/XLXHosts.txt
                 fi
         done < /root/XLXHosts.txt
-fi
-
-# Yaesu FT-70D radios only do upper case
-if [ -f "/etc/hostfiles.ysfupper" ]; then
-	sed -i 's/\(.*\)/\U\1/' ${YSFHOSTS}
-	sed -i 's/\(.*\)/\U\1/' ${FCSHOSTS}
-fi
-
-# Fix up ircDDBGateway Host Files on v4
-if [ -d "/usr/local/etc/ircddbgateway" ]; then
-	if [[ -f "/usr/local/etc/ircddbgateway/DCS_Hosts.txt" && ! -L "/usr/local/etc/ircddbgateway/DCS_Hosts.txt" ]]; then
-		rm -rf /usr/local/etc/ircddbgateway/DCS_Hosts.txt
-		ln -s /usr/local/etc/DCS_Hosts.txt /usr/local/etc/ircddbgateway/DCS_Hosts.txt
-	fi
-	if [[ -f "/usr/local/etc/ircddbgateway/DExtra_Hosts.txt" && ! -L "/usr/local/etc/ircddbgateway/DExtra_Hosts.txt" ]]; then
-		rm -rf /usr/local/etc/ircddbgateway/DExtra_Hosts.txt
-		ln -s /usr/local/etc/DExtra_Hosts.txt /usr/local/etc/ircddbgateway/DExtra_Hosts.txt
-	fi
-	if [[ -f "/usr/local/etc/ircddbgateway/DPlus_Hosts.txt" && ! -L "/usr/local/etc/ircddbgateway/DPlus_Hosts.txt" ]]; then
-		rm -rf /usr/local/etc/ircddbgateway/DPlus_Hosts.txt
-		ln -s /usr/local/etc/DPlus_Hosts.txt /usr/local/etc/ircddbgateway/DPlus_Hosts.txt
-	fi
-	if [[ -f "/usr/local/etc/ircddbgateway/CCS_Hosts.txt" && ! -L "/usr/local/etc/ircddbgateway/CCS_Hosts.txt" ]]; then
-		rm -rf /usr/local/etc/ircddbgateway/CCS_Hosts.txt
-		ln -s /usr/local/etc/CCS_Hosts.txt /usr/local/etc/ircddbgateway/CCS_Hosts.txt
-	fi
 fi
 
 # Nextion and LiveCaller DMR ID DB's
