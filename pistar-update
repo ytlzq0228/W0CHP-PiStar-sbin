@@ -69,17 +69,6 @@ if [ "${OS_VER}" -gt "10" ] && [[ ! $(grep "net.ifnames" /boot/cmdline.txt) ]] ;
     sed -i 's/$/ net.ifnames=0 biosdevname=0/' /boot/cmdline.txt
 fi
 
-# migrate config update notice
-if grep -q ConfUpdReqd /etc/mmdvmhost ; then
-    grep ConfUpdReqd /etc/mmdvmhost | sed 's/=/ = /' >> /etc/pistar-release
-    sed -i '/^\[WPSD\]/d' /etc/mmdvmhost
-    sed -i '/^ConfUpdReqd/d' /etc/mmdvmhost
-else
-    if ! grep -q ConfUpdReqd /etc/pistar-release ; then
-        echo "ConfUpdReqd = " >> /etc/pistar-release
-    fi
-fi
-
 # ensure pistar-remote config has key-value pairs for new funcs (12/2/22)
 if ! grep -q 'hostfiles=8999995' /etc/pistar-remote ; then 
     sed -i "/^# TG commands.*/a hostfiles=8999995" /etc/pistar-remote
@@ -87,27 +76,6 @@ fi
 if ! grep -q 'reconnect=8999994' /etc/pistar-remote ; then 
     sed -i "/^# TG commands.*/a reconnect=8999994" /etc/pistar-remote
 fi
-
-function GetBinStatus() {
-    dir="/usr/local/bin"
-    repo=$(git --work-tree=${dir} --git-dir=${dir}/.git config --get remote.origin.url)
-    if [ "$repo" == "$OFFICIAL_BIN_REPO" ]; then
-        echo "1" # bin switch needed
-    else
-        echo "0" # already on W0CHP bins
-    fi
-}
-
-function BinRepoSwitch() {
-    if [[ $(GetBinStatus) == 1 ]]; then # "1" = bin switch needed
-        rm -rf /usr/local/bin
-        GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Manual-Update; BinSwitch) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]" git clone -q $W0CHP_BIN_REPO /usr/local/bin > /dev/null 2<&1
-        checkMMDVMhostINI=$(grep -A 15 "DMR Network" /etc/mmdvmhost | grep -v "DMR Network" | grep -v '^\d*$' | grep "RemoteAddress=127.0.0.1")
-        if [[ ! ${checkMMDVMhostINI} ]] ; then
-            sed -i '/\[DMR Network\]/a RemoteAddress=127.0.0.1' /etc/mmdvmhost # need this for new conf. dicts.
-        fi
-    fi
-}
 
 git_checkUpdateRequired() {
 	# Set the function variables
@@ -280,13 +248,6 @@ main_function() {
 	    fi
 	fi
 
-	if [[ $(GetBinStatus) == 1 ]]; then # "1" = bin switch needed
-	    echo "New binaries required from W0CHP"
-	    echo "Retrieving them now. This will take some time..."
-	    BinRepoSwitch
-	    echo -e "${TICK} Done!\n"
-	fi
-
 	echo "Updating W0CHP-PiStar-Dash Binaries & Scripts..."
 	git_update /usr/local/sbin
 	#systemctl daemon-reload > /dev/null 2>&1
@@ -325,7 +286,7 @@ main_function() {
 	    rm -rf /lib/systemd/system/mobilegps*
 	fi
 	if ! [ -x "$(command -v gpsd)" ]; then
-	    echo "GPSd (required) not installed on hotspot. Installing now..."
+	    echo "GPSd (required) not installed. Installing now..."
 	    # Install GPSd
 	    apt-get -qq update > /dev/null 2>&1
 	    apt-get -qq install -y libgps-dev gpsd > /dev/null 2>&1
@@ -340,6 +301,7 @@ main_function() {
 	    # Install vnstat
 	    apt-get -qq update > /dev/null 2>&1
 	    apt-get -qq install -y vnstat > /dev/null 2>&1
+	    systemctl restart vnstat.service > /dev/null
 	    echo -e "${TICK} Done!\n"
         fi
 	# tmpfs for vnstat
@@ -352,8 +314,8 @@ main_function() {
 	    echo "tmpfs                   /var/lib/vnstat         tmpfs   nodev,noatime,nosuid,mode=0755,size=64m         0       0"  >> /etc/fstab
 	    mount /var/lib/vnstat > /dev/null
 	    chown -R vnstat:vnstat /var/lib/vnstat > /dev/null
+	    systemctl restart vnstat.service > /dev/null
 	fi
-	systemctl restart vnstat.service > /dev/null
 
 	# swap ntpd for systemd-timesyncd
 	if [ ! -f "/lib/systemd/system/systemd-timesyncd.service" ] ; then
@@ -449,63 +411,13 @@ main_function() {
 	if [ ! -f $CSS_FILE ] ; then
 	    curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/pistar-css-dist.ini -o /etc/pistar-css.ini
 	fi
-	# New CSS mappings and funcs (git master #e2d2e9d092)...have to reset :-/
-	if [ -f $CSS_FILE ] && [ ! $( grep 'TextLinkColor' $CSS_FILE) ] ; then
-        	echo -e "\n\nNOTE: Custom user CSS detected. Since W0CHP-PiStar-Dash Ver.# ${psVer} e2d2e9d092, the CSS mappings have been updated, and you must. manually edit your custom values again."
-        	echo -e "You can reference the customizations you previously had by viewing the file: /etc/.pistar-css.ini.user and then manually re-mapping those values in the Expert CSS Editor Page.\n\n"
-        	mv /etc/pistar-css.ini /etc/.pistar-css.ini.user
-	fi
-	#  in place edit for new mappings
-	#if [ -f $CSS_FILE ] && [ $( grep 'HeaderFontSize' $CSS_FILE) ] ; then
-        	#sed -i '/\[ExtraSettings\]/a TableBorderColor=#777777' $CSS_FILE
-		#sed -i 's/FontSize=/MainFontSize=/' $CSS_FILE
-        	#sed -i '/MainFontSize=/a HeaderFontSize=34' $CSS_FILE
-        #	sed -i '/HeaderFontSize=/a BodyFontSize=17' $CSS_FILE
-	#fi
-	if [ -f $CSS_FILE ] && ! [ $( grep 'TextSectionColor' $CSS_FILE) ] ; then
-        	sed -i '/\[Text\]/a TextSectionColor=#000000' $CSS_FILE
-	fi
-	# fix css bug derived from editor
-	if [ -f $CSS_FILE ] && [ $( grep 'NavPanelColor#edf0f5=' $CSS_FILE) ] ; then
-            sed -i 's/NavPanelColor#edf0f5=/NavPanelColor=#edf0f5/g' $CSS_FILE
-	fi
-
-	# Pre-Fix some config in MMDVMHost for update purposes.
-	mmdvmHostVer=`MMDVMHost -v | awk '{print $3}' | cut -c 1-8`
-	needsUpdate=`grep -c Gwy /etc/mmdvmhost`
-	if [ ${mmdvmHostVer} \> 20171031 ] && [ ${needsUpdate} \> 0 ]; then
-	        # Config needs to be updated, add in the changes here
-	        sed -i "/GwyAddress=/c\\GatewayAddress=127.0.0.1" /etc/mmdvmhost
-	        sed -i "/GwyPort=/c\\GatewayPort=4200" /etc/mmdvmhost
-	fi
-	needsTypeLine=$(sed -n '/^\[DMR Network\]/,/^\[/p' /etc/mmdvmhost | grep "^Type=" | wc -l)
-	dmrAddress=$(sed -n '/^\[DMR Network\]/,/^\[/p' /etc/mmdvmhost | grep "^Address=" | awk -F "=" '/Address=/ {print $2}')
-	if [ ${needsTypeLine} \< 1 ]; then
-		if [[ "${dmrAddress}" == "127.0.0.1" ]]; then
-			sed -i 's/\[DMR Network\]/\[DMR Network\]\nType=Gateway/g' /etc/mmdvmhost
-		else
-			sed -i 's/\[DMR Network\]/\[DMR Network\]\nType=Direct/g' /etc/mmdvmhost
-		fi
-	else
-		if [[ "${dmrAddress}" == "127.0.0.1" ]]; then
-			sed -i "/Type=Dire/c\\Type=Gateway" /etc/mmdvmhost
-		else
-			sed -i "/Type=Gate/c\\Type=Direct" /etc/mmdvmhost
-		fi
-	fi
 
 	# Fix up new P25Gateway Config Hostfile setup
-	if [[ $(/usr/local/bin/P25Gateway --version | awk '{print $3}' | cut -c -8) -gt "20180108" ]]; then
-		sed -i 's/Hosts=\/usr\/local\/etc\/P25Hosts.txt/HostsFile1=\/usr\/local\/etc\/P25Hosts.txt\nHostsFile2=\/usr\/local\/etc\/P25HostsLocal.txt/g' /etc/p25gateway
-	fi
 	if [ ! -f /root/P25Hosts.txt ]; then
 		touch /root/P25Hosts.txt
 	fi
 
 	# Fix up new NXDNGateway Config Hostfile setup
-	if [[ $(/usr/local/bin/NXDNGateway --version | awk '{print $3}' | cut -c -8) -gt "20180801" ]]; then
-		sed -i 's/HostsFile=\/usr\/local\/etc\/NXDNHosts.txt/HostsFile1=\/usr\/local\/etc\/NXDNHosts.txt\nHostsFile2=\/usr\/local\/etc\/NXDNHostsLocal.txt/g' /etc/nxdngateway
-	fi
 	if [ ! -f /root/NXDNHosts.txt ]; then
 		touch /root/NXDNHosts.txt
 	fi
@@ -513,77 +425,8 @@ main_function() {
 		touch /usr/local/etc/NXDNHostsLocal.txt
 	fi
 
-        # fix timeouts in YSFgateway and P25Gateways (hopes to prevent "Not Linked" dash status when they are indeed linked
-        ysfGwToLen=$( grep InactivityTimeout /etc/ysfgateway | awk -F "=" '{print $2}' | wc -m > /dev/null )
-        if [[ "${ysfGwToLen}"  -lt "4" ]] ; then
-            sed -i "/InactivityTimeout/c\\InactivityTimeout=1440" /etc/ysfgateway
-        fi
-        p25GwToLen=$( grep InactivityTimeout /etc/p25gateway | awk -F "=" '{print $2}' | wc -m > /dev/null )
-        if [[ "${p25GwToLen}"  -lt "4" ]] ; then
-            sed -i "/InactivityTimeout/c\\InactivityTimeout=1440" /etc/p25gateway
-        fi
-
-	# If we are ready to use the new DMRGateway
-	if [[ $(/usr/local/bin/DMRGateway --version | awk '{print $3}' | cut -c -8) -gt "20170924" ]] && [[ $(grep -c "\[DMR Network 3\]" /etc/dmrgateway) -eq "1" ]] && [[ ! -f /usr/local/etc/DMR_Audio/no_NO.indx ]]; then
-		curl --fail -o /usr/local/etc/DMR_Audio/de_DE.ambe -s https://raw.githubusercontent.com/g4klx/DMRGateway/master/Audio/de_DE.ambe
-		curl --fail -o /usr/local/etc/DMR_Audio/de_DE.indx -s https://raw.githubusercontent.com/g4klx/DMRGateway/master/Audio/de_DE.indx
-		curl --fail -o /usr/local/etc/DMR_Audio/dk_DK.ambe -s https://raw.githubusercontent.com/g4klx/DMRGateway/master/Audio/dk_DK.ambe
-		curl --fail -o /usr/local/etc/DMR_Audio/dk_DK.indx -s https://raw.githubusercontent.com/g4klx/DMRGateway/master/Audio/dk_DK.indx
-		curl --fail -o /usr/local/etc/DMR_Audio/en_GB.ambe -s https://raw.githubusercontent.com/g4klx/DMRGateway/master/Audio/en_GB.ambe
-		curl --fail -o /usr/local/etc/DMR_Audio/en_GB.indx -s https://raw.githubusercontent.com/g4klx/DMRGateway/master/Audio/en_GB.indx
-		curl --fail -o /usr/local/etc/DMR_Audio/en_US.ambe -s https://raw.githubusercontent.com/g4klx/DMRGateway/master/Audio/en_US.ambe
-		curl --fail -o /usr/local/etc/DMR_Audio/en_US.indx -s https://raw.githubusercontent.com/g4klx/DMRGateway/master/Audio/en_US.indx
-		curl --fail -o /usr/local/etc/DMR_Audio/es_ES.ambe -s https://raw.githubusercontent.com/g4klx/DMRGateway/master/Audio/es_ES.ambe
-		curl --fail -o /usr/local/etc/DMR_Audio/es_ES.indx -s https://raw.githubusercontent.com/g4klx/DMRGateway/master/Audio/es_ES.indx
-		curl --fail -o /usr/local/etc/DMR_Audio/fr_FR.ambe -s https://raw.githubusercontent.com/g4klx/DMRGateway/master/Audio/fr_FR.ambe
-		curl --fail -o /usr/local/etc/DMR_Audio/fr_FR.indx -s https://raw.githubusercontent.com/g4klx/DMRGateway/master/Audio/fr_FR.indx
-		curl --fail -o /usr/local/etc/DMR_Audio/it_IT.ambe -s https://raw.githubusercontent.com/g4klx/DMRGateway/master/Audio/it_IT.ambe
-		curl --fail -o /usr/local/etc/DMR_Audio/it_IT.indx -s https://raw.githubusercontent.com/g4klx/DMRGateway/master/Audio/it_IT.indx
-		curl --fail -o /usr/local/etc/DMR_Audio/no_NO.ambe -s https://raw.githubusercontent.com/g4klx/DMRGateway/master/Audio/no_NO.ambe
-		curl --fail -o /usr/local/etc/DMR_Audio/no_NO.indx -s https://raw.githubusercontent.com/g4klx/DMRGateway/master/Audio/no_NO.indx
-		curl --fail -o /usr/local/etc/DMR_Audio/pl_PL.ambe -s https://raw.githubusercontent.com/g4klx/DMRGateway/master/Audio/pl_PL.ambe
-		curl --fail -o /usr/local/etc/DMR_Audio/pl_PL.indx -s https://raw.githubusercontent.com/g4klx/DMRGateway/master/Audio/pl_PL.indx
-		curl --fail -o /usr/local/etc/DMR_Audio/se_SE.ambe -s https://raw.githubusercontent.com/g4klx/DMRGateway/master/Audio/se_SE.ambe
-		curl --fail -o /usr/local/etc/DMR_Audio/se_SE.indx -s https://raw.githubusercontent.com/g4klx/DMRGateway/master/Audio/se_SE.indx	
-	fi
-
-	# I previously had the wrong URL for the P25 Audio files; remove the broken downloads.
-	if [[ -f /usr/local/etc/P25_Audio/en_GB.imbe ]]; then
-		testFileIMBE=`file -i /usr/local/etc/P25_Audio/en_GB.imbe | cut -d " " -f2`
-		if [[ $testFileIMBE == text* ]]; then
-			rm -rf /usr/local/etc/P25_Audio
-		fi
-	fi
-
-	# Download the correct P25 Audio Files
-	if [[ ! -d /usr/local/etc/P25_Audio ]]; then
-		echo "Downloading P25 Voice Files..."
-		mkdir /usr/local/etc/P25_Audio
-		curl --fail -o /usr/local/etc/P25_Audio/de_DE.imbe -s https://raw.githubusercontent.com/g4klx/P25Clients/master/P25Gateway/Audio/de_DE.imbe
-		curl --fail -o /usr/local/etc/P25_Audio/de_DE.indx -s https://raw.githubusercontent.com/g4klx/P25Clients/master/P25Gateway/Audio/de_DE.indx
-		curl --fail -o /usr/local/etc/P25_Audio/dk_DK.imbe -s https://raw.githubusercontent.com/g4klx/P25Clients/master/P25Gateway/Audio/dk_DK.imbe
-		curl --fail -o /usr/local/etc/P25_Audio/dk_DK.indx -s https://raw.githubusercontent.com/g4klx/P25Clients/master/P25Gateway/Audio/dk_DK.indx
-		curl --fail -o /usr/local/etc/P25_Audio/en_GB.imbe -s https://raw.githubusercontent.com/g4klx/P25Clients/master/P25Gateway/Audio/en_GB.imbe
-		curl --fail -o /usr/local/etc/P25_Audio/en_GB.indx -s https://raw.githubusercontent.com/g4klx/P25Clients/master/P25Gateway/Audio/en_GB.indx
-		curl --fail -o /usr/local/etc/P25_Audio/en_US.imbe -s https://raw.githubusercontent.com/g4klx/P25Clients/master/P25Gateway/Audio/en_US.imbe
-		curl --fail -o /usr/local/etc/P25_Audio/en_US.indx -s https://raw.githubusercontent.com/g4klx/P25Clients/master/P25Gateway/Audio/en_US.indx
-		curl --fail -o /usr/local/etc/P25_Audio/es_ES.imbe -s https://raw.githubusercontent.com/g4klx/P25Clients/master/P25Gateway/Audio/es_ES.imbe
-		curl --fail -o /usr/local/etc/P25_Audio/es_ES.indx -s https://raw.githubusercontent.com/g4klx/P25Clients/master/P25Gateway/Audio/es_ES.indx
-		curl --fail -o /usr/local/etc/P25_Audio/fr_FR.imbe -s https://raw.githubusercontent.com/g4klx/P25Clients/master/P25Gateway/Audio/fr_FR.imbe
-		curl --fail -o /usr/local/etc/P25_Audio/fr_FR.indx -s https://raw.githubusercontent.com/g4klx/P25Clients/master/P25Gateway/Audio/fr_FR.indx
-		curl --fail -o /usr/local/etc/P25_Audio/it_IT.imbe -s https://raw.githubusercontent.com/g4klx/P25Clients/master/P25Gateway/Audio/it_IT.imbe
-		curl --fail -o /usr/local/etc/P25_Audio/it_IT.indx -s https://raw.githubusercontent.com/g4klx/P25Clients/master/P25Gateway/Audio/it_IT.indx
-		curl --fail -o /usr/local/etc/P25_Audio/no_NO.imbe -s https://raw.githubusercontent.com/g4klx/P25Clients/master/P25Gateway/Audio/no_NO.imbe
-		curl --fail -o /usr/local/etc/P25_Audio/no_NO.indx -s https://raw.githubusercontent.com/g4klx/P25Clients/master/P25Gateway/Audio/no_NO.indx
-		curl --fail -o /usr/local/etc/P25_Audio/pl_PL.imbe -s https://raw.githubusercontent.com/g4klx/P25Clients/master/P25Gateway/Audio/pl_PL.imbe
-		curl --fail -o /usr/local/etc/P25_Audio/pl_PL.indx -s https://raw.githubusercontent.com/g4klx/P25Clients/master/P25Gateway/Audio/pl_PL.indx
-		curl --fail -o /usr/local/etc/P25_Audio/se_SE.imbe -s https://raw.githubusercontent.com/g4klx/P25Clients/master/P25Gateway/Audio/se_SE.imbe
-		curl --fail -o /usr/local/etc/P25_Audio/se_SE.indx -s https://raw.githubusercontent.com/g4klx/P25Clients/master/P25Gateway/Audio/se_SE.indx
-		echo -e "${TICK} Done!\n"
-	fi
-
 	# Download M17 Audio files if missing
-	if [[ ! -f /usr/local/etc/M17_Audio/se_SE.indx ]]; then
+	if [[ ! -d /usr/local/etc/M17_Audio ]]; then
 		mkdir -p /usr/local/etc/M17_Audio/
         	curl --fail -o /usr/local/etc/M17_Audio/de_DE.m17 -s https://raw.githubusercontent.com/g4klx/M17Gateway/master/Audio/de_DE.m17
         	curl --fail -o /usr/local/etc/M17_Audio/de_DE.indx -s https://raw.githubusercontent.com/g4klx/M17Gateway/master/Audio/de_DE.indx
@@ -605,62 +448,25 @@ main_function() {
         	curl --fail -o /usr/local/etc/M17_Audio/se_SE.indx -s https://raw.githubusercontent.com/g4klx/M17Gateway/master/Audio/se_SE.indx    
     	fi
 
-	# Add Portuguese voice files for DMRGateway
+	# Add Portuguese voice files for DMRGateway and ircDDBGw if missing
 	if [[ ! -f /usr/local/etc/DMR_Audio/pt_PT.ambe ]]; then
-		echo "Downloading Portuguese Voice Files for DMRGateway..."
 		curl --fail -o /usr/local/etc/DMR_Audio/pt_PT.ambe -s https://raw.githubusercontent.com/g4klx/DMRGateway/master/Audio/pt_PT.ambe
 		curl --fail -o /usr/local/etc/DMR_Audio/pt_PT.indx -s https://raw.githubusercontent.com/g4klx/DMRGateway/master/Audio/pt_PT.indx
 		chmod 664 /usr/local/etc/DMR_Audio/*.ambe
 		chmod 664 /usr/local/etc/DMR_Audio/*.indx
-		echo "Done"
 	fi
-
 	if [[ ! -f /usr/local/etc/ircddbgateway/pt_PT.ambe ]]; then
-		echo "Downloading Portuguese Voice Files for ircDDBGateway..."
 		curl --fail -o /usr/local/etc/ircddbgateway/pt_PT.ambe -s https://raw.githubusercontent.com/g4klx/ircDDBGateway/master/Data/pt_PT.ambe
 		curl --fail -o /usr/local/etc/ircddbgateway/pt_PT.indx -s https://raw.githubusercontent.com/g4klx/ircDDBGateway/master/Data/pt_PT.indx
 		curl --fail -o /usr/local/etc/ircddbgateway/TIME_pt_PT.ambe -s https://raw.githubusercontent.com/g4klx/ircDDBGateway/master/Data/TIME_pt_PT.ambe
 		curl --fail -o /usr/local/etc/ircddbgateway/TIME_pt_PT.indx -s https://raw.githubusercontent.com/g4klx/ircDDBGateway/master/Data/TIME_pt_PT.indx
 		chmod 664 /usr/local/etc/ircddbgateway/*.ambe
 		chmod 664 /usr/local/etc/ircddbgateway/*.indx
-		echo -e "${TICK} Done!\n"
 	fi
 	
 	if [[ $(grep "\[Voice\]" /etc/p25gateway | wc -l) -eq 0 ]]; then
-		echo "Updating P25Gateway config..."
 		echo "" >> /etc/p25gateway
 		sed -i '$a[Voice]\nEnabled=1\nLanguage=en_GB\nDirectory=/usr/local/etc/P25_Audio\n' /etc/p25gateway
-		echo -e "${TICK} Done!\n"
-	fi
-
-	if [[ $(grep Version /etc/pistar-release | awk '{print $3}' | cut -c 1) -eq 4 ]]; then
-        	if [[ $(cat /etc/ircddbgateway | grep -o "xlx" | wc -l) -eq 0 ]]; then
-        	        echo "Adding XLX Config to /etc/ircddbgateway"
-        	        echo "xlxEnabled=0" >> /etc/ircddbgateway
-        	        echo "xlxHostsFileUrl=http://xlxapi.rlx.lu/api.php?do=GetXLXDMRMaster" >> /etc/ircddbgateway
-        	fi
-
-        	#if [[ $(cat /etc/ircddbgateway | grep -o "aprsPassword" | wc -l) -eq 0 ]]; then
-        	#        echo "Adding APRS Password to /etc/ircddbgateway"
-        	#        echo "aprsPassword=00000" >> /etc/ircddbgateway
-        	#fi
-
-		if [[ $(cat /etc/ircddbgateway | grep -o "mobileGPS" | wc -l) -eq 0 ]]; then
-                	echo "Adding MobileGPS Config to /etc/ircddbgateway"
-                	echo "mobileGPSEnabled=0" >> /etc/ircddbgateway
-                	echo "mobileGPSAddress=127.0.0.1" >> /etc/ircddbgateway
-                	echo "mobileGPSPort=7834" >> /etc/ircddbgateway
-        	fi
-
-		if [[ $(cat /etc/dstarrepeater | grep -o "mmdvmRXInvert" | wc -l) -eq 0 ]]; then
-        	        echo "Adding better MMDVM Config to /etc/dstarrepeater"
-        	        echo "mmdvmRXInvert=0" >> /etc/dstarrepeater
-        	        echo "mmdvmTXInvert=0" >> /etc/dstarrepeater
-        	        echo "mmdvmPTTInvert=0" >> /etc/dstarrepeater
-        	        echo "mmdvmTXDelay=50" >> /etc/dstarrepeater
-        	        echo "mmdvmRXLevel=100" >> /etc/dstarrepeater
-        	        echo "mmdvmTXLevel=100" >> /etc/dstarrepeater
-        	fi
 	fi
 
         if [ -f /usr/local/bin/platformDetect.sh ]; then # remove platformDetect.sh since we have a custom version in /usr/local/sbin
@@ -675,11 +481,6 @@ main_function() {
 		sed -i "/^date_default_timezone_set.*/i define('AUTO_UPDATE_CHECK', 'true');" /var/www/dashboard/config/config.php
 	fi
 
-        # cleanup legacy naming convention
-        if grep -q 'modemcache' /etc/rc.local ; then
-            sed -i 's/modemcache/hwcache/g' /etc/rc.local
-	    sed -i 's/# cache modem info/# cache hw info/g' /etc/rc.local 
-        fi
 	# add hw cache to rc.local
 	if ! grep -q 'hwcache' /etc/rc.local ; then
     	    sed -i '/^\/usr\/local\/sbin\/pistar-motdgen/a \\n\n# cache hw info\n\/usr\/local\/sbin\/pistar-hwcache' /etc/rc.local 
@@ -691,7 +492,7 @@ main_function() {
 	# MOTD
 	bash /usr/local/sbin/pistar-motdgen
 
-	# Add pistar-service bash completion
+	# Add pistar-service bash completion if missing
 	DEST="/usr/share/bash-completion/completions/pistar-services"
 	if [ ! -f $DEST ] ; then
 		echo "#!/bin/bash" > $DEST
@@ -729,11 +530,6 @@ main_function() {
 	echo -e "${TICK} Maintenance tasks complete!\n"
 
 	echo "Starting Services..."
-	# re-sec. nginx after interrupted installation
-	sed -i '/satisfy any/d' /etc/nginx/sites-enabled/pi-star
-	sed -i '/allow 127.0.0.1/d' /etc/nginx/sites-enabled/pi-star
-	sed -i '/deny all/d' /etc/nginx/sites-enabled/pi-star
-	systemctl restart nginx > /dev/null 2<&1
 	pistar-services start > /dev/null 2>&1
 	echo -e "${TICK} Done!\n"
 
