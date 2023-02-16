@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# W0CHP pistar-daily.cron (enhanced) v3.8
+# W0CHP pistar-daily.cron (enhanced) v4.0
 #
 
 # Make sure we are root
@@ -11,6 +11,11 @@ if [ "$(id -u)" != "0" ]; then
 fi
 
 mount -o remount,rw / # for shits and giggles
+
+pkill pistar-hourly.cron > /dev/null 2>&1
+
+# Stop all the services...
+pistar-services fullstop > /dev/null 2>&1
 
 # ensure repos can be updated
 if ! grep -q 'safe' /root/.gitconfig > /dev/null 2<&1 ; then
@@ -49,32 +54,158 @@ uaStrSF="WPSD-SuppFiles (Daily-Cron [${cronHours}:${cronMins} ${tz}]) Ver.# ${ps
 # connectivity check
 status_code=$(curl -m 3 -A "${uaStr}" --write-out %{http_code} --silent --output /dev/null "https://repo.w0chp.net/WPSD-Dev/W0CHP-PiStar-Dash.git/info/refs?service=git-upload-pack")
 if [[ $status_code == 20* ]] || [[ $status_code == 30* ]] ; then
-    echo -e "Connection established!\n"
-else
-    exit 1
-fi
+    echo "repo connection ok"
 
-pkill pistar-hourly.cron > /dev/null 2>&1
+    # remove rmb conflicts
+    if [[ $(grep -- '-RMB' /etc/pistar-release) ]] ; then
+    	cp -a /var/www/dashboard/config/{config.php,ircddblocal.php,language.php} /root/ # save user config files.
+    	cp -a /etc/pistar-css.ini /root/ # save user config files.
+    	cp -a /etc/ip*ables.rules /root/ # save user config files.
+    	/usr/local/sbin/pistar-services fullstop > /dev/null 2<&1 
+    	uaStr="WPSD-Installer & F1RMB Remover"
 
+    	# curl option array
+    	declare -a CURL_OPTIONS=('-Ls' '-A' "${uaStr}")
+    	curl "${CURL_OPTIONS[@]}" ${W0CHP_INSTALL_SCRIPT_REPO} -o /usr/sbin/WPSD-Installer
+    	chmod +x /usr/sbin/WPSD-Installer
+    	curl -Ls https://raw.githubusercontent.com/f1rmb/f1rmb-pistar/master/f1rmb-pistar | env NO_SELF_UPDATE=1 bash -s -- -ra > /dev/null 2<&1
+    	env UPDATE_SELF=0 /usr/sbin/WPSD-Installer -id > /dev/null 2<&1
+    	/usr/local/sbin/pistar-services fullstop > /dev/null 2<&1 
+    	mv /root/{config.php,ircddblocal.php,language.php} /var/www/dashboard/config/ # move back the user config files
+    	mv /root/pistar-css.ini /etc/ # move back the user config files
+    	mv /root/ip*ables.rules /etc/ # move back the user config files
+    	/usr/local/sbin/pistar-services start > /dev/null 2<&1 
+    	exit 0
+    fi
 
-if [[ $(grep -- '-RMB' /etc/pistar-release) ]] ; then
-    cp -a /var/www/dashboard/config/{config.php,ircddblocal.php,language.php} /root/ # save user config files.
-    cp -a /etc/pistar-css.ini /root/ # save user config files.
-    cp -a /etc/ip*ables.rules /root/ # save user config files.
-    /usr/local/sbin/pistar-services fullstop > /dev/null 2<&1 
-    uaStr="WPSD-Installer & F1RMB Remover"
-    # curl option array
-    declare -a CURL_OPTIONS=('-Ls' '-A' "${uaStr}")
-    curl "${CURL_OPTIONS[@]}" ${W0CHP_INSTALL_SCRIPT_REPO} -o /usr/sbin/WPSD-Installer
+    # Update sbin
+    env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron [${cronHours}:${cronMins} ${tz}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]" git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git pull origin master
+
+    # Update the Dashboard
+    # W0CHP has more than one branch. So depending on what W0CHP branch the user has installed, check that branch.
+    gitFolder="/var/www/dashboard"
+    gitBranch="$( git --git-dir=${gitFolder}/.git branch | grep '*' | awk {'print $2'} )"
+    cd ${gitFolder}
+    git stash # save user config files: config/config.php config/ircddblocal.php config/language.php
+    env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron [${cronHours}:${cronMins} ${tz}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]" git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git pull origin ${gitBranch}
+    git reset --hard
+    git checkout stash@{0} -- config/config.php config/ircddblocal.php config/language.php # restore user config files from stash
+    git stash clear # housekeeping
+
+    # Host Files Update
+    if ! [ -f /root/M17Hosts.txt ]; then
+    	echo -e "# Format: Reflector Name IP Port\n# Example:\n# M17-000    81.231.241.25    17000\n\n" > /root/M17Hosts.txt
+    fi
+    /usr/local/sbin/HostFilesUpdate.sh > /dev/null 2>&1
+
+    # Get and cache latest W0CHP-PiStar-Dash version from remote Git repo:
+    gitRemoteURL=$(git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git config --get remote.origin.url)
+    gitBranch="$( git --git-dir=${gitFolder}/.git branch | grep '*' | awk {'print $2'} )"
+    gitStatusRemote=$(env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck Version Cacher (Daily-Cron [${cronHours}:${cronMins} ${tz}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]" git ls-remote --heads ${gitRemoteURL} ${gitBranch} | grep ${gitBranch} | awk {'print $1'} | awk '{ print substr($1,1,10) }') # last pipe to awk: converts long hash to 10 chars.
+    echo ${gitStatusRemote} > /etc/.W0CHP-PiStar-Dash.remote_version
+
+   # binary management
+    function GetBinStatus() {
+    	dir="/usr/local/bin"
+    	repo=$(git --work-tree=${dir} --git-dir=${dir}/.git config --get remote.origin.url)
+    	if [ "$repo" == "$OFFICIAL_BIN_REPO" ]; then
+            echo "1" # bin switch needed
+    	else
+            echo "0" # already on W0CHP bins
+    	fi
+    }
+    function BinRepoSwitch() {
+	if [[ $(GetBinStatus) == 1 ]]; then # "1" = bin switch needed
+	    rm -rf /usr/local/bin
+	    GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron [${cronHours}:${cronMins} ${tz}]; BinSwitch) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]" git clone  $W0CHP_BIN_REPO /usr/local/bin
+	    checkMMDVMhostINI=$(grep -A 15 "DMR Network" /etc/mmdvmhost | grep -v "DMR Network" | grep -v '^\d*$' | grep "RemoteAddress=127.0.0.1")
+	    if [[ ! ${checkMMDVMhostINI} ]] ; then
+		sed -i '/\[DMR Network\]/a RemoteAddress=127.0.0.1' /etc/mmdvmhost # need this for new conf. dicts.
+	    fi
+	fi
+    }
+    # check if bin repo switch is needed
+    BinRepoSwitch
+
+    # Update the Binaries
+    GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron [${cronHours}:${cronMins} ${tz}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]" git --work-tree=/usr/local/bin --git-dir=/usr/local/bin/.git pull origin master
+
+    # update installer
+    curl -Ls -A "${uaStrSF}" ${W0CHP_INSTALL_SCRIPT_REPO} -o /usr/sbin/WPSD-Installer
     chmod +x /usr/sbin/WPSD-Installer
-    curl -Ls https://raw.githubusercontent.com/f1rmb/f1rmb-pistar/master/f1rmb-pistar | env NO_SELF_UPDATE=1 bash -s -- -ra > /dev/null 2<&1
-    env UPDATE_SELF=0 /usr/sbin/WPSD-Installer -id > /dev/null 2<&1
-    /usr/local/sbin/pistar-services fullstop > /dev/null 2<&1 
-    mv /root/{config.php,ircddblocal.php,language.php} /var/www/dashboard/config/ # move back the user config files
-    mv /root/pistar-css.ini /etc/ # move back the user config files
-    mv /root/ip*ables.rules /etc/ # move back the user config files
-    /usr/local/sbin/pistar-services start > /dev/null 2<&1 
-    exit 0
+
+    # New CSS mappings and funcs (git master #e2d2e9d092)...have to reset :-/
+    CSS_FILE="/etc/pistar-css.ini"
+    if [ ! -f $CSS_FILE ] ; then
+	curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/pistar-css-dist.ini -o /etc/pistar-css.ini
+    fi
+
+    # mmdvmhost log backup services
+    if [ ! -f "/lib/systemd/system/mmdvm-log-backup.service" ] ; then
+    	curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/Build-MMDVM-Log-Systemd-Tasks.sh -o /tmp/Build-MMDVM-Log-Systemd-Tasks.sh
+    	bash /tmp/Build-MMDVM-Log-Systemd-Tasks.sh > /dev/null 2<&1
+    	rm /tmp/Build-MMDVM-Log-Systemd-Tasks.sh
+    fi
+
+    # setup our own native NextionDriver service...
+    if [ ! -f '/lib/systemd/system/nextiondriver.service' ] ; then # lets get a native service placeholder installed at the very least
+    	curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/mmdvmhost.service-W0CHP  -o /lib/systemd/system/mmdvmhost.service
+   	curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/nextiondriver.service-W0CHP  -o /lib/systemd/system/nextiondriver.service
+    	# Enable the NextionDriver service
+    	systemctl daemon-reload > /dev/null 2<&1
+    	systemctl stop nextiondriver.service > /dev/null 2<&1
+    	/usr/bin/killall NextionDriver > /dev/null 2<&1
+    	systemctl enable nextiondriver.service > /dev/null 2<&1
+    fi
+    if [ -f '/lib/systemd/system/nextiondriver.service' ] ; then # for non-Nextion instances, ensure existing service is ours vs. ON7LDS'
+    	if systemctl status nextiondriver.service | grep masked > /dev/null 2<&1 ; then
+	    systemctl unmask nextiondriver.service > /dev/null 2<&1
+	    systemctl daemon-reload > /dev/null 2<&1
+    	fi
+	if [ "`sed -nr "/^\[General\]/,/^\[/{ :l /^\s*[^#].*/ p; n; /^\[/ q; b l; }" /etc/mmdvmhost | grep "Display" | cut -d= -f 2`" != "Nextion" ]; then
+	    if grep -qo 'killall' /lib/systemd/system/nextiondriver.service ; then
+	    	curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/mmdvmhost.service-W0CHP  -o /lib/systemd/system/mmdvmhost.service
+	    	curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/nextiondriver.service-W0CHP  -o /lib/systemd/system/nextiondriver.service
+            	systemctl daemon-reload > /dev/null 2<&1
+            	systemctl stop nextiondriver.service > /dev/null 2<&1
+            	/usr/bin/killall NextionDriver > /dev/null 2<&1
+	    	systemctl enable nextiondriver.service > /dev/null 2<&1
+	    fi
+	fi
+    fi
+    # now, disable nextion driver stuff if display != Nextion in mmdvmhost config...
+    if [ "`sed -nr "/^\[General\]/,/^\[/{ :l /^\s*[^#].*/ p; n; /^\[/ q; b l; }" /etc/mmdvmhost | grep "Display" | cut -d= -f 2`" != "Nextion" ]; then
+    	if grep -qo 'Requires=nextiondriver.service' /lib/systemd/system/mmdvmhost.service ; then # if nextion is re'q, get rid of it
+            sed -i '/Requires=nextiondriver.service/d' /lib/systemd/system/mmdvmhost.service
+            systemctl daemon-reload > /dev/null 2<&1
+    	fi
+    	if grep -qo 'RequiredBy=mmdvmhost.service' /lib/systemd/system/nextiondriver.service ; then # if mmdvmhost is re'q, get rid of it
+            sed -i '/RequiredBy=mmdvmhost.service/d' /lib/systemd/system/nextiondriver.service
+            systemctl daemon-reload > /dev/null 2<&1
+    	fi
+    	# stop and disable
+    	if ! systemctl status nextiondriver.service | grep 'disabled;' > /dev/null 2<&1 ; then
+	    systemctl stop nextiondriver.service > /dev/null 2<&1
+	    /usr/bin/killall NextionDriver > /dev/null 2<&1
+	    systemctl disable nextiondriver.service > /dev/null 2<&1
+	    systemctl daemon-reload > /dev/null 2<&1
+     	fi
+    fi
+    # user has Nextion defined in mmdvmhost, so let's natively support it:
+    if [ "`sed -nr "/^\[General\]/,/^\[/{ :l /^\s*[^#].*/ p; n; /^\[/ q; b l; }" /etc/mmdvmhost | grep "Display" | cut -d= -f 2`" = "Nextion" ]; then
+    	if grep -qo 'killall' /lib/systemd/system/nextiondriver.service ; then # our native support has not been installed/config'd, user likely using ON7LDS script - init!
+	    systemctl stop nextiondriver.service > /dev/null 2<&1
+	    /usr/bin/killall NextionDriver > /dev/null 2<&1
+	    curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/mmdvmhost.service-W0CHP  -o /lib/systemd/system/mmdvmhost.service
+	    curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/nextiondriver.service-W0CHP  -o /lib/systemd/system/nextiondriver.service
+	    systemctl daemon-reload > /dev/null 2<&1
+	    systemctl enable nextiondriver.service > /dev/null 2<&1
+	    systemctl restart nextiondriver.service > /dev/null 2<&1
+	    systemctl restart mmdvmhost.service > /dev/null 2<&1
+	fi
+    fi
+else
+    echo "repo connetion failure"
 fi
 
 # bullseye; change weird interface names* back to what most are accustomed to;
@@ -95,9 +226,6 @@ fi
 # maint. tasks
 /usr/local/sbin/wpsd-backend-maint > /dev/null 2>&1
 
-# Stop all the services...
-pistar-services fullstop > /dev/null 2>&1
-
 # Add DGIdGateway timer to the APRS timer (dependency).
 if ! grep -q 'Before=mmdvmhost.timer' /lib/systemd/system/aprsgateway.service ; then
     sed -i '/After=/a Before=mmdvmhost.timer ircddbgateway.timer ysfgateway.timer nxdngateway.timer dgidgateway.timer' /lib/systemd/system/aprsgateway.service
@@ -108,11 +236,6 @@ if ! grep -q 'CallLookupProvider =' /etc/pistar-release ; then
    sed -i '/ConfUpdReqd/a CallLookupProvider = QRZ' /etc/pistar-release
 fi
 
-# New CSS mappings and funcs (git master #e2d2e9d092)...have to reset :-/
-CSS_FILE="/etc/pistar-css.ini"
-if [ ! -f $CSS_FILE ] ; then
-    curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/pistar-css-dist.ini -o /etc/pistar-css.ini
-fi
 # New CSS mappings and funcs (git master #e2d2e9d092)...have to reset :-/
 if [ -f $CSS_FILE ] && [ ! $( grep 'TextLinkColor' $CSS_FILE) ] ; then
 	echo -e "\n\nNOTE: Custom user CSS detected. Since W0CHP-PiStar-Dash Ver.#e2d2e9d092, the CSS mappings have been updated, and you must. manually edit your custom values again."
@@ -134,32 +257,6 @@ if [ -f $CSS_FILE ] && [ $( grep 'NavPanelColor#edf0f5=' $CSS_FILE) ] ; then
 	sed -i 's/NavPanelColor#edf0f5=/NavPanelColor=#edf0f5/g' $CSS_FILE
 fi
 
-# Update sbin
-env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron [${cronHours}:${cronMins} ${tz}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]" git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git pull origin master
-
-# Update the Dashboard
-# W0CHP has more than one branch. So depending on what W0CHP branch the user has installed, check that branch.
-gitFolder="/var/www/dashboard"
-gitBranch="$( git --git-dir=${gitFolder}/.git branch | grep '*' | awk {'print $2'} )"
-cd ${gitFolder}
-git stash # save user config files: config/config.php config/ircddblocal.php config/language.php
-env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron [${cronHours}:${cronMins} ${tz}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]" git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git pull origin ${gitBranch}
-git reset --hard
-git checkout stash@{0} -- config/config.php config/ircddblocal.php config/language.php # restore user config files from stash
-git stash clear # housekeeping
-
-# Host Files Update
-if ! [ -f /root/M17Hosts.txt ]; then
-    echo -e "# Format: Reflector Name IP Port\n# Example:\n# M17-000    81.231.241.25    17000\n\n" > /root/M17Hosts.txt
-fi
-/usr/local/sbin/HostFilesUpdate.sh > /dev/null 2>&1
-
-# Get and cache latest W0CHP-PiStar-Dash version from remote Git repo:
-gitRemoteURL=$(git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git config --get remote.origin.url)
-gitBranch="$( git --git-dir=${gitFolder}/.git branch | grep '*' | awk {'print $2'} )"
-gitStatusRemote=$(env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck Version Cacher (Daily-Cron [${cronHours}:${cronMins} ${tz}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]" git ls-remote --heads ${gitRemoteURL} ${gitBranch} | grep ${gitBranch} | awk {'print $1'} | awk '{ print substr($1,1,10) }') # last pipe to awk: converts long hash to 10 chars.
-echo ${gitStatusRemote} > /etc/.W0CHP-PiStar-Dash.remote_version
-
 # Generate /etc/motd
 bash /usr/local/sbin/pistar-motdgen
 
@@ -175,33 +272,6 @@ if ! grep -q 'hwcache' /etc/rc.local ; then
 else
     /usr/local/sbin/pistar-hwcache
 fi
-
-function GetBinStatus() {
-    dir="/usr/local/bin"
-    repo=$(git --work-tree=${dir} --git-dir=${dir}/.git config --get remote.origin.url)
-    if [ "$repo" == "$OFFICIAL_BIN_REPO" ]; then
-        echo "1" # bin switch needed
-    else
-        echo "0" # already on W0CHP bins
-    fi
-}
-
-function BinRepoSwitch() {
-    if [[ $(GetBinStatus) == 1 ]]; then # "1" = bin switch needed
-        rm -rf /usr/local/bin
-        GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron [${cronHours}:${cronMins} ${tz}]; BinSwitch) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]" git clone  $W0CHP_BIN_REPO /usr/local/bin
-        checkMMDVMhostINI=$(grep -A 15 "DMR Network" /etc/mmdvmhost | grep -v "DMR Network" | grep -v '^\d*$' | grep "RemoteAddress=127.0.0.1")
-        if [[ ! ${checkMMDVMhostINI} ]] ; then
-            sed -i '/\[DMR Network\]/a RemoteAddress=127.0.0.1' /etc/mmdvmhost # need this for new conf. dicts.
-        fi
-    fi
-}
-
-# check if bin repo switch is needed
-BinRepoSwitch
-
-# Update the Binaries
-GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron [${cronHours}:${cronMins} ${tz}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]" git --work-tree=/usr/local/bin --git-dir=/usr/local/bin/.git pull origin master
 
 # Purge the logs older than 2 days
 rm -f $(find /var/log/pi-star/*.log -type f -mtime +1 -print)
@@ -235,75 +305,6 @@ fi
 p25GwToLen=$( grep InactivityTimeout /etc/p25gateway | awk -F "=" '{print $2}' | wc -m > /dev/null )
 if [[ "${p25GwToLen}"  -lt "4" ]] ; then
     sed -i "/InactivityTimeout/c\\InactivityTimeout=1440" /etc/p25gateway
-fi
-
-# update installer
-curl -Ls -A "${uaStrSF}" ${W0CHP_INSTALL_SCRIPT_REPO} -o /usr/sbin/WPSD-Installer
-chmod +x /usr/sbin/WPSD-Installer
-
-# mmdvmhost log backup services
-if [ ! -f "/lib/systemd/system/mmdvm-log-backup.service" ] ; then
-    curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/Build-MMDVM-Log-Systemd-Tasks.sh -o /tmp/Build-MMDVM-Log-Systemd-Tasks.sh
-    bash /tmp/Build-MMDVM-Log-Systemd-Tasks.sh > /dev/null 2<&1
-    rm /tmp/Build-MMDVM-Log-Systemd-Tasks.sh
-fi
-
-# setup our own native NextionDriver service...
-if [ ! -f '/lib/systemd/system/nextiondriver.service' ] ; then # lets get a native service placeholder installed at the very least
-    curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/mmdvmhost.service-W0CHP  -o /lib/systemd/system/mmdvmhost.service
-    curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/nextiondriver.service-W0CHP  -o /lib/systemd/system/nextiondriver.service
-    # Enable the NextionDriver service
-    systemctl daemon-reload > /dev/null 2<&1
-    systemctl stop nextiondriver.service > /dev/null 2<&1
-    /usr/bin/killall NextionDriver > /dev/null 2<&1
-    systemctl enable nextiondriver.service > /dev/null 2<&1
-fi
-if [ -f '/lib/systemd/system/nextiondriver.service' ] ; then # for non-Nextion instances, ensure existing service is ours vs. ON7LDS'
-    if systemctl status nextiondriver.service | grep masked > /dev/null 2<&1 ; then
-	systemctl unmask nextiondriver.service > /dev/null 2<&1
-	systemctl daemon-reload > /dev/null 2<&1
-    fi
-    if [ "`sed -nr "/^\[General\]/,/^\[/{ :l /^\s*[^#].*/ p; n; /^\[/ q; b l; }" /etc/mmdvmhost | grep "Display" | cut -d= -f 2`" != "Nextion" ]; then
-	if grep -qo 'killall' /lib/systemd/system/nextiondriver.service ; then
-	    curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/mmdvmhost.service-W0CHP  -o /lib/systemd/system/mmdvmhost.service
-	    curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/nextiondriver.service-W0CHP  -o /lib/systemd/system/nextiondriver.service
-            systemctl daemon-reload > /dev/null 2<&1
-            systemctl stop nextiondriver.service > /dev/null 2<&1
-            /usr/bin/killall NextionDriver > /dev/null 2<&1
-	    systemctl enable nextiondriver.service > /dev/null 2<&1
-	fi
-    fi
-fi
-# now, disable nextion driver stuff if display != Nextion in mmdvmhost config...
-if [ "`sed -nr "/^\[General\]/,/^\[/{ :l /^\s*[^#].*/ p; n; /^\[/ q; b l; }" /etc/mmdvmhost | grep "Display" | cut -d= -f 2`" != "Nextion" ]; then
-    if grep -qo 'Requires=nextiondriver.service' /lib/systemd/system/mmdvmhost.service ; then # if nextion is re'q, get rid of it
-        sed -i '/Requires=nextiondriver.service/d' /lib/systemd/system/mmdvmhost.service
-        systemctl daemon-reload > /dev/null 2<&1
-    fi
-    if grep -qo 'RequiredBy=mmdvmhost.service' /lib/systemd/system/nextiondriver.service ; then # if mmdvmhost is re'q, get rid of it
-        sed -i '/RequiredBy=mmdvmhost.service/d' /lib/systemd/system/nextiondriver.service
-        systemctl daemon-reload > /dev/null 2<&1
-    fi
-    # stop and disable
-    if ! systemctl status nextiondriver.service | grep 'disabled;' > /dev/null 2<&1 ; then
-	systemctl stop nextiondriver.service > /dev/null 2<&1
-	/usr/bin/killall NextionDriver > /dev/null 2<&1
-	systemctl disable nextiondriver.service > /dev/null 2<&1
-	systemctl daemon-reload > /dev/null 2<&1
-     fi
-fi
-# user has Nextion defined in mmdvmhost, so let's natively support it:
-if [ "`sed -nr "/^\[General\]/,/^\[/{ :l /^\s*[^#].*/ p; n; /^\[/ q; b l; }" /etc/mmdvmhost | grep "Display" | cut -d= -f 2`" = "Nextion" ]; then
-    if grep -qo 'killall' /lib/systemd/system/nextiondriver.service ; then # our native support has not been installed/config'd, user likely using ON7LDS script - init!
-	systemctl stop nextiondriver.service > /dev/null 2<&1
-	/usr/bin/killall NextionDriver > /dev/null 2<&1
-	curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/mmdvmhost.service-W0CHP  -o /lib/systemd/system/mmdvmhost.service
-	curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/nextiondriver.service-W0CHP  -o /lib/systemd/system/nextiondriver.service
-	systemctl daemon-reload > /dev/null 2<&1
-	systemctl enable nextiondriver.service > /dev/null 2<&1
-	systemctl restart nextiondriver.service > /dev/null 2<&1
-	systemctl restart mmdvmhost.service > /dev/null 2<&1
-    fi
 fi
 
 # m17 service installer bugfix:

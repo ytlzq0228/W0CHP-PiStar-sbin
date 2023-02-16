@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Pi-Star Hourly Cron Job Script W0CHP v2.3
+# Pi-Star Hourly Cron Job Script W0CHP v3.0
 #
 
 mount -o remount,rw / # for shits and giggles
@@ -39,13 +39,18 @@ uaStr="WPSD-ConnectivityCheck (Hourly-Cron [${cronMins}]) Ver.# ${psVer} ${versi
 # connectivity check
 status_code=$(curl -m 3 -A "${uaStr}" --write-out %{http_code} --silent --output /dev/null "https://repo.w0chp.net/WPSD-Dev/W0CHP-PiStar-Dash.git/info/refs?service=git-upload-pack")
 if [[ $status_code == 20* ]] || [[ $status_code == 30* ]] ; then
-    echo -e "Connection established!\n"
+    echo "repo connection OK"
+    # Update sbin
+    env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-hourly-sbin-Updater (Hourly-Cron [${cronMins}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]" git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git pull origin master
+    # Get and cache latest W0CHP-PiStar-Dash version from remote Git repo:
+    gitFolder="/var/www/dashboard"
+    gitRemoteURL=$(git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git config --get remote.origin.url)
+    gitBranch="$( git --git-dir=${gitFolder}/.git branch | grep '*' | awk {'print $2'} )"
+    gitStatusRemote=$(env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck Version Cacher (Hourly-Cron [${cronMins}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]" git ls-remote --heads ${gitRemoteURL} | grep ${gitBranch} | awk {'print $1'} | awk '{ print substr($1,1,10) }') # last pipe to awk: converts long hash to 10 chars.
+    echo ${gitStatusRemote} > /etc/.W0CHP-PiStar-Dash.remote_version
 else
-    exit 1
+    echo "repo connection failure"
 fi
-
-# Update sbin
-env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-hourly-sbin-Updater (Hourly-Cron [${cronMins}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]" git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git pull origin master
 
 # Shrink NginX error log to stop it getting out of hand
 echo "$(tail -500 /var/log/nginx/error.log)" > /var/log/nginx/error.log
@@ -64,18 +69,11 @@ chmod 775 /var/log/pi-star
 
 # Keep the Callsign/Name Lookup Temp files in check...helps with page/name lookup perf. (W0CHP - 12/2021)
 if compgen -G "/tmp/Callsign_Name.txt*" > /dev/null; then
-        if [[ $( wc -l /tmp/Callsign_Name.txt.TMP ) > "50" ]]; then
+    if [[ $( wc -l /tmp/Callsign_Name.txt.TMP ) > "50" ]]; then
         echo "" > /tmp/Callsign_Name.txt.TMP
         echo "" > /tmp/Callsign_Name.txt
     fi
 fi
-
-# Get and cache latest W0CHP-PiStar-Dash version from remote Git repo:
-gitFolder="/var/www/dashboard"
-gitRemoteURL=$(git --work-tree=${gitFolder} --git-dir=${gitFolder}/.git config --get remote.origin.url)
-gitBranch="$( git --git-dir=${gitFolder}/.git branch | grep '*' | awk {'print $2'} )"
-gitStatusRemote=$(env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck Version Cacher (Hourly-Cron [${cronMins}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]" git ls-remote --heads ${gitRemoteURL} | grep ${gitBranch} | awk {'print $1'} | awk '{ print substr($1,1,10) }') # last pipe to awk: converts long hash to 10 chars.
-echo ${gitStatusRemote} > /etc/.W0CHP-PiStar-Dash.remote_version
 
 # Shuffle the time for the next hourly crontab job
 sed -i "/cron.hourly/c ${cronMins}  *   * * *   root    cd / && run-parts --report /etc/cron.hourly" /etc/crontab
