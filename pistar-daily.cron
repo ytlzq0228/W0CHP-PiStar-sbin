@@ -59,7 +59,7 @@ if [[ $status_code == 20* ]] || [[ $status_code == 30* ]] ; then
     # remove rmb conflicts
     if [[ $(grep -- '-RMB' /etc/pistar-release) ]] ; then
     	cp -a /var/www/dashboard/config/{config.php,ircddblocal.php,language.php} /root/ # save user config files.
-    	cp -a /etc/pistar-css.ini /root/ # save user config files.
+    	rm -f /etc/pistar-css.ini
     	cp -a /etc/ip*ables.rules /root/ # save user config files.
     	/usr/local/sbin/pistar-services fullstop > /dev/null 2<&1 
     	uaStr="WPSD-Installer & F1RMB Remover"
@@ -72,7 +72,6 @@ if [[ $status_code == 20* ]] || [[ $status_code == 30* ]] ; then
     	env UPDATE_SELF=0 /usr/sbin/WPSD-Installer -id > /dev/null 2<&1
     	/usr/local/sbin/pistar-services fullstop > /dev/null 2<&1 
     	mv /root/{config.php,ircddblocal.php,language.php} /var/www/dashboard/config/ # move back the user config files
-    	mv /root/pistar-css.ini /etc/ # move back the user config files
     	mv /root/ip*ables.rules /etc/ # move back the user config files
     	/usr/local/sbin/pistar-services start > /dev/null 2<&1 
     	exit 0
@@ -134,10 +133,10 @@ if [[ $status_code == 20* ]] || [[ $status_code == 30* ]] ; then
     curl -Ls -A "${uaStrSF}" ${W0CHP_INSTALL_SCRIPT_REPO} -o /usr/sbin/WPSD-Installer
     chmod +x /usr/sbin/WPSD-Installer
 
-    # New CSS mappings and funcs (git master #e2d2e9d092)...have to reset :-/
+    # if css does not exist, install default one
     CSS_FILE="/etc/pistar-css.ini"
     if [ ! -f $CSS_FILE ] ; then
-	curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/pistar-css-dist.ini -o /etc/pistar-css.ini
+	curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/pistar-css-W0CHP.ini -o /etc/pistar-css.ini
     fi
 
     # mmdvmhost log backup services
@@ -234,27 +233,6 @@ fi
 # add CallLookupProvider to /etc/pistar-release if not there...
 if ! grep -q 'CallLookupProvider =' /etc/pistar-release ; then
    sed -i '/ConfUpdReqd/a CallLookupProvider = QRZ' /etc/pistar-release
-fi
-
-# New CSS mappings and funcs (git master #e2d2e9d092)...have to reset :-/
-if [ -f $CSS_FILE ] && [ ! $( grep 'TextLinkColor' $CSS_FILE) ] ; then
-	echo -e "\n\nNOTE: Custom user CSS detected. Since W0CHP-PiStar-Dash Ver.#e2d2e9d092, the CSS mappings have been updated, and you must. manually edit your custom values again."
-	echo -e "You can reference the customizations you previously had by viewing the file: /etc/.pistar-css.ini.user and then manually re-mapping those values in the Expert CSS Editor Page.\n\n"
-	mv /etc/pistar-css.ini /etc/.pistar-css.ini.user
-fi
-#  in place edit for new CSS mappings
-#if [ -f $CSS_FILE ] && [ $( grep 'HeaderFontSize' $CSS_FILE) ] ; then
-	#sed -i '/\[ExtraSettings\]/a TableBorderColor=#777777' $CSS_FILE
-	#sed -i 's/FontSize=/MainFontSize=/' $CSS_FILE
-	#sed -i '/MainFontSize=/a HeaderFontSize=34' $CSS_FILE
-	#sed -i '/HeaderFontSize=/a BodyFontSize=17' $CSS_FILE
-#fi
-if [ -f $CSS_FILE ] && ! [ $( grep 'TextSectionColor' $CSS_FILE) ] ; then
-	sed -i '/\[Text\]/a TextSectionColor=#000000' $CSS_FILE
-fi
-# fix css bug derived from editor
-if [ -f $CSS_FILE ] && [ $( grep 'NavPanelColor#edf0f5=' $CSS_FILE) ] ; then
-	sed -i 's/NavPanelColor#edf0f5=/NavPanelColor=#edf0f5/g' $CSS_FILE
 fi
 
 # Generate /etc/motd

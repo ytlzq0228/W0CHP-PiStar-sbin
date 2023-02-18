@@ -406,10 +406,10 @@ main_function() {
 	   sed -i '/ConfUpdReqd/a CallLookupProvider = QRZ' /etc/pistar-release
 	fi
 
-	CSS_FILE="/etc/pistar-css.ini"
 	# if css does not exist, install default one
+	CSS_FILE="/etc/pistar-css.ini"
 	if [ ! -f $CSS_FILE ] ; then
-	    curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/pistar-css-dist.ini -o /etc/pistar-css.ini
+	    curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/pistar-css-W0CHP.ini -o /etc/pistar-css.ini
 	fi
 
 	# Fix up new P25Gateway Config Hostfile setup
