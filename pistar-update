@@ -248,12 +248,12 @@ main_function() {
 	    fi
 	fi
 
-	echo "Updating W0CHP-PiStar-Dash Binaries & Scripts..."
+	echo "Updating W0CHP-PiStar-Dash Scripts and Support Programs..."
 	git_update /usr/local/sbin
 	#systemctl daemon-reload > /dev/null 2>&1
 	echo -e "${TICK} Done!\n"
 
-	echo "Updating W0CHP-PiStar-Dash Digital Voice Binaries..."
+	echo "Updating W0CHP-PiStar-Dash Digital Voice and Related Binaries..."
 	git_update /usr/local/bin
 	echo -e "${TICK} Done!\n"
 
