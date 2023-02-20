@@ -407,8 +407,7 @@ main_function() {
 	fi
 
 	# if css does not exist, install default one
-	CSS_FILE="/etc/pistar-css.ini"
-	if [ ! -f $CSS_FILE ] ; then
+	if [ ! -f "/etc/pistar-css.ini" ] ; then
 	    curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/pistar-css-W0CHP.ini -o /etc/pistar-css.ini
 	fi
 
