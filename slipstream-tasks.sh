@@ -5,7 +5,7 @@
 # This part fully-disables read-only mode in Pi-Star and
 # W0CHP-PiStar-Dash installations.
 #
-# 1/2023 - W0CHP
+# 1/2023 - W0CHP (updated on 2/23/2023)
 #
 if grep -qo ',ro' /etc/fstab ; then
     sed -i 's/defaults,ro/defaults,rw/g' /etc/fstab
@@ -24,9 +24,28 @@ fi
 if grep -qo 'remount,ro' /etc/rc.local ; then
     sed -i '/remount,ro/d' /etc/rc.local
 fi
+if grep -qo 'remount,ro' /etc/apt/apt.conf.d/100update ; then
+    sed -i '/remount,ro/d' /etc/apt/apt.conf.d/100update
+fi
+if grep -qo 'remount,ro' /lib/systemd/system/apt-daily-upgrade.service ; then
+    sed -i '/remount,ro/d' /lib/systemd/system/apt-daily-upgrade.service
+    systemctl daemon-reload 
+fi
+if grep -qo 'remount,ro' /lib/systemd/system/apt-daily.service ; then
+    sed -i '/remount,ro/d' /lib/systemd/system/apt-daily.service
+    systemctl daemon-reload 
+fi
+if grep -qo 'remount,ro' /etc/systemd/system/apt-daily-upgrade.service ; then
+    sed -i '/remount,ro/d' /etc/systemd/system/apt-daily-upgrade.service
+    systemctl daemon-reload 
+fi
+if grep -qo 'remount,ro' /etc/systemd/system/apt-daily.service ; then
+    sed -i '/remount,ro/d' /etc/systemd/system/apt-daily.service
+    systemctl daemon-reload 
+fi
 #
 
-# Git URI changed to transferring repos from me to the org. in the repo.
+# Git URI changed when transferring repos from me to the org.
 #
 # 2/2023 - W0CHP
 #
