@@ -1,9 +1,19 @@
 #!/bin/bash
 
 #
-# Nextion driver helper; if user selects Nexion driver for MMDVMHost, enable the service. If Nextion is not defined/seleced, disable it.
+# Nextion driver helper; if user selects Nexion driver for MMDVMHost, enable
+# the service. If Nextion is not defined/seleced, disable it.
 # 2/2023 - W0CHP
 # 
+
+# Updated 2/23/2023 - W0CHP:
+# TGIFspots contain really weird hacks/scripts, etc.[1] for their Nextion
+# screens, and it all collides with WPSD and our native Nextion driver
+# support.  So lets ignore TGIFspots altogether.
+# [1] <https://github.com/EA7KDO/Scripts>
+if [ -f '/etc/cron.daily/getstripped' ] || [ -d '/usr/local/etc/Nextion_Support/' ] || [ -d '/Nextion' ] || grep -q 'SendUserDataMask=0b00011110' /etc/mmdvmhost ; then # these are hacks that seem to exist on TGIFspots.
+    exit 1 # bail - TGIFspot detected.
+fi
 
 # user has Nextion defined in mmdvmhost, so let's natively support it:
 if [ "`sed -nr "/^\[General\]/,/^\[/{ :l /^\s*[^#].*/ p; n; /^\[/ q; b l; }" /etc/mmdvmhost | grep "Display" | cut -d= -f 2`" = "Nextion" ]; then
