@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# W0CHP pistar-daily.cron (enhanced) v4.0
+# W0CHP pistar-daily.cron (enhanced)
 #
 
 # Make sure we are root
@@ -124,61 +124,70 @@ if [[ $status_code == 20* ]] || [[ $status_code == 30* ]] ; then
     fi
 
     # setup our own native NextionDriver service...
-    if [ ! -f '/lib/systemd/system/nextiondriver.service' ] ; then # lets get a native service placeholder installed at the very least
-    	curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/mmdvmhost.service-W0CHP  -o /lib/systemd/system/mmdvmhost.service
-   	curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/nextiondriver.service-W0CHP  -o /lib/systemd/system/nextiondriver.service
-    	# Enable the NextionDriver service
-    	systemctl daemon-reload > /dev/null 2<&1
-    	systemctl stop nextiondriver.service > /dev/null 2<&1
-    	/usr/bin/killall NextionDriver > /dev/null 2<&1
-    	systemctl enable nextiondriver.service > /dev/null 2<&1
-    fi
-    if [ -f '/lib/systemd/system/nextiondriver.service' ] ; then # for non-Nextion instances, ensure existing service is ours vs. ON7LDS'
-    	if systemctl status nextiondriver.service | grep masked > /dev/null 2<&1 ; then
-	    systemctl unmask nextiondriver.service > /dev/null 2<&1
-	    systemctl daemon-reload > /dev/null 2<&1
+    # Updated 2/23/2023 - W0CHP:
+    # TGIFspots contain really weird hacks/scripts, etc.[1] for their Nextion
+    # screens, and it all collides with WPSD and our native Nextion driver
+    # support.  So lets ignore TGIFspots altogether.
+    # [1] <https://github.com/EA7KDO/Scripts>
+    if [ -f '/etc/cron.daily/getstripped' ] || [ -d '/usr/local/etc/Nextion_Support/' ] || [ -d '/Nextion' ] || grep -q 'SendUserDataMask=0b00011110' /etc/mmdvmhost ; then # these are hacks that seem to exist on TGIFspots.
+    	echo "blah" > /dev/null
+    else # yay no tgifspot hacks!
+    	if [ ! -f '/lib/systemd/system/nextiondriver.service' ] ; then # lets get a native service placeholder installed at the very least
+    	    curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/mmdvmhost.service-W0CHP  -o /lib/systemd/system/mmdvmhost.service
+   	    curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/nextiondriver.service-W0CHP  -o /lib/systemd/system/nextiondriver.service
+    	    # Enable the NextionDriver service
+    	    systemctl daemon-reload > /dev/null 2<&1
+    	    systemctl stop nextiondriver.service > /dev/null 2<&1
+    	    /usr/bin/killall NextionDriver > /dev/null 2<&1
+    	    systemctl enable nextiondriver.service > /dev/null 2<&1
     	fi
-	if [ "`sed -nr "/^\[General\]/,/^\[/{ :l /^\s*[^#].*/ p; n; /^\[/ q; b l; }" /etc/mmdvmhost | grep "Display" | cut -d= -f 2`" != "Nextion" ]; then
-	    if grep -qo 'killall' /lib/systemd/system/nextiondriver.service ; then
+    	if [ -f '/lib/systemd/system/nextiondriver.service' ] ; then # for non-Nextion instances, ensure existing service is ours vs. ON7LDS'
+    	    if systemctl status nextiondriver.service | grep masked > /dev/null 2<&1 ; then
+	    	systemctl unmask nextiondriver.service > /dev/null 2<&1
+	    	systemctl daemon-reload > /dev/null 2<&1
+    	    fi
+	    if [ "`sed -nr "/^\[General\]/,/^\[/{ :l /^\s*[^#].*/ p; n; /^\[/ q; b l; }" /etc/mmdvmhost | grep "Display" | cut -d= -f 2`" != "Nextion" ]; then
+	    	if grep -qo 'killall' /lib/systemd/system/nextiondriver.service ; then
+	    	    curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/mmdvmhost.service-W0CHP  -o /lib/systemd/system/mmdvmhost.service
+	    	    curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/nextiondriver.service-W0CHP  -o /lib/systemd/system/nextiondriver.service
+            	    systemctl daemon-reload > /dev/null 2<&1
+            	    systemctl stop nextiondriver.service > /dev/null 2<&1
+            	    /usr/bin/killall NextionDriver > /dev/null 2<&1
+	    	    systemctl enable nextiondriver.service > /dev/null 2<&1
+	        fi
+	    fi
+    	fi
+    	# now, disable nextion driver stuff if display != Nextion in mmdvmhost config...
+    	if [ "`sed -nr "/^\[General\]/,/^\[/{ :l /^\s*[^#].*/ p; n; /^\[/ q; b l; }" /etc/mmdvmhost | grep "Display" | cut -d= -f 2`" != "Nextion" ]; then
+    	    if grep -qo 'Requires=nextiondriver.service' /lib/systemd/system/mmdvmhost.service ; then # if nextion is re'q, get rid of it
+            	sed -i '/Requires=nextiondriver.service/d' /lib/systemd/system/mmdvmhost.service
+            	systemctl daemon-reload > /dev/null 2<&1
+    	    fi
+    	    if grep -qo 'RequiredBy=mmdvmhost.service' /lib/systemd/system/nextiondriver.service ; then # if mmdvmhost is re'q, get rid of it
+            	sed -i '/RequiredBy=mmdvmhost.service/d' /lib/systemd/system/nextiondriver.service
+            	systemctl daemon-reload > /dev/null 2<&1
+    	    fi
+    	    # stop and disable
+    	    if ! systemctl status nextiondriver.service | grep 'disabled;' > /dev/null 2<&1 ; then
+	    	systemctl stop nextiondriver.service > /dev/null 2<&1
+	    	/usr/bin/killall NextionDriver > /dev/null 2<&1
+	    	systemctl disable nextiondriver.service > /dev/null 2<&1
+	    	systemctl daemon-reload > /dev/null 2<&1
+     	    fi
+    	fi
+    	# user has Nextion defined in mmdvmhost, so let's natively support it:
+    	if [ "`sed -nr "/^\[General\]/,/^\[/{ :l /^\s*[^#].*/ p; n; /^\[/ q; b l; }" /etc/mmdvmhost | grep "Display" | cut -d= -f 2`" = "Nextion" ]; then
+    	    if grep -qo 'killall' /lib/systemd/system/nextiondriver.service ; then # our native support has not been installed/config'd, user likely using ON7LDS script - init!
+	    	systemctl stop nextiondriver.service > /dev/null 2<&1
+	    	/usr/bin/killall NextionDriver > /dev/null 2<&1
 	    	curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/mmdvmhost.service-W0CHP  -o /lib/systemd/system/mmdvmhost.service
 	    	curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/nextiondriver.service-W0CHP  -o /lib/systemd/system/nextiondriver.service
-            	systemctl daemon-reload > /dev/null 2<&1
-            	systemctl stop nextiondriver.service > /dev/null 2<&1
-            	/usr/bin/killall NextionDriver > /dev/null 2<&1
+	    	systemctl daemon-reload > /dev/null 2<&1
 	    	systemctl enable nextiondriver.service > /dev/null 2<&1
+	    	systemctl restart nextiondriver.service > /dev/null 2<&1
+	    	systemctl restart mmdvmhost.service > /dev/null 2<&1
 	    fi
-	fi
-    fi
-    # now, disable nextion driver stuff if display != Nextion in mmdvmhost config...
-    if [ "`sed -nr "/^\[General\]/,/^\[/{ :l /^\s*[^#].*/ p; n; /^\[/ q; b l; }" /etc/mmdvmhost | grep "Display" | cut -d= -f 2`" != "Nextion" ]; then
-    	if grep -qo 'Requires=nextiondriver.service' /lib/systemd/system/mmdvmhost.service ; then # if nextion is re'q, get rid of it
-            sed -i '/Requires=nextiondriver.service/d' /lib/systemd/system/mmdvmhost.service
-            systemctl daemon-reload > /dev/null 2<&1
     	fi
-    	if grep -qo 'RequiredBy=mmdvmhost.service' /lib/systemd/system/nextiondriver.service ; then # if mmdvmhost is re'q, get rid of it
-            sed -i '/RequiredBy=mmdvmhost.service/d' /lib/systemd/system/nextiondriver.service
-            systemctl daemon-reload > /dev/null 2<&1
-    	fi
-    	# stop and disable
-    	if ! systemctl status nextiondriver.service | grep 'disabled;' > /dev/null 2<&1 ; then
-	    systemctl stop nextiondriver.service > /dev/null 2<&1
-	    /usr/bin/killall NextionDriver > /dev/null 2<&1
-	    systemctl disable nextiondriver.service > /dev/null 2<&1
-	    systemctl daemon-reload > /dev/null 2<&1
-     	fi
-    fi
-    # user has Nextion defined in mmdvmhost, so let's natively support it:
-    if [ "`sed -nr "/^\[General\]/,/^\[/{ :l /^\s*[^#].*/ p; n; /^\[/ q; b l; }" /etc/mmdvmhost | grep "Display" | cut -d= -f 2`" = "Nextion" ]; then
-    	if grep -qo 'killall' /lib/systemd/system/nextiondriver.service ; then # our native support has not been installed/config'd, user likely using ON7LDS script - init!
-	    systemctl stop nextiondriver.service > /dev/null 2<&1
-	    /usr/bin/killall NextionDriver > /dev/null 2<&1
-	    curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/mmdvmhost.service-W0CHP  -o /lib/systemd/system/mmdvmhost.service
-	    curl -Ls -A "${uaStrSF}" $SUPPORTING_FILES_REPO/nextiondriver.service-W0CHP  -o /lib/systemd/system/nextiondriver.service
-	    systemctl daemon-reload > /dev/null 2<&1
-	    systemctl enable nextiondriver.service > /dev/null 2<&1
-	    systemctl restart nextiondriver.service > /dev/null 2<&1
-	    systemctl restart mmdvmhost.service > /dev/null 2<&1
-	fi
     fi
 else
     echo "repo connetion failure"
