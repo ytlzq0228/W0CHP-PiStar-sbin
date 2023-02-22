@@ -40,6 +40,7 @@ OFFICIAL_BIN_REPO="https://github.com/AndyTaylorTweet/Pi-Star_v4_Binaries_Bin.gi
 W0CHP_INSTALL_SCRIPT_REPO="https://repo.w0chp.net/WPSD-Dev/W0CHP-PiStar-Installer/raw/branch/master/WPSD-Installer"
 SUPPORTING_FILES_REPO="https://repo.w0chp.net/WPSD-Dev/W0CHP-PiStar-Installer/raw/branch/master/supporting-files"
 W0CHP_DASH_BRANCH="$( git --git-dir=/var/www/dashboard/.git branch | grep '*' | awk {'print $2'} )"
+psVer=$( grep Version /etc/pistar-release | awk '{print $3}' )
 versionCmd=$( git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git rev-parse --short=10 HEAD )
 uuidStr=$(egrep 'UUID|ModemType|ModemMode|ControllerType' /etc/pistar-release | awk {'print $3'} | tac | xargs| sed 's/ /_/g')
 modelName=$(grep -m 1 'model name' /proc/cpuinfo | sed 's/.*: //')
@@ -102,29 +103,6 @@ if [[ $status_code == 20* ]] || [[ $status_code == 30* ]] ; then
     gitBranch="$( git --git-dir=${gitFolder}/.git branch | grep '*' | awk {'print $2'} )"
     gitStatusRemote=$(env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck Version Cacher (Daily-Cron [${cronHours}:${cronMins} ${tz}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]" git ls-remote --heads ${gitRemoteURL} ${gitBranch} | grep ${gitBranch} | awk {'print $1'} | awk '{ print substr($1,1,10) }') # last pipe to awk: converts long hash to 10 chars.
     echo ${gitStatusRemote} > /etc/.W0CHP-PiStar-Dash.remote_version
-
-   # binary management
-    function GetBinStatus() {
-    	dir="/usr/local/bin"
-    	repo=$(git --work-tree=${dir} --git-dir=${dir}/.git config --get remote.origin.url)
-    	if [ "$repo" == "$OFFICIAL_BIN_REPO" ]; then
-            echo "1" # bin switch needed
-    	else
-            echo "0" # already on W0CHP bins
-    	fi
-    }
-    function BinRepoSwitch() {
-	if [[ $(GetBinStatus) == 1 ]]; then # "1" = bin switch needed
-	    rm -rf /usr/local/bin
-	    GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron [${cronHours}:${cronMins} ${tz}]; BinSwitch) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]" git clone  $W0CHP_BIN_REPO /usr/local/bin
-	    checkMMDVMhostINI=$(grep -A 15 "DMR Network" /etc/mmdvmhost | grep -v "DMR Network" | grep -v '^\d*$' | grep "RemoteAddress=127.0.0.1")
-	    if [[ ! ${checkMMDVMhostINI} ]] ; then
-		sed -i '/\[DMR Network\]/a RemoteAddress=127.0.0.1' /etc/mmdvmhost # need this for new conf. dicts.
-	    fi
-	fi
-    }
-    # check if bin repo switch is needed
-    BinRepoSwitch
 
     # Update the Binaries
     GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron [${cronHours}:${cronMins} ${tz}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]" git --work-tree=/usr/local/bin --git-dir=/usr/local/bin/.git pull origin master
