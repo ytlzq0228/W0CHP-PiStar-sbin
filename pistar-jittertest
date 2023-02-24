@@ -33,8 +33,8 @@ pingTest() {
 	fi
 
 	# Ping Test
-	if ping -W 2 -c 1 ${1} &> /dev/null; then
-		pingResult=$(ping -W 2 -n -c 5 ${1} | grep "from" | tail -n 3 | awk -F 'time=' '{print $2}' | awk '{print $1}' | sort -g)
+	if ping -4 -W 2 -c 1 ${1} &> /dev/null; then
+		pingResult=$(ping -4 -W 2 -n -c 5 ${1} | grep "from" | tail -n 3 | awk -F 'time=' '{print $2}' | awk '{print $1}' | sort -g)
 		pingTestLow=$(echo ${pingResult} | awk '{print $1}')
 		pingTestMid=$(echo ${pingResult} | awk '{print $2}')
 		pingTestHigh=$(echo ${pingResult} | awk '{print $3}')
