@@ -24,6 +24,7 @@ if ! grep -q 'safe' /root/.gitconfig > /dev/null 2<&1 ; then
 fi
 
 W0CHP_DASH_BRANCH="$( git --git-dir=/var/www/dashboard/.git branch | grep '*' | awk {'print $2'} )"
+CONN_CHECK_URI="https://repo.w0chp.net/WPSD-Dev/W0CHP-PiStar-Dash.git"
 versionCmd=$( git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git rev-parse --short=10 HEAD )
 psVer=$( grep Version /etc/pistar-release | awk '{print $3}' ) 
 uuidStr=$(egrep 'UUID|ModemType|ModemMode|ControllerType' /etc/pistar-release | awk {'print $3'} | tac | xargs| sed 's/ /_/g')
@@ -34,10 +35,10 @@ cronMins=$(shuf -i 0-59 -n 1)
 modelName=$(grep -m 1 'model name' /proc/cpuinfo | sed 's/.*: //')
 hardwareField=$(grep 'Model' /proc/cpuinfo | sed 's/.*: //')
 hwDeetz="${hardwareField} - ${modelName}"
-uaStr="WPSD-ConnectivityCheck (Hourly-Cron [${cronMins}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]"
+uaStr="ConnCheck (Hourly-Cron [${cronMins}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) UUID:${uuidStr} [${hwDeetz}]"
 
 # connectivity check
-status_code=$(curl -m 3 -A "${uaStr}" --write-out %{http_code} --silent --output /dev/null "https://repo.w0chp.net/WPSD-Dev/W0CHP-PiStar-Dash.git/info/refs?service=git-upload-pack")
+status_code=$(curl -I -m 3 -A "${uaStr}" --write-out %{http_code} --silent --output /dev/null "$CONN_CHECK_URI")
 if [[ $status_code == 20* ]] || [[ $status_code == 30* ]] ; then
     echo "repo connection OK"
     # Update sbin

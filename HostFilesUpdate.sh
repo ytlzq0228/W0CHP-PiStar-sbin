@@ -31,7 +31,7 @@ hwDeetz="${hardwareField} - ${modelName}"
 uaStr="WPSD-HostFileUpdater Ver.# ${psVer} ${dashVer} (${gitBranch}) UUID:${uuidStr} [${hwDeetz}]"
 
 # connectivity check
-status_code=$(curl -m 3 -A "${uaStr}" --write-out %{http_code} --silent --output /dev/null ${hostFileURL})
+status_code=$(curl -I -m 3 -A " ConnCheck ${uaStr}" --write-out %{http_code} --silent --output /dev/null ${hostFileURL})
 if [[ $status_code == 20* ]] || [[ $status_code == 30* ]] ; then
     echo "W0CHP Hostfile Update Server connection OK...updating hostfiles."
 else

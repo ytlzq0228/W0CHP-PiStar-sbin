@@ -23,10 +23,9 @@ fi
 versionCmd=$( git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git rev-parse --short=10 HEAD )
 psVer=$( grep Version /etc/pistar-release | awk '{print $3}' )
 W0CHP_DASH_BRANCH="$( git --git-dir=/var/www/dashboard/.git branch | grep '*' | awk {'print $2'} )"
-W0CHP_BIN_REPO="https://repo.w0chp.net/WPSD-Dev/W0CHP-PiStar-bin.git"
-OFFICIAL_BIN_REPO="https://github.com/AndyTaylorTweet/Pi-Star_v4_Binaries_Bin.git"
 SUPPORTING_FILES_REPO="https://repo.w0chp.net/WPSD-Dev/W0CHP-PiStar-Installer/raw/branch/master/supporting-files"
 W0CHP_INSTALL_SCRIPT_REPO="https://repo.w0chp.net/WPSD-Dev/W0CHP-PiStar-Installer/raw/branch/master/WPSD-Installer"
+CONN_CHECK_URI="https://repo.w0chp.net/WPSD-Dev/W0CHP-PiStar-Dash.git"
 uuidStr=$(egrep 'UUID|ModemType|ModemMode|ControllerType' /etc/pistar-release | awk {'print $3'} | tac | xargs| sed 's/ /_/g')
 modelName=$(grep -m 1 'model name' /proc/cpuinfo | sed 's/.*: //')
 hardwareField=$(grep 'Model' /proc/cpuinfo | sed 's/.*: //')
@@ -39,7 +38,7 @@ INFO="[i]"
 # connectivity check
 conn_check() {
     echo -e "\nChecking for connectivity to the W0CHP Update Server (can take up to 30 seconds; please wait...)"
-    status_code=$(curl -m 30 -A "${uaStr}" --write-out %{http_code} --silent --output /dev/null "https://repo.w0chp.net/WPSD-Dev/W0CHP-PiStar-Dash.git/info/refs?service=git-upload-pack")
+    status_code=$(curl -I -m 30 -A "ConnCheck ${uaStr}" --write-out %{http_code} --silent --output /dev/null "$CONN_CHECK_URI")
     if [[ $status_code == 20* ]] || [[ $status_code == 30* ]] ; then
 	echo -e "${TICK} Connection established!\n"
     else
@@ -177,7 +176,7 @@ main_function() {
     	pkill pistar-hourly.cron > /dev/null 2>&1
     	pkill pistar-daily.cron > /dev/null 2>&1
 
-	if [ -t 1 ]; then
+	if [ -t 1 ] && [[ ${NO_OS} -ne 1 ]]; then
 		# This is running from a terminal, so it should be safe to update the OS
 		echo -e "\nChecking for, and applying any available operating system updates..."
 		# ensure all proper sec/update repos are defined for bullseye
