@@ -77,6 +77,12 @@ if ! [ $( grep UUID /etc/pistar-release | awk '{print $3}' > /dev/null ) ] ; the
     sed -i "/UUID/c\\UUID = ${GU}" /etc/pistar-release
 fi
 
+# migrate callsign info to last line of /etc/pistar-release
+if ! grep -w 'Callsign' /etc/pistar-release > /dev/null; then
+    CALL=$( grep callsign /var/www/dashboard/config/ircddblocal.php | cut -d\= -f2 | sed "s/[^[:alnum:]]//g" )
+    echo "Callsign = ${CALL}" >> /etc/pistar-release
+fi
+
 # Cache Modem Mode
 if grep -q 'Duplex=1' /etc/mmdvmhost ; then
     ModemMode="Duplex"
