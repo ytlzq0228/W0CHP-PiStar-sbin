@@ -6,7 +6,6 @@
 #      Written for Pi-Star (http://www.pistar.uk/)      #
 #               By Andy Taylor (MW0MWZ)                 #
 #                  Enhanced by W0CHP                    #
-#                     Version 3.0                       #
 #                                                       #
 #   Based on the update script by Tony Corbett G0WFV    #
 #                                                       #
@@ -23,12 +22,13 @@ gitBranch=$(git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git
 dashVer=$( git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git rev-parse --short=10 ${gitBranch} )
 psVer=$( grep Version /etc/pistar-release | awk '{print $3}' )
 # main vars
+CALL=$( grep "Callsign" /etc/pistar-release | awk '{print $3}' )
 hostFileURL="https://hostfiles.w0chp.net"
 uuidStr=$(egrep 'UUID|ModemType|ModemMode|ControllerType' /etc/pistar-release | awk {'print $3'} | tac | xargs| sed 's/ /_/g')
 modelName=$(grep -m 1 'model name' /proc/cpuinfo | sed 's/.*: //')
 hardwareField=$(grep 'Model' /proc/cpuinfo | sed 's/.*: //')
 hwDeetz="${hardwareField} - ${modelName}"
-uaStr="WPSD-HostFileUpdater Ver.# ${psVer} ${dashVer} (${gitBranch}) UUID:${uuidStr} [${hwDeetz}]"
+uaStr="WPSD-HostFileUpdater Ver.# ${psVer} ${dashVer} (${gitBranch}) Call:${CALL} UUID:${uuidStr} [${hwDeetz}]"
 
 # connectivity check
 status_code=$(curl -I -m 3 -A " ConnCheck ${uaStr}" --write-out %{http_code} --silent --output /dev/null ${hostFileURL})
@@ -200,7 +200,7 @@ if [ -f "/root/YSFHosts.txt" ]; then
 	cat /root/YSFHosts.txt >> ${YSFHOSTS}
 fi
 
-# Fix DMRGateway issues with brackets
+# Fix DMRGateway issues with parens
 if [ -f "/etc/dmrgateway" ]; then
 	sed -i '/Name=.*(/d' /etc/dmrgateway
 	sed -i '/Name=.*)/d' /etc/dmrgateway
@@ -229,7 +229,7 @@ if [ -f "/root/NXDNHosts.txt" ]; then
 	cat /root/NXDNHosts.txt > /usr/local/etc/NXDNHostsLocal.txt
 fi
 
-# If there is an XLX override
+# XLX override handling
 if [ -f "/root/XLXHosts.txt" ]; then
         while IFS= read -r line; do
                 if [[ $line != \#* ]] && [[ $line = *";"* ]]
