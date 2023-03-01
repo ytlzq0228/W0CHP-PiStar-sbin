@@ -78,9 +78,11 @@ if ! [ $( grep UUID /etc/pistar-release | awk '{print $3}' > /dev/null ) ] ; the
 fi
 
 # migrate callsign info to last line of /etc/pistar-release
+CALL=$( grep callsign /var/www/dashboard/config/ircddblocal.php | cut -d\= -f2 | sed "s/[^[:alnum:]]//g" )
 if ! grep -w 'Callsign' /etc/pistar-release > /dev/null; then
-    CALL=$( grep callsign /var/www/dashboard/config/ircddblocal.php | cut -d\= -f2 | sed "s/[^[:alnum:]]//g" )
     echo "Callsign = ${CALL}" >> /etc/pistar-release
+else
+    sed -i "/Callsign/c Callsign = ${CALL}" /etc/pistar-release
 fi
 
 # Cache Modem Mode
