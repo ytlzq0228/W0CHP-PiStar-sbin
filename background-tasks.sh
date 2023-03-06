@@ -20,7 +20,7 @@ if [ ! -f '/tmp/.wpsd-bg-tasks' ] ; then # marker file doesn't exist. Create it 
 fi
 
 # check age of task marker file. if it's < 8 hours young, bail.
-if [ "$(( $(date +"%s") - $(stat -c "%Y" "/tmp/.wpsd-bg-tasks") ))" -lt "28800" ]; then
+if [ "$(( $(date +"%s") - $(stat -c "%Y" "/tmp/.wpsd-bg-tasks") ))" -lt "7200" ]; then
     exit 0
 fi
 
