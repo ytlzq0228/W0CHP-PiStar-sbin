@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 # disable samba - perf. and sec.
 if ! systemctl status smbd.service | grep masked > /dev/null 2<&1 ; then
     systemctl stop smbd > /dev/null 2<&1
@@ -48,10 +47,30 @@ EOF
 fi
 
 # enable unatt. upgrades now that the file-system is full-time R/W:
-if  systemctl status unattended-upgrades.service | grep masked > /dev/null 2<&1 ; then
+if  systemctl status unattended-upgrades.service | grep masked > /dev/null 2<&1 ; then # previously disabled/masked....reset...
     systemctl unmask unattended-upgrades.service > /dev/null 2<&1
     dpkg-reconfigure -pmedium unattended-upgrades > /dev/null 2<&1
+    # if bullseye, we need to migrate config;
+    lsb_release -cs | grep 'bullseye' &> /dev/null
+    if [ $? == 0 ]; then
+	if grep 'o=Raspbian,n=buster' /etc/apt/apt.conf.d/50unattended-upgrades > /dev/null 2<&1 ; then # use the new conf if old one is still found
+	    if [ -f /etc/apt/apt.conf.d/50unattended-upgrades.ucf-dist ] ; then
+		cp /etc/apt/apt.conf.d/50unattended-upgrades.ucf-dist /etc/apt/apt.conf.d/50unattended-upgrades
+	    fi
+	fi
+    fi
     systemctl enable unattended-upgrades.service > /dev/null 2<&1
     systemctl restart unattended-upgrades.service > /dev/null 2<&1
 fi
+# enabled, but check if bulleye to migrate config:
+lsb_release -cs | grep 'bullseye' &> /dev/null
+if [ $? == 0 ]; then
+    if grep 'o=Raspbian,n=buster' /etc/apt/apt.conf.d/50unattended-upgrades > /dev/null 2<&1 ; then # use the new conf if old one is still found
+	if [ -f /etc/apt/apt.conf.d/50unattended-upgrades.ucf-dist ] ; then
+	    cp /etc/apt/apt.conf.d/50unattended-upgrades.ucf-dist /etc/apt/apt.conf.d/50unattended-upgrades
+	    systemctl restart unattended-upgrades.service > /dev/null 2<&1
+	fi
+    fi
+fi
+
 
