@@ -233,8 +233,6 @@ main_function() {
 
 	conn_check
 	echo "Stopping Services..."
-	# maint. tasks
-	/usr/local/sbin/wpsd-backend-maint > /dev/null 2>&1
 	pistar-services fullstop > /dev/null 2>&1
 	echo -e "${TICK} Done!\n"
 
@@ -279,6 +277,7 @@ main_function() {
 
 	echo "Performing maintenance tasks..."
 
+	/usr/local/sbin/wpsd-backend-maint > /dev/null 2>&1
         # Check for gpsd
 	systemctl disable mobilegps.timer > /dev/null 2<&1
 	systemctl disable mobilegps.service > /dev/null 2<&1
