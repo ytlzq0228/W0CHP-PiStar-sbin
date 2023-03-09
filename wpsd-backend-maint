@@ -72,5 +72,8 @@ if [ $? == 0 ]; then
 	fi
     fi
 fi
-
+# now remove annyong warning from unattended-upgrade outputs;
+if grep 'Unattended-Upgrade::OnlyOnACPower "true";' //etc/apt/apt.conf.d/50unattended-upgrades > /dev/null 2<&1 ; then 
+    sed -i 's/\/\/ Unattended-Upgrade::OnlyOnACPower "true";/Unattended-Upgrade::OnlyOnACPower "false";/g' /etc/apt/apt.conf.d/50unattended-upgrades
+fi
 
