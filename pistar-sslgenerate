@@ -28,9 +28,10 @@ fi
 
 # If the self-signed cert doesnt exist - create it.
 if [ ! -f /etc/ssl/certs/pi-star.crt ]; then
+	getFQDN=$( hostname -A | cut -d " " -f1 )
 	# Create the new Private / Public keys
 	sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/pi-star.key -out /etc/ssl/certs/pi-star.crt \
-	  -subj "/C=GB/ST=London/L=London/O=Team Pi-Star/OU=IT Department/CN=pi-star/subjectAltName=DNS:pi-star,DNS:pi-star.local,DNS:pi-star*,DNS:pi-star*.local"
+	  -subj "/C=US/ST=Minnesota/L=Winona/O=W0CHP-PiStar-Dash/OU=Dev Team/CN=pi-star/subjectAltName=DNS:pi-star,DNS:pi-star.local,DNS:pi-star*,DNS:pi-star*.local,DNS:${getFQDN}"
 
 	# Configure NginX
 cat << 'EOF' > /etc/nginx/sites-available/pi-star

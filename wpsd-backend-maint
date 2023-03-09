@@ -47,10 +47,11 @@ EOF
     systemctl daemon-reload > /dev/null 2<&1
 fi
 
-# disable unattended-upgrades; perf.
-if ! systemctl status unattended-upgrades.service | grep masked > /dev/null 2<&1 ; then
-    systemctl stop unattended-upgrades > /dev/null 2<&1
-    LC_ALL=C systemctl disable unattended-upgrades > /dev/null 2<&1
-    systemctl mask unattended-upgrades > /dev/null 2<&1
+# enable unatt. upgrades now that the file-system is full-time R/W:
+if  systemctl status unattended-upgrades.service | grep masked > /dev/null 2<&1 ; then
+    systemctl unmask unattended-upgrades.service > /dev/null 2<&1
+    dpkg-reconfigure -pmedium unattended-upgrades > /dev/null 2<&1
+    systemctl enable unattended-upgrades.service > /dev/null 2<&1
+    systemctl restart unattended-upgrades.service > /dev/null 2<&1
 fi
 
