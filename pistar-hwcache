@@ -1,7 +1,6 @@
 #!/bin/bash
 
-
-# cleanup
+# cleanup legacy entries
 if [ $(grep -c 'MMDVMHost' /etc/pistar-release) -gt 2 ]; then
     sed -i '/MMDVM/d' /etc/pistar-release
     sed -i "/Version = /a MMDVMHost = " /etc/pistar-release
@@ -11,9 +10,7 @@ fi
 getVer=$( MMDVMHost -v | cut -d' ' -f 3- )
 sed -i "/^ircddbgateway.*/c ircddbgateway = ${getVer}" /etc/pistar-release
 sed -i "/^dstarrepeater.*/c dstarrepeater = ${getVer}" /etc/pistar-release
-
-logDateUTC=$(date -u +"%Y-%m-%d")
-mmdvmHostLog="/var/log/pi-star/MMDVM-${logDateUTC}.log"
+sed -i "/MMDVMHost/c MMDVMHost = ${getVer}" /etc/pistar-release
 
 countProcs=$(grep -c ^processor /proc/cpuinfo)
 if ! grep -w 'ProcNum' /etc/pistar-release > /dev/null; then
@@ -29,11 +26,8 @@ else
     sed -i "/iface/c iface = ${activeIface}" /etc/pistar-release
 fi
 
-_MMDVMHostVer=`MMDVMHost -v | cut -d' ' -f 3-`
-sed -i "/MMDVMHost/c MMDVMHost = $_MMDVMHostVer" /etc/pistar-release
-
-_KernelVer=`uname -r`
-sed -i "/kernel/c kernel = $_KernelVer" /etc/pistar-release
+KernelVer=`uname -r`
+sed -i "/kernel/c kernel = ${KernelVer}" /etc/pistar-release
 
 # cleanup legacy modem info
 if grep -w 'Firmware' /etc/pistar-release > /dev/null; then
@@ -70,11 +64,11 @@ fi
 uuidLen=$( grep UUID /etc/pistar-release | awk '{print $3}' | wc -m > /dev/null )
 if [[ "${uuidLen}"  -gt "17" ]] ; then
     GU=$( cat /proc/cpuinfo | grep Serial | cut -d ' ' -f 2 )
-    sed -i "/UUID/c\\UUID = ${GU}" /etc/pistar-release
+    sed -i "/UUID =/c\\UUID = ${GU}" /etc/pistar-release
 fi
 if ! [ $( grep UUID /etc/pistar-release | awk '{print $3}' > /dev/null ) ] ; then
     GU=$( cat /proc/cpuinfo | grep Serial | cut -d ' ' -f 2 )
-    sed -i "/UUID/c\\UUID = ${GU}" /etc/pistar-release
+    sed -i "/UUID =/c\\UUID = ${GU}" /etc/pistar-release
 fi
 
 # migrate callsign info to last line of /etc/pistar-release
@@ -82,7 +76,7 @@ CALL=$( grep callsign /var/www/dashboard/config/ircddblocal.php | cut -d\= -f2 |
 if ! grep -w 'Callsign' /etc/pistar-release > /dev/null; then
     echo "Callsign = ${CALL}" >> /etc/pistar-release
 else
-    sed -i "/Callsign/c Callsign = ${CALL}" /etc/pistar-release
+    sed -i "/Callsign =/c Callsign = ${CALL}" /etc/pistar-release
 fi
 
 # Cache Modem Mode
@@ -94,7 +88,7 @@ fi
 if ! grep -w 'ModemMode' /etc/pistar-release > /dev/null; then
     sed -i "/iface = /a ModemMode = ${ModemMode}" /etc/pistar-release
 else
-    sed -i "/ModemMode/c ModemMode = ${ModemMode}" /etc/pistar-release
+    sed -i "/ModemMode =/c ModemMode = ${ModemMode}" /etc/pistar-release
 fi
 
 # Cache modem and controller types
@@ -104,12 +98,12 @@ if [ -f '/etc/dstar-radio.mmdvmhost' ]; then
     if ! grep -w 'ModemType' /etc/pistar-release > /dev/null; then
 	sed -i "/ModemMode = /a ModemType = ${ModemType}" /etc/pistar-release
     else
-	sed -i "/ModemType/c ModemType = ${ModemType}" /etc/pistar-release
+	sed -i "/ModemType =/c ModemType = ${ModemType}" /etc/pistar-release
     fi
     if ! grep -w 'ControllerType' /etc/pistar-release > /dev/null; then
         sed -i "/ModemType /a ControllerType = ${ControllerType}" /etc/pistar-release
     else
-        sed -i "/ControllerType/c ControllerType = ${ControllerType}" /etc/pistar-release
+        sed -i "/ControllerType =/c ControllerType = ${ControllerType}" /etc/pistar-release
     fi
 fi
 if [ -f '/etc/dstar-radio.dstarrepeater' ]; then
@@ -118,12 +112,12 @@ if [ -f '/etc/dstar-radio.dstarrepeater' ]; then
     if ! grep -w 'ModemType' /etc/pistar-release > /dev/null; then
 	sed -i "/ModemMode = /a ModemType = ${ModemType}" /etc/pistar-release
     else
-	sed -i "/ModemType/c ModemType = ${ModemType}" /etc/pistar-release
+	sed -i "/ModemType =/c ModemType = ${ModemType}" /etc/pistar-release
     fi
     if ! grep -w 'ControllerType' /etc/pistar-release > /dev/null; then
         sed -i "/ModemType /a ControllerType = ${ControllerType}" /etc/pistar-release
     else
-        sed -i "/ControllerType/c ControllerType = ${ControllerType}" /etc/pistar-release
+        sed -i "/ControllerType =/c ControllerType = ${ControllerType}" /etc/pistar-release
     fi
 fi
 
