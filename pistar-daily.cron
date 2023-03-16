@@ -50,7 +50,7 @@ hwDeetz="${hardwareField} - ${modelName}"
 cronMins=$(shuf -i 0-59 -n 1)
 cronHours=$(shuf -i 1-4 -n1)
 tz=$( date +%Z )
-uaStr="WPSD-Daily-Cron [${cronHours}:${cronMins} ${tz}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) Call:${CALL} UUID:${uuidStr} [${hwDeetz}] [${osName}]"
+uaStr="WPSD-Daily-Cron [${cronHours}:${cronMins} ${tz}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) Call:${CALL} UUID:${uuidStr} [${hwDeetz}] [${osName}] [${osName}]"
 uaStrSF="WPSD-SuppFiles (Daily-Cron [${cronHours}:${cronMins} ${tz}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) Call:${CALL} UUID:${uuidStr} [${hwDeetz}] [${osName}]"
  
 # connectivity check
