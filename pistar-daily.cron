@@ -40,6 +40,7 @@ SUPPORTING_FILES_REPO="https://repo.w0chp.net/WPSD-Dev/W0CHP-PiStar-Installer/ra
 W0CHP_DASH_BRANCH="$( git --git-dir=/var/www/dashboard/.git branch | grep '*' | awk {'print $2'} )"
 CONN_CHECK_URI="https://repo.w0chp.net/WPSD-Dev/W0CHP-PiStar-Dash.git"
 CALL=$( grep "Callsign" /etc/pistar-release | awk '{print $3}' )
+osName=$( lsb_release -cs )
 psVer=$( grep Version /etc/pistar-release | awk '{print $3}' )
 versionCmd=$( git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git rev-parse --short=10 HEAD )
 uuidStr=$(egrep 'UUID|ModemType|ModemMode|ControllerType' /etc/pistar-release | awk {'print $3'} | tac | xargs| sed 's/ /_/g')
@@ -49,8 +50,8 @@ hwDeetz="${hardwareField} - ${modelName}"
 cronMins=$(shuf -i 0-59 -n 1)
 cronHours=$(shuf -i 1-4 -n1)
 tz=$( date +%Z )
-uaStr="WPSD-Daily-Cron [${cronHours}:${cronMins} ${tz}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) Call:${CALL} UUID:${uuidStr} [${hwDeetz}]"
-uaStrSF="WPSD-SuppFiles (Daily-Cron [${cronHours}:${cronMins} ${tz}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) Call:${CALL} UUID:${uuidStr} [${hwDeetz}]"
+uaStr="WPSD-Daily-Cron [${cronHours}:${cronMins} ${tz}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) Call:${CALL} UUID:${uuidStr} [${hwDeetz}] [${osName}]"
+uaStrSF="WPSD-SuppFiles (Daily-Cron [${cronHours}:${cronMins} ${tz}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) Call:${CALL} UUID:${uuidStr} [${hwDeetz}] [${osName}]"
  
 # connectivity check
 status_code=$(curl -I -m 3 -A "ConnCheck ${uaStr}" --write-out %{http_code} --silent --output /dev/null "$CONN_CHECK_URI")
@@ -79,7 +80,7 @@ if [[ $status_code == 20* ]] || [[ $status_code == 30* ]] ; then
     fi
 
     # Update sbin
-    env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron [${cronHours}:${cronMins} ${tz}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) Call:${CALL} UUID:${uuidStr} [${hwDeetz}]" git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git pull origin master
+    env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron [${cronHours}:${cronMins} ${tz}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) Call:${CALL} UUID:${uuidStr} [${hwDeetz}] [${osName}]" git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git pull origin master
 
     # Update the Dashboard
     # W0CHP has more than one branch. So depending on what W0CHP branch the user has installed, check that branch.
@@ -87,7 +88,7 @@ if [[ $status_code == 20* ]] || [[ $status_code == 30* ]] ; then
     gitBranch="$( git --git-dir=${gitFolder}/.git branch | grep '*' | awk {'print $2'} )"
     cd ${gitFolder}
     git stash # save user config files: config/config.php config/ircddblocal.php config/language.php
-    env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron [${cronHours}:${cronMins} ${tz}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) Call:${CALL} UUID:${uuidStr} [${hwDeetz}]" git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git pull origin ${gitBranch}
+    env GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron [${cronHours}:${cronMins} ${tz}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) Call:${CALL} UUID:${uuidStr} [${hwDeetz}] [${osName}]" git --work-tree=/var/www/dashboard --git-dir=/var/www/dashboard/.git pull origin ${gitBranch}
     git reset --hard
     git checkout stash@{0} -- config/config.php config/ircddblocal.php config/language.php # restore user config files from stash
     git stash clear # housekeeping
@@ -105,7 +106,7 @@ if [[ $status_code == 20* ]] || [[ $status_code == 30* ]] ; then
     echo ${gitStatusRemote} > /etc/.W0CHP-PiStar-Dash.remote_version
 
     # Update the Binaries
-    GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron [${cronHours}:${cronMins} ${tz}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) Call:${CALL} UUID:${uuidStr} [${hwDeetz}]" git --work-tree=/usr/local/bin --git-dir=/usr/local/bin/.git pull origin master
+    GIT_HTTP_CONNECT_TIMEOUT="10" env GIT_HTTP_USER_AGENT="WPSD-UpdateCheck (Daily-Cron [${cronHours}:${cronMins} ${tz}]) Ver.# ${psVer} ${versionCmd} (${W0CHP_DASH_BRANCH}) Call:${CALL} UUID:${uuidStr} [${hwDeetz}] [${osName}]" git --work-tree=/usr/local/bin --git-dir=/usr/local/bin/.git pull origin master
 
     # update installer
     curl -Ls -A "${uaStrSF}" ${W0CHP_INSTALL_SCRIPT_REPO} -o /usr/sbin/WPSD-Installer
@@ -278,8 +279,7 @@ if [ ! -f "/etc/systemd/system/m17gateway.service" ] ; then
 fi
 
 # ensure all proper sec/update repos are defined for bullseye
-lsb_release -cs | grep 'bullseye' &> /dev/null
-if [ $? == 0 ]; then
+if [ "${osName}" = "bullseye" ]; then
     if ! grep -q 'bullseye-security' /etc/apt/sources.list ; then
 	if ! apt-key list | grep -q "Debian Security Archive Automatic Signing Key (11/bullseye)" > /dev/null 2<&1; then
 	    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 54404762BBB6E853 > /dev/null 2<&1
@@ -296,8 +296,7 @@ fi
 
 # ensure bullseye has proper php extensions and use ff-only for newer git strategy
 dpkg --configure -a > /dev/null 2>&1
-lsb_release -cs | grep 'bullseye' &> /dev/null
-if [ $? == 0 ]; then
+if [ "${osName}" = "bullseye" ]; then
     git config --global pull.ff only
     if [ ! -f "/usr/share/php7.4-zip/zip/zip.ini" ] ; then
 	apt-get update > /dev/null
