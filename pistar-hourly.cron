@@ -26,7 +26,7 @@ fi
 W0CHP_DASH_BRANCH="$( git --git-dir=/var/www/dashboard/.git branch | grep '*' | awk {'print $2'} )"
 CONN_CHECK_URI="https://repo.w0chp.net/WPSD-Dev/W0CHP-PiStar-Dash.git"
 CALL=$( grep "Callsign" /etc/pistar-release | awk '{print $3}' )
-sName=$( lsb_release -cs )
+osName=$( lsb_release -cs )
 versionCmd=$( git --work-tree=/usr/local/sbin --git-dir=/usr/local/sbin/.git rev-parse --short=10 HEAD )
 psVer=$( grep Version /etc/pistar-release | awk '{print $3}' ) 
 uuidStr=$(egrep 'UUID|ModemType|ModemMode|ControllerType' /etc/pistar-release | awk {'print $3'} | tac | xargs| sed 's/ /_/g')
