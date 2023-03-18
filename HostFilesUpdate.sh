@@ -64,7 +64,8 @@ TGLISTP25=/usr/local/etc/TGList_P25.txt
 TGLISTNXDN=/usr/local/etc/TGList_NXDN.txt
 TGLISTYSF=/usr/local/etc/TGList_YSF.txt
 BMTGNAMES=/usr/local/etc/BM_TGs.json
-RADIOIDDB=/tmp/user.csv
+RADIOIDDB_TMP=/tmp/user.csv
+RADIOIDDB=/usr/local/etc/user.csv
 GROUPSTXT=/usr/local/etc/groups.txt
 STRIPPED=/usr/local/etc/stripped.csv
 COUNTRIES=/usr/local/etc/country.csv
@@ -245,13 +246,15 @@ if [ -f "/root/XLXHosts.txt" ]; then
 fi
 
 # Nextion and LiveCaller DMR ID DB's
-curl --fail -L -o ${RADIOIDDB}.bz2 -s ${hostFileURL}/user.csv.bz2 --user-agent "${uaStr}"
-bunzip2 -f ${RADIOIDDB}.bz2
+curl --fail -L -o ${RADIOIDDB_TMP}.bz2 -s ${hostFileURL}/user.csv.bz2 --user-agent "${uaStr}"
+bunzip2 -f ${RADIOIDDB_TMP}.bz2
 # sort
-cat /tmp/user.csv /tmp/stripped.csv 2>/dev/null | sort -un -k1n -o ${STRIPPED}
+cat /tmp/user.csv | sort -un -k1n -o ${RADIOIDDB}
 # remove header
-sed -ie '1d' ${STRIPPED}
-mv ${RADIOIDDB} /usr/local/etc
+sed -ie '1d' ${RADIOIDDB}
+# make link for legacy nextion configs
+rm -rf ${STRIPPED}
+ln -s ${RADIOIDDB} ${STRIPPED}
 
 exit 0
 
